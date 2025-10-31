@@ -1,0 +1,4 @@
+--patch-module
+com.mycompany.stockflow=_
+--add-reads
+com.mycompany.stockflow=ALL-UNNAMED

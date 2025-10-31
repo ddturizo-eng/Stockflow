@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.stockflow.DashboardController">
+   <children>
+      <!-- Panel Lateral Izquierdo (Menú) -->
+      <VBox layoutX="0.0" layoutY="0.0" prefHeight="700.0" prefWidth="260.0" style="-fx-background-color: linear-gradient(to bottom, #1e3c72 0%, #2a5298 100%);" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <!-- Logo y Título -->
+            <HBox alignment="CENTER" prefHeight="117.0" prefWidth="260.0" style="-fx-background-color: rgba(0, 0, 0, 0.15);">
+               <children>
+                  <VBox alignment="CENTER" spacing="8.0">
+                     <children>
+                        <Label prefHeight="39.0" prefWidth="174.0" text="STOCKFLOW" textFill="WHITE">
+                           <font>
+                              <Font name="System Bold" size="24.0" />
+                           </font>
+                        </Label>
+                        <ImageView fitHeight="42.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@IMG/tienda.png" />
+                           </image>
+                        </ImageView>
+                        <Label text="Gestión de Inventario" textFill="#E3F2FD">
+                           <font>
+                              <Font size="12.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </VBox>
+               </children>
+               <padding>
+                  <Insets bottom="10.0" top="10.0" />
+               </padding>
+            </HBox>
+            
+            <!-- Línea separadora -->
+            <Region prefHeight="2.0" style="-fx-background-color: rgba(255, 255, 255, 0.2);">
+               <VBox.margin>
+                  <Insets bottom="20.0" top="5.0" />
+               </VBox.margin>
+            </Region>
+            
+            <!-- Menú de Navegación -->
+            <VBox prefHeight="450.0" prefWidth="260.0" spacing="5.0" VBox.vgrow="ALWAYS">
+               <padding>
+                  <Insets bottom="10.0" left="15.0" right="15.0" top="5.0" />
+               </padding>
+               <children>
+                  <!-- Botón Ventas -->
+                  <Button fx:id="btnVentas" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" onAction="#mostrarVentas" prefHeight="48.0" prefWidth="230.0" style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-cursor: hand; -fx-border-color: transparent; -fx-border-radius: 10;" text="Registro de Ventas" textFill="#E3F2FD">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                     <graphic>
+                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@IMG/ventas.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                     <padding>
+                        <Insets left="20.0" />
+                     </padding>
+                  </Button>
+                  
+                  <!-- Botón Productos -->
+                  <Button fx:id="btnProductos" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" onAction="#mostrarProductos" prefHeight="48.0" prefWidth="230.0" style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-cursor: hand; -fx-border-color: transparent; -fx-border-radius: 10;" text="Gestión de Productos" textFill="#E3F2FD">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                     <graphic>
+                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@IMG/agregar-producto.png" />
+                           </image></ImageView>
+                     </graphic>
+                     <padding>
+                        <Insets left="20.0" />
+                     </padding>
+                  </Button>
+                  
+                  <!-- Botón Clientes -->
+                  <Button fx:id="btnClientes" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" onAction="#mostrarClientes" prefHeight="48.0" prefWidth="230.0" style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-cursor: hand; -fx-border-color: transparent; -fx-border-radius: 10;" text="Gestión de Clientes" textFill="#E3F2FD">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                     <graphic>
+                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@IMG/cliente.png" />
+                           </image></ImageView>
+                     </graphic>
+                     <padding>
+                        <Insets left="20.0" />
+                     </padding>
+                  </Button>
+                  
+                  <!-- Botón Inventario -->
+                  <Button fx:id="btnInventario" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" onAction="#mostrarInventario" prefHeight="48.0" prefWidth="230.0" style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-cursor: hand; -fx-border-color: transparent; -fx-border-radius: 10;" text="Control de Inventario" textFill="#E3F2FD">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                     <graphic>
+                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@IMG/inventario.png" />
+                           </image></ImageView>
+                     </graphic>
+                     <padding>
+                        <Insets left="20.0" />
+                     </padding>
+                  </Button>
+                  
+                  <!-- Botón Facturación -->
+                  <Button fx:id="btnFacturacion" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" onAction="#mostrarFacturacion" prefHeight="48.0" prefWidth="230.0" style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-cursor: hand; -fx-border-color: transparent; -fx-border-radius: 10;" text="Facturación" textFill="#E3F2FD">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                     <graphic>
+                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@IMG/factura.png" />
+                           </image></ImageView>
+                     </graphic>
+                     <padding>
+                        <Insets left="20.0" />
+                     </padding>
+                  </Button>
+                  
+                  <!-- Botón Estadísticas -->
+                  <Button fx:id="btnEstadisticas" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" onAction="#mostrarEstadisticas" prefHeight="48.0" prefWidth="230.0" style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-cursor: hand; -fx-border-color: transparent; -fx-border-radius: 10;" text="Inteligencia de Negocio" textFill="#E3F2FD">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                     <graphic>
+                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@IMG/estadisticas.png" />
+                           </image></ImageView>
+                     </graphic>
+                     <padding>
+                        <Insets left="20.0" />
+                     </padding>
+                  </Button>
+                  
+                  <!-- Botón Usuarios -->
+                  <Button fx:id="btnUsuarios" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" onAction="#mostrarUsuarios" prefHeight="48.0" prefWidth="230.0" style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-cursor: hand; -fx-border-color: transparent; -fx-border-radius: 10;" text="Usuarios" textFill="#E3F2FD">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                     <graphic>
+                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@IMG/agregar-usuario.png" />
+                           </image></ImageView>
+                     </graphic>
+                     <padding>
+                        <Insets left="20.0" />
+                     </padding>
+                  </Button>
+               </children>
+            </VBox>
+            
+            <!-- Espaciador para empujar el botón de cerrar sesión hacia abajo -->
+            <Region VBox.vgrow="ALWAYS" />
+            
+            <!-- Línea separadora inferior -->
+            <Region prefHeight="2.0" style="-fx-background-color: rgba(255, 255, 255, 0.2);">
+               <VBox.margin>
+                  <Insets bottom="15.0" />
+               </VBox.margin>
+            </Region>
+            
+            <!-- Botón Cerrar Sesión (al final) -->
+            <Button fx:id="btnCerrarSesion" alignment="CENTER" graphicTextGap="12.0" mnemonicParsing="false" onAction="#cerrarSesion" prefHeight="52.0" prefWidth="230.0" style="-fx-background-color: rgba(255, 255, 255, 0.15); -fx-background-radius: 12; -fx-cursor: hand; -fx-border-color: rgba(255, 255, 255, 0.3); -fx-border-radius: 12; -fx-border-width: 1.5;" text="Cerrar Sesión" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+               <graphic>
+                  <ImageView fitHeight="22.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true" />
+               </graphic>
+               <VBox.margin>
+                  <Insets bottom="20.0" left="15.0" right="15.0" />
+               </VBox.margin>
+            </Button>
+         </children>
+      </VBox>
+      
+      <!-- Área de Contenido Principal -->
+      <AnchorPane layoutX="260.0" layoutY="0.0" prefHeight="700.0" prefWidth="940.0" style="-fx-background-color: #F5F7FA;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="260.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <!-- Barra Superior -->
+            <HBox alignment="CENTER_LEFT" prefHeight="81.0" prefWidth="940.0" spacing="20.0" style="-fx-background-color: #FFFFFF; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <padding>
+                  <Insets left="35.0" right="35.0" />
+               </padding>
+               <children>
+                  <Label fx:id="lblTituloSeccion" prefHeight="30.0" prefWidth="254.0" text="Dashboard Principal" textFill="#1e3c72">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <VBox alignment="CENTER_RIGHT" spacing="3.0" />
+                  <Label fx:id="lblUsuario" prefHeight="16.0" prefWidth="99.0" text="Usuario: Admin" textFill="#2a5298">
+                     <font>
+                        <Font name="System Bold" size="11.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="lblFecha" prefHeight="18.0" prefWidth="109.0" text="10 de Octubre, 2025" textFill="#6B7C93">
+                     <font>
+                        <Font size="10.0" />
+                     </font>
+                  </Label>
+               </children>
+            </HBox>
+            
+            <!-- Contenedor Dinámico con ScrollPane -->
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" pannable="true" prefHeight="620.0" prefWidth="940.0" style="-fx-background-color: transparent; -fx-background: transparent;" vbarPolicy="AS_NEEDED" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="81.0">
+               <content>
+                  <AnchorPane fx:id="contenedorPrincipal" style="-fx-background-color: #F5F7FA;">
+                     <children>
+                        <!-- Vista por Defecto del Dashboard -->
+                        <VBox alignment="CENTER" prefHeight="720.0" prefWidth="920.0" spacing="35.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <children>
+                              <VBox alignment="CENTER" spacing="12.0">
+                                 <children>
+                                    <Label text="Bienvenido a StockFlow" textFill="#1e3c72">
+                                       <font>
+                                          <Font name="System Bold" size="34.0" />
+                                       </font>
+                                    </Label>
+                                    <Label text="Sistema de Gestión de Inventario" textFill="#6B7C93">
+                                       <font>
+                                          <Font size="17.0" />
+                                       </font>
+                                    </Label>
+                                 </children>
+                              </VBox>
+                              
+                              <!-- Tarjetas de Métricas -->
+                              <HBox alignment="CENTER" spacing="25.0" />
+                              
+                              <Label text="Seleccione una opción del menú lateral para comenzar" textFill="#6B7C93">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                           <padding>
+                              <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+                           </padding>
+                        </VBox>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </ScrollPane>
+         </children>
+      </AnchorPane>
+   </children>
+</AnchorPane>

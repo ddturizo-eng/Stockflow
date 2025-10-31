@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="rootPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" 
+            minHeight="480.0" minWidth="640.0" prefHeight="600.0" prefWidth="800.0" 
+            style="-fx-background-color: linear-gradient(to bottom, #141414, #1e1e1e, #2a2a2a);" 
+            xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="com.mycompany.stockflow.BienvenidaController">
+   <children>
+      <VBox alignment="CENTER" layoutX="150.0" layoutY="100.0" spacing="50.0" 
+            AnchorPane.bottomAnchor="80.0" AnchorPane.leftAnchor="50.0" 
+            AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="80.0">
+         <children>
+            <!-- Contenedor del Logo -->
+            <HBox fx:id="contenedorLetras" alignment="CENTER" spacing="3.0">
+               <children>
+                  <Label fx:id="letra_S" text="S" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="72.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="letra_T" text="T" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="72.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="letra_O" text="O" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="72.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="letra_C" text="C" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="72.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="letra_K" text="K" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="72.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="letra_F" text="F" textFill="#E50914">
+                     <font>
+                        <Font name="System Bold" size="72.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="letra_L" text="L" textFill="#E50914">
+                     <font>
+                        <Font name="System Bold" size="72.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="letra_O2" text="O" textFill="#E50914">
+                     <font>
+                        <Font name="System Bold" size="72.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="letra_W" text="W" textFill="#E50914">
+                     <font>
+                        <Font name="System Bold" size="72.0" />
+                     </font>
+                  </Label>
+               </children>
+            </HBox>
+            
+            <!-- Subtítulo -->
+            <Label fx:id="subtitulo" text="Sistema de Gestión de Inventario" textFill="#CCCCCC">
+               <font>
+                  <Font name="System Italic" size="18.0" />
+               </font>
+            </Label>
+            
+            <!-- Contenedor de Botones -->
+            <VBox fx:id="contenedorBotones" alignment="CENTER" spacing="20.0">
+               <children>
+                  <Button fx:id="btnInvitado" mnemonicParsing="false" onAction="#iniciarComoInvitado" 
+                          prefHeight="50.0" prefWidth="300.0" 
+                          style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 25; -fx-font-size: 16px; -fx-font-weight: bold; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0.3, 0, 2);" 
+                          text="Iniciar como Invitado">
+                     <font>
+                        <Font name="System Bold" size="16.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="btnAdministrador" mnemonicParsing="false" onAction="#iniciarComoAdministrador" 
+                          prefHeight="50.0" prefWidth="300.0" 
+                          style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-background-radius: 25; -fx-font-size: 16px; -fx-font-weight: bold; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0.3, 0, 2);" 
+                          text="Iniciar como Administrador">
+                     <font>
+                        <Font name="System Bold" size="16.0" />
+                     </font>
+                  </Button>
+               </children>
+               <VBox.margin>
+                  <Insets top="30.0" />
+               </VBox.margin>
+            </VBox>
+         </children>
+      </VBox>
+      
+      <!-- Footer -->
+      <Label fx:id="footer" text="© 2025 StockFlow - Todos los derechos reservados  |  Presiona F11 para pantalla completa" 
+             textFill="#666666" alignment="CENTER"
+             AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+         <font>
+            <Font size="12.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>

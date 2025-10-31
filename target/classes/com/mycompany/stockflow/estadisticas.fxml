@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="468.0" prefWidth="683.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.stockflow.EstadisticasController">
+   <children>
+      <VBox alignment="CENTER" layoutX="14.0" layoutY="23.0" prefHeight="94.0" prefWidth="325.0">
+         <children>
+            <VBox alignment="CENTER" prefHeight="223.0" prefWidth="326.0">
+               <children>
+                  <Label text="INTILIGENCIA DEL NEGOCIO" textFill="#1e3c72">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font></Label>
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+      <VBox alignment="CENTER" layoutX="401.0" layoutY="52.0" prefHeight="320.0" prefWidth="268.0" />
+   </children>
+</AnchorPane>

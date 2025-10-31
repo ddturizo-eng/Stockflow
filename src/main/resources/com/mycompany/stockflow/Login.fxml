@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
+
+<StackPane fx:id="rootPane" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" 
+           fx:controller="com.mycompany.stockflow.LoginController"
+           style="-fx-background-color: #f0f0f0;">
+    
+    <!-- Imagen de fondo que se adapta -->
+    <ImageView fitHeight="1080.0" fitWidth="1920.0" pickOnBounds="true" preserveRatio="false">
+        <image>
+            <Image url="@IMG/25101.jpg" />
+        </image>
+    </ImageView>
+    
+    <!-- Panel de login centrado -->
+    <Pane prefHeight="450.0" prefWidth="350.0" maxHeight="450.0" maxWidth="350.0"
+          style="-fx-background-color: rgba(255, 255, 255, 0.95); -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 20, 0, 0, 5);">
+        
+        <children>
+            <!-- Título -->
+            <Label layoutX="100.0" layoutY="40.0" text="Iniciar Sesión" textFill="#2196f3">
+                <font>
+                    <Font name="System Bold" size="24.0" />
+                </font>
+            </Label>
+            
+            <!-- Subtítulo -->
+            <Label layoutX="102.0" layoutY="75.0" text="Bienvenido a StockFlow" textFill="#666666">
+                <font>
+                    <Font size="14.0" />
+                </font>
+            </Label>
+            
+            <!-- Label Usuario -->
+            <Label layoutX="30.0" layoutY="130.0" text="Usuario" textFill="#333333">
+                <font>
+                    <Font name="System Bold" size="14.0" />
+                </font>
+            </Label>
+            
+            <!-- Campo Usuario -->
+            <TextField fx:id="txtUsuario" layoutX="30.0" layoutY="155.0" prefHeight="40.0" prefWidth="290.0" 
+                       promptText="Ingrese su usuario" 
+                       style="-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 8;">
+                <font>
+                    <Font size="14.0" />
+                </font>
+            </TextField>
+            
+            <!-- Label Contraseña -->
+            <Label layoutX="30.0" layoutY="215.0" text="Contraseña" textFill="#333333">
+                <font>
+                    <Font name="System Bold" size="14.0" />
+                </font>
+            </Label>
+            
+            <!-- Campo Contraseña -->
+            <PasswordField fx:id="txtPassword" layoutX="30.0" layoutY="240.0" prefHeight="40.0" prefWidth="290.0" 
+                          promptText="Ingrese su contraseña" 
+                          style="-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 8;">
+                <font>
+                    <Font size="14.0" />
+                </font>
+            </PasswordField>
+            
+            <!-- Botón Iniciar Sesión -->
+            <Button fx:id="btnLogin" layoutX="30.0" layoutY="310.0" mnemonicParsing="false" 
+                    onAction="#ini_sesion" prefHeight="45.0" prefWidth="290.0" 
+                    style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 14; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;" 
+                    text="INICIAR SESIÓN" textFill="#f7f3f3">
+                <font>
+                    <Font name="System Bold" size="14.0" />
+                </font>
+            </Button>
+            
+            <!-- Link Olvidaste contraseña -->
+            <Label fx:id="lblOlvidePassword" layoutX="95.0" layoutY="375.0" 
+                   style="-fx-cursor: hand; -fx-underline: true;" 
+                   text="¿Olvidaste tu contraseña?" textFill="#2196f3">
+                <font>
+                    <Font size="12.0" />
+                </font>
+            </Label>
+            
+            <!-- Mensaje de error (oculto por defecto) -->
+            <Label fx:id="lblError" layoutX="30.0" layoutY="410.0" prefWidth="290.0" 
+                   textAlignment="CENTER" textFill="RED" visible="false">
+                <font>
+                    <Font size="12.0" />
+                </font>
+            </Label>
+        </children>
+    </Pane>
+</StackPane>

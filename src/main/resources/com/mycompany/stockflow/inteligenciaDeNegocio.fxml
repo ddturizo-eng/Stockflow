@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.StackedBarChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="900.0" prefWidth="1600.0" style="-fx-background-color: #F8FAFC;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.stockflow.InteligenciaNegocioController">
+    
+    <!-- HEADER -->
+    <top>
+        <VBox spacing="10" style="-fx-background-color: #ffffff; -fx-border-color: #E2E8F0; -fx-border-width: 0 0 1 0;">
+            <padding>
+                <Insets bottom="20" left="20" right="20" top="20" />
+            </padding>
+            
+            <HBox alignment="CENTER_LEFT" spacing="15">
+                <Label style="-fx-text-fill: #1E3A8A; -fx-font-size: 24px; -fx-font-weight: bold;" text="Inteligencia de Negocios" />
+                
+                <Region HBox.hgrow="ALWAYS" />
+                
+                <Label style="-fx-text-fill: #64748B; -fx-font-size: 12px;" text="Periodo:" />
+                <ComboBox fx:id="cbPeriodo" prefWidth="150" promptText="Último mes" style="-fx-background-color: white; -fx-border-color: #E2E8F0; -fx-border-radius: 6;" />
+                
+                <Label style="-fx-text-fill: #64748B; -fx-font-size: 12px;" text="Inicio:" />
+                <DatePicker fx:id="dpFechaInicio" prefWidth="140" promptText="DD/MM/AAAA" style="-fx-background-color: white; -fx-border-color: #E2E8F0; -fx-border-radius: 6;" />
+                
+                <Label style="-fx-text-fill: #64748B; -fx-font-size: 12px;" text="Fin:" />
+                <DatePicker fx:id="dpFechaFin" prefWidth="140" promptText="DD/MM/AAAA" style="-fx-background-color: white; -fx-border-color: #E2E8F0; -fx-border-radius: 6;" />
+                
+                <Button onAction="#handleAnalisisCompleto" style="-fx-background-color: #3B82F6; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 10 20; -fx-font-weight: bold; -fx-font-size: 13px;" text="Generar" />
+                <Button onAction="#handleLimpiar" style="-fx-background-color: transparent; -fx-text-fill: #64748B; -fx-border-color: #E2E8F0; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 10 20; -fx-font-size: 13px;" text="Limpiar" />
+                <Button onAction="#handleExportar" style="-fx-background-color: #10B981; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 10 20; -fx-font-weight: bold; -fx-font-size: 13px;" text="Exportar" />
+            </HBox>
+        </VBox>
+    </top>
+    
+    <!-- CONTENIDO PRINCIPAL -->
+    <center>
+        <BorderPane>
+            
+            <!-- BARRA LATERAL IZQUIERDA -->
+            <left>
+                <VBox spacing="16" style="-fx-background-color: #ffffff; -fx-border-color: #E2E8F0; -fx-border-width: 0 1 0 0; -fx-pref-width: 260; -fx-min-width: 240; -fx-max-width: 280;">
+                    <padding>
+                        <Insets bottom="20" left="16" right="16" top="20" />
+                    </padding>
+                    
+                    <!-- TIPO DE ANÁLISIS -->
+                    <VBox spacing="10">
+                        <Label style="-fx-text-fill: #1E3A8A; -fx-font-size: 14px; -fx-font-weight: bold;" text="Tipo de Análisis" />
+                        
+                        <RadioButton style="-fx-text-fill: #334155; -fx-font-size: 13px;" text="Ventas">
+                            <toggleGroup>
+                                <ToggleGroup fx:id="tipoAnalisisGroup" />
+                            </toggleGroup>
+                        </RadioButton>
+                        <RadioButton style="-fx-text-fill: #334155; -fx-font-size: 13px;" text="Inventario" toggleGroup="$tipoAnalisisGroup" />
+                        <RadioButton selected="true" style="-fx-text-fill: #334155; -fx-font-size: 13px;" text="Análisis Completo" toggleGroup="$tipoAnalisisGroup" />
+                    </VBox>
+                    
+                    <Separator style="-fx-background-color: #E2E8F0;" />
+                    
+                    <!-- ACCIONES RÁPIDAS -->
+                    <VBox spacing="10">
+                        <Label style="-fx-text-fill: #1E3A8A; -fx-font-size: 14px; -fx-font-weight: bold;" text="Acciones" />
+                        
+                        <Button fx:id="btnSoloGraficas" maxWidth="Infinity" onAction="#handleSoloGraficas" style="-fx-background-color: white; -fx-text-fill: #3B82F6; -fx-border-color: #3B82F6; -fx-border-width: 1.5; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 10; -fx-font-size: 12px;" text="📊 Solo Gráficas" />
+                        
+                        <Button fx:id="btnAnalisisRapido" maxWidth="Infinity" onAction="#handleAnalisisCompleto" style="-fx-background-color: #3B82F6; -fx-text-fill: white; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 12; -fx-font-weight: bold; -fx-font-size: 13px;" text="⚡ Análisis Rápido" />
+                    </VBox>
+                    
+                    <Region VBox.vgrow="ALWAYS" />
+                    
+                    <!-- INDICADOR DE PROGRESO -->
+                    <VBox fx:id="progressContainer" alignment="CENTER" managed="false" spacing="8" style="-fx-padding: 12; -fx-background-color: #EFF6FF; -fx-background-radius: 6; -fx-border-color: #BFDBFE; -fx-border-width: 1; -fx-border-radius: 6;" visible="false">
+                        <ProgressIndicator fx:id="progressIndicator" maxHeight="25" maxWidth="25" />
+                        <Label style="-fx-text-fill: #1E40AF; -fx-font-size: 11px; -fx-font-weight: 600;" text="Procesando..." />
+                    </VBox>
+                    
+                    <!-- ESTADO -->
+                    <HBox alignment="CENTER" spacing="6" style="-fx-padding: 10; -fx-background-color: #F0FDF4; -fx-background-radius: 6; -fx-border-color: #86EFAC; -fx-border-width: 1; -fx-border-radius: 6;">
+                        <Label fx:id="lblEstadoConexion" style="-fx-font-size: 11px; -fx-text-fill: #10B981; -fx-font-weight: bold;" text="● Sistema Listo" />
+                    </HBox>
+                </VBox>
+            </left>
+            
+            <!-- ÁREA DE CONTENIDO PRINCIPAL -->
+            <center>
+                <VBox style="-fx-background-color: #F8FAFC;">
+                    <padding>
+                        <Insets bottom="20" left="20" right="20" top="20" />
+                    </padding>
+                    
+                    <!-- TABS PRINCIPALES -->
+                    <TabPane fx:id="tabPane" style="-fx-background-color: transparent; -fx-tab-min-height: 40; -fx-tab-max-height: 40;" VBox.vgrow="ALWAYS">
+                        
+                        <!-- TAB: DASHBOARD / GRÁFICAS -->
+                        <Tab closable="false" text="📊 Dashboard">
+                            <VBox spacing="16" style="-fx-background-color: #F8FAFC;">
+                                <padding>
+                                    <Insets bottom="16" left="16" right="16" top="16" />
+                                </padding>
+                                
+                                <!-- GRID DE GRÁFICAS 2x2 -->
+                                <GridPane fx:id="gridGraficas" hgap="16" vgap="16" VBox.vgrow="ALWAYS">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="50" />
+                                        <ColumnConstraints hgrow="ALWAYS" percentWidth="50" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints percentHeight="50" vgrow="ALWAYS" />
+                                        <RowConstraints percentHeight="50" vgrow="ALWAYS" />
+                                    </rowConstraints>
+                                    
+                                    <!-- GRÁFICA 1: Top Left - Resumen de Ventas -->
+                                    <VBox style="-fx-background-color: white; -fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2);" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                        <padding>
+                                            <Insets bottom="16" left="16" right="16" top="16" />
+                                        </padding>
+                                        <HBox alignment="CENTER_LEFT" spacing="10">
+                                            <Label style="-fx-text-fill: #1E3A8A; -fx-font-size: 15px; -fx-font-weight: bold;" text="Resumen de Ventas" />
+                                            <Region HBox.hgrow="ALWAYS" />
+                                            <Label style="-fx-text-fill: #64748B; -fx-font-size: 11px;" text="Últimos 30 días" />
+                                        </HBox>
+                                        <StackPane VBox.vgrow="ALWAYS">
+                                            <LineChart fx:id="chartTendenciaVentas1" legendVisible="false">
+                                                <xAxis>
+                                                    <CategoryAxis side="BOTTOM" />
+                                                </xAxis>
+                                                <yAxis>
+                                                    <NumberAxis side="LEFT" />
+                                                </yAxis>
+                                            </LineChart>
+                                        </StackPane>
+                                    </VBox>
+                                    
+                                    <!-- GRÁFICA 2: Top Right - Productos Más Vendidos -->
+                                    <VBox style="-fx-background-color: white; -fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2);" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                        <padding>
+                                            <Insets bottom="16" left="16" right="16" top="16" />
+                                        </padding>
+                                        <HBox alignment="CENTER_LEFT" spacing="10">
+                                            <Label style="-fx-text-fill: #1E3A8A; -fx-font-size: 15px; -fx-font-weight: bold;" text="Productos Más Vendidos" />
+                                            <Region HBox.hgrow="ALWAYS" />
+                                            <Label style="-fx-text-fill: #64748B; -fx-font-size: 11px;" text="Top 10" />
+                                        </HBox>
+                                        <StackPane VBox.vgrow="ALWAYS">
+                                            <BarChart fx:id="chartTop5Productos1" legendVisible="false">
+                                                <xAxis>
+                                                    <CategoryAxis side="BOTTOM" />
+                                                </xAxis>
+                                                <yAxis>
+                                                    <NumberAxis side="LEFT" />
+                                                </yAxis>
+                                            </BarChart>
+                                        </StackPane>
+                                    </VBox>
+                                    
+                                    <!-- GRÁFICA 3: Bottom Left - Ganancias y Costos -->
+                                    <VBox style="-fx-background-color: white; -fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2);" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                        <padding>
+                                            <Insets bottom="16" left="16" right="16" top="16" />
+                                        </padding>
+                                        <HBox alignment="CENTER_LEFT" spacing="10">
+                                            <Label style="-fx-text-fill: #1E3A8A; -fx-font-size: 15px; -fx-font-weight: bold;" text="Ganancias y Costos" />
+                                            <Region HBox.hgrow="ALWAYS" />
+                                            <Label style="-fx-text-fill: #64748B; -fx-font-size: 11px;" text="Retorno de Inversión" />
+                                        </HBox>
+                                        <StackPane VBox.vgrow="ALWAYS">
+                                            <StackedBarChart fx:id="chartMargenGanancia" legendVisible="true">
+                                                <xAxis>
+                                                    <CategoryAxis side="BOTTOM" />
+                                                </xAxis>
+                                                <yAxis>
+                                                    <NumberAxis side="LEFT" />
+                                                </yAxis>
+                                            </StackedBarChart>
+                                        </StackPane>
+                                    </VBox>
+                                    
+                                    <!-- GRÁFICA 4: Bottom Right - Inventario Crítico -->
+                                    <VBox style="-fx-background-color: white; -fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2);" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                        <padding>
+                                            <Insets bottom="16" left="16" right="16" top="16" />
+                                        </padding>
+                                        <HBox alignment="CENTER_LEFT" spacing="10">
+                                            <Label style="-fx-text-fill: #1E3A8A; -fx-font-size: 15px; -fx-font-weight: bold;" text="Inventario Crítico" />
+                                            <Region HBox.hgrow="ALWAYS" />
+                                            <Label style="-fx-text-fill: #64748B; -fx-font-size: 11px;" text="Entrada/Salida" />
+                                        </HBox>
+                                        <StackPane VBox.vgrow="ALWAYS">
+                                            <BarChart fx:id="chartTop5Productos2" legendVisible="false">
+                                                <xAxis>
+                                                    <CategoryAxis side="BOTTOM" />
+                                                </xAxis>
+                                                <yAxis>
+                                                    <NumberAxis side="LEFT" />
+                                                </yAxis>
+                                            </BarChart>
+                                        </StackPane>
+                                    </VBox>
+                                </GridPane>
+                            </VBox>
+                        </Tab>
+                        
+                        <!-- TAB: MÉTRICAS -->
+                        <Tab closable="false" text="📈 Métricas">
+                            <VBox spacing="12" style="-fx-background-color: #F8FAFC;">
+                                <padding>
+                                    <Insets bottom="20" left="20" right="20" top="20" />
+                                </padding>
+                                
+                                <!-- HEADER DE MÉTRICAS -->
+                                <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16; -fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-border-width: 1;">
+                                    <Label style="-fx-text-fill: #1E3A8A; -fx-font-weight: bold; -fx-font-size: 16px;" text="Métricas del Análisis" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Button style="-fx-background-color: #EFF6FF; -fx-text-fill: #3B82F6; -fx-font-size: 12px; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 8 16;" text="📋 Copiar" />
+                                    <Button style="-fx-background-color: #F0FDF4; -fx-text-fill: #10B981; -fx-font-size: 12px; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 8 16;" text="💾 Guardar" />
+                                </HBox>
+                                
+                                <!-- ÁREA DE TEXTO PARA MÉTRICAS -->
+                                <VBox style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-border-width: 1;" VBox.vgrow="ALWAYS">
+                                    <padding>
+                                        <Insets bottom="16" left="16" right="16" top="16" />
+                                    </padding>
+                                    <TextArea fx:id="txtMetricas" editable="false" style="-fx-font-family: 'Consolas', 'Monaco', 'Courier New', monospace; -fx-font-size: 13px; -fx-background-color: #F8FAFC; -fx-control-inner-background: #F8FAFC; -fx-text-fill: #1E293B; -fx-border-color: transparent;" wrapText="true" VBox.vgrow="ALWAYS" />
+                                </VBox>
+                            </VBox>
+                        </Tab>
+                        
+                        <!-- TAB: ANÁLISIS IA -->
+                        <Tab closable="false" text="🤖 Análisis IA">
+                            <VBox spacing="12" style="-fx-background-color: #F8FAFC;">
+                                <padding>
+                                    <Insets bottom="20" left="20" right="20" top="20" />
+                                </padding>
+                                
+                                <!-- HEADER DE ANÁLISIS IA -->
+                                <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16; -fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-border-width: 1;">
+                                    <Label style="-fx-text-fill: #1E3A8A; -fx-font-weight: bold; -fx-font-size: 16px;" text="Resultados del Análisis con IA" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Label fx:id="lblFechaAnalisis" style="-fx-font-size: 11px; -fx-text-fill: #64748B;" text="" />
+                                    <Button style="-fx-background-color: #EFF6FF; -fx-text-fill: #3B82F6; -fx-font-size: 12px; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 8 16;" text="📋 Copiar" />
+                                    <Button style="-fx-background-color: #CC6C64; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 8 16; -fx-font-size: 12px; -fx-font-weight: bold;" text="📑 PDF" />
+                                </HBox>
+                                
+                                <!-- ÁREA DE TEXTO PARA ANÁLISIS IA -->
+                                <VBox style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-border-width: 1;" VBox.vgrow="ALWAYS">
+                                    <padding>
+                                        <Insets bottom="16" left="16" right="16" top="16" />
+                                    </padding>
+                                    <TextArea fx:id="txtAnalisisIA" editable="false" style="-fx-font-family: 'Consolas', 'Monaco', 'Courier New', monospace; -fx-font-size: 13px; -fx-background-color: #F8FAFC; -fx-control-inner-background: #F8FAFC; -fx-text-fill: #1E293B; -fx-border-color: transparent;" wrapText="true" VBox.vgrow="ALWAYS" />
+                                </VBox>
+                            </VBox>
+                        </Tab>
+                        
+                        <!-- TAB: RECOMENDACIONES -->
+                        <Tab closable="false" text="💡 Recomendaciones">
+                            <VBox spacing="12" style="-fx-background-color: #F8FAFC;">
+                                <padding>
+                                    <Insets bottom="20" left="20" right="20" top="20" />
+                                </padding>
+                                
+                                <!-- HEADER DE RECOMENDACIONES -->
+                                <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16; -fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-border-width: 1;">
+                                    <Label style="-fx-text-fill: #1E3A8A; -fx-font-weight: bold; -fx-font-size: 16px;" text="Recomendaciones Generadas" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Button fx:id="btnGenerarRecomendaciones" onAction="#handleGenerarRecomendaciones" style="-fx-background-color: #64B5CC; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 10 20; -fx-font-weight: bold; -fx-font-size: 13px;" text="🔄 Generar" />
+                                </HBox>
+                                
+                                <!-- TABLA DE RECOMENDACIONES -->
+                                <VBox style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-border-width: 1;" VBox.vgrow="ALWAYS">
+                                    <padding>
+                                        <Insets bottom="16" left="16" right="16" top="16" />
+                                    </padding>
+                                    
+                                    <TableView fx:id="tableRecomendaciones" style="-fx-background-color: transparent; -fx-border-color: transparent;" VBox.vgrow="ALWAYS">
+                                        <columns>
+                                            <TableColumn fx:id="colTipo" minWidth="100.0" prefWidth="120.0" text="Tipo" />
+                                            <TableColumn fx:id="colTitulo" minWidth="250.0" prefWidth="350.0" text="Título" />
+                                            <TableColumn fx:id="colPrioridad" minWidth="100.0" prefWidth="120.0" text="Prioridad" />
+                                            <TableColumn fx:id="colFecha" minWidth="130.0" prefWidth="150.0" text="Fecha" />
+                                            <TableColumn fx:id="colAplicada" minWidth="100.0" prefWidth="120.0" text="Estado" />
+                                        </columns>
+                                    </TableView>
+                                </VBox>
+                                
+                                <!-- BOTONES DE ACCIONES -->
+                                <HBox spacing="12" style="-fx-padding: 12; -fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-border-width: 1;">
+                                    <Button onAction="#handleVerDetallesRecomendacion" style="-fx-background-color: #EFF6FF; -fx-text-fill: #3B82F6; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 10 20; -fx-font-size: 13px; -fx-font-weight: 600;" text="👁 Ver Detalles" />
+                                    <Button onAction="#handleMarcarAplicada" style="-fx-background-color: #10B981; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 10 20; -fx-font-weight: bold; -fx-font-size: 13px;" text="✓ Marcar Aplicada" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Button onAction="#handleLimpiarAplicadas" style="-fx-background-color: transparent; -fx-text-fill: #EF4444; -fx-border-color: #EF4444; -fx-border-width: 1.5; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 10 20; -fx-font-size: 13px;" text="🗑 Limpiar Aplicadas" />
+                                </HBox>
+                            </VBox>
+                        </Tab>
+                        
+                    </TabPane>
+                </VBox>
+            </center>
+            
+        </BorderPane>
+    </center>
+    
+</BorderPane>
