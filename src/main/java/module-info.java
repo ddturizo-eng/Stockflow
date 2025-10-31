@@ -2,7 +2,7 @@ module com.mycompany.stockflow {
     requires javafx.controls;
     requires javafx.fxml;
     requires java.base;
-    // requires javafx.swing;        // ← AGREGAR ESTA LÍNEA
+    // requires javafx.swing;        // 
    // requires java.desktop; 
 
     opens com.mycompany.stockflow to javafx.fxml;
