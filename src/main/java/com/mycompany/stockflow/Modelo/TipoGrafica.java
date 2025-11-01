@@ -16,3 +16,4 @@ public enum TipoGrafica {
     AREA,
     BARRAS_APILADAS
 }
+//probando commit funcional
