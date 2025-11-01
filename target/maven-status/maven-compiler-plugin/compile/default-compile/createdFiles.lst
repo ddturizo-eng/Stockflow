@@ -77,6 +77,7 @@ com\mycompany\stockflow\SecondaryController.class
 com\mycompany\stockflow\ControlInventarioController$1.class
 com\mycompany\stockflow\Modelo\Cliente.class
 com\mycompany\stockflow\ProductosController$2.class
+com\mycompany\stockflow\utils\GeneradorPDF.class
 com\mycompany\stockflow\utils\DeepSeekAPIClient.class
 com\mycompany\stockflow\Presentacion\PrimaryController.class
 com\mycompany\stockflow\utils\Validador.class

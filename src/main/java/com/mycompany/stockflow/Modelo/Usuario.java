@@ -143,5 +143,9 @@ public class Usuario extends Entidad {
     public String toString() {
         return nombreCompleto + " (" + rol + ")";
     }
+
+   
+
+    
 }
 

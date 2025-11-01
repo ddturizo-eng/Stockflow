@@ -2,8 +2,8 @@ package com.mycompany.stockflow;
 
 import com.mycompany.stockflow.Logica.*;
 import com.mycompany.stockflow.Modelo.*;
+import com.mycompany.stockflow.Persistencia.AnalisisRepositorio;
 import com.mycompany.stockflow.excepciones.*;
-//import com.mycompany.stockflow.utils.GeneradorPDF;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -19,12 +19,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Controlador mejorado para Inteligencia de Negocios
- * Con feedback visual mejorado y persistencia de datos
+ * Controlador para Inteligencia de Negocios
+ * Gestiona análisis estadísticos, gráficas y recomendaciones con IA
  */
 public class InteligenciaNegocioController {
     
-    // ==================== COMPONENTES FXML ====================
+    // COMPONENTES FXML
     
     @FXML private Label lblEstadoConexion;
     @FXML private Label lblFechaAnalisis;
@@ -44,6 +44,10 @@ public class InteligenciaNegocioController {
     @FXML private Button btnGenerarRecomendaciones;
     @FXML private Button btnSoloGraficas;
     @FXML private VBox progressContainer;
+    @FXML private Button btnCopiarMetricas;
+    @FXML private Button btnGuardarMetricas;
+    @FXML private Button btnCopiarAnalisis;
+    @FXML private Button btnExportarPDF;
     
     // Gráficas
     @FXML private LineChart<String, Number> chartTendenciaVentas1;
@@ -53,7 +57,7 @@ public class InteligenciaNegocioController {
     
     @FXML private ToggleGroup tipoAnalisisGroup;
     
-    // ==================== SERVICIOS ====================
+    // SERVICIOS
     
     private InteligenciaNegocioServicio inteligenciaServicio;
     private AnaliticaAvanzadaServicio analiticaServicio;
@@ -62,15 +66,19 @@ public class InteligenciaNegocioController {
     private VentaServicio ventaServicio;
     private ClienteServicio clienteServicio;
     private DatosGraficaServicio graficaServicio;
+    private com.mycompany.stockflow.utils.GeneradorPDF generadorPDF;
     
-    // ==================== DATOS Y ESTADO ====================
+    // PERSISTENCIA
+    private AnalisisRepositorio analisisRepositorio;
+    
+    // DATOS Y ESTADO
     
     private ObservableList<Recomendacion> recomendaciones;
     private AnalisisEstadistico ultimoAnalisis;
-    private StackPane overlayProgreso;  // Overlay para mostrar progreso
+    private StackPane overlayProgreso;
     private boolean analisisEnProgreso = false;
     
-    // ==================== INICIALIZACIÓN ====================
+    // INICIALIZACIÓN
     
     @FXML
     public void initialize() {
@@ -81,6 +89,7 @@ public class InteligenciaNegocioController {
         crearOverlayProgreso();
         verificarConfiguracion();
         cargarDatosGraficasIniciales();
+        restaurarAnalisisGuardado();
     }
     
     private void inicializarServicios() {
@@ -92,6 +101,51 @@ public class InteligenciaNegocioController {
         clienteServicio = new ClienteServicio();
         graficaServicio = new DatosGraficaServicio();
         recomendaciones = FXCollections.observableArrayList();
+        analisisRepositorio = AnalisisRepositorio.getInstance();
+        generadorPDF = new com.mycompany.stockflow.utils.GeneradorPDF();
+    }
+    
+    /**
+     * Restaura el último análisis guardado al abrir la vista
+     */
+    private void restaurarAnalisisGuardado() {
+        if (analisisRepositorio.tieneAnalisisActual()) {
+            ResultadoAnalisisIA analisisGuardado = analisisRepositorio.obtenerAnalisisActual();
+            
+            if (analisisGuardado != null) {
+                ultimoAnalisis = convertirAAnalisisEstadistico(analisisGuardado);
+                
+                Platform.runLater(() -> {
+                    if (txtAnalisisIA != null) {
+                        // Limpiar el texto antes de mostrarlo
+                        String textoOriginal = analisisGuardado.getAnalisisTexto();
+                        txtAnalisisIA.setText(formatearAnalisisIA(textoOriginal));
+                    }
+                    
+                    if (txtMetricas != null) {
+                        actualizarMetricas(ultimoAnalisis);
+                    }
+                    
+                    if (lblFechaAnalisis != null) {
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+                        lblFechaAnalisis.setText("Último análisis: " + 
+                            analisisGuardado.getFechaGeneracion().format(formatter));
+                    }
+                    
+                    System.out.println("Análisis restaurado: " + analisisGuardado.getTipoAnalisis());
+                });
+            }
+        }
+    }
+    
+    /**
+     * Convierte ResultadoAnalisisIA a AnalisisEstadistico para compatibilidad
+     */
+    private AnalisisEstadistico convertirAAnalisisEstadistico(ResultadoAnalisisIA resultado) {
+        AnalisisEstadistico analisis = new AnalisisEstadistico(resultado.getTipoAnalisis());
+        analisis.setResumenIA(resultado.getAnalisisTexto());
+        analisis.setMetricas(resultado.getMetricas());
+        return analisis;
     }
     
     private void configurarTablas() {
@@ -129,21 +183,20 @@ public class InteligenciaNegocioController {
         }
     }
     
-    // ==================== OVERLAY DE PROGRESO ====================
+    // OVERLAY DE PROGRESO
     
     /**
-     * Crea un overlay modal que cubre toda la pantalla durante el análisis
+     * Crea un overlay modal centrado que cubre toda la pantalla durante el análisis
      */
     private void crearOverlayProgreso() {
         overlayProgreso = new StackPane();
         overlayProgreso.setStyle(
-            "-fx-background-color: rgba(0, 0, 0, 0.7);" +
-            "-fx-alignment: center;"
+            "-fx-background-color: rgba(0, 0, 0, 0.7);"
         );
+        overlayProgreso.setAlignment(Pos.CENTER);
         overlayProgreso.setVisible(false);
         overlayProgreso.setManaged(false);
         
-        // Contenedor del spinner
         VBox contenido = new VBox(20);
         contenido.setAlignment(Pos.CENTER);
         contenido.setStyle(
@@ -153,20 +206,17 @@ public class InteligenciaNegocioController {
             "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 20, 0, 0, 0);"
         );
         
-        // Spinner animado
         ProgressIndicator spinner = new ProgressIndicator();
         spinner.setPrefSize(80, 80);
         spinner.setStyle("-fx-progress-color: #3B82F6;");
         
-        // Título
-        Label lblTitulo = new Label("🤖 Analizando con IA");
+        Label lblTitulo = new Label("Analizando con IA");
         lblTitulo.setStyle(
             "-fx-font-size: 20px;" +
             "-fx-font-weight: bold;" +
             "-fx-text-fill: #1E3A8A;"
         );
         
-        // Mensaje
         Label lblMensaje = new Label("Procesando datos del negocio...\nEsto puede tardar entre 5 y 15 segundos");
         lblMensaje.setStyle(
             "-fx-font-size: 13px;" +
@@ -176,51 +226,95 @@ public class InteligenciaNegocioController {
         lblMensaje.setWrapText(true);
         lblMensaje.setMaxWidth(300);
         
-        // Icono de IA
-        Label lblIcono = new Label("⚡");
-        lblIcono.setStyle("-fx-font-size: 40px;");
-        
-        contenido.getChildren().addAll(lblIcono, spinner, lblTitulo, lblMensaje);
+        contenido.getChildren().addAll(spinner, lblTitulo, lblMensaje);
         overlayProgreso.getChildren().add(contenido);
     }
     
     /**
-     * Muestra u oculta el overlay de progreso
+     * Muestra u oculta el overlay de progreso correctamente centrado
      */
     private void mostrarOverlayProgreso(boolean mostrar) {
         if (overlayProgreso == null) return;
         
         Platform.runLater(() -> {
-            if (mostrar && tabPane != null && !analisisEnProgreso) {
-                analisisEnProgreso = true;
-                
-                // Obtener el contenedor raíz
-                StackPane root = (StackPane) tabPane.getScene().getRoot();
-                
-                // Añadir overlay si no está ya
-                if (!root.getChildren().contains(overlayProgreso)) {
-                    overlayProgreso.prefWidthProperty().bind(root.widthProperty());
-                    overlayProgreso.prefHeightProperty().bind(root.heightProperty());
-                    root.getChildren().add(overlayProgreso);
+            try {
+                if (mostrar && !analisisEnProgreso) {
+                    analisisEnProgreso = true;
+                    
+                    // Buscar el BorderPane root desde el TabPane
+                    javafx.scene.Node current = tabPane;
+                    BorderPane borderPaneRoot = null;
+                    
+                    while (current != null) {
+                        if (current instanceof BorderPane) {
+                            borderPaneRoot = (BorderPane) current;
+                            break;
+                        }
+                        current = current.getParent();
+                    }
+                    
+                    if (borderPaneRoot != null) {
+                        // Crear un StackPane temporal como contenedor
+                        StackPane overlayContainer = new StackPane();
+                        overlayContainer.setAlignment(Pos.CENTER);
+                        
+                        // Copiar el contenido actual del center
+                        javafx.scene.Node centerContent = borderPaneRoot.getCenter();
+                        
+                        // Agregar el overlay al container
+                        overlayContainer.getChildren().addAll(centerContent, overlayProgreso);
+                        
+                        // Configurar el overlay
+                        overlayProgreso.prefWidthProperty().bind(overlayContainer.widthProperty());
+                        overlayProgreso.prefHeightProperty().bind(overlayContainer.heightProperty());
+                        overlayProgreso.setVisible(true);
+                        overlayProgreso.setManaged(true);
+                        
+                        // Reemplazar el center con el container
+                        borderPaneRoot.setCenter(overlayContainer);
+                        
+                    } else {
+                        // Fallback: mostrar solo el progress indicator
+                        mostrarProgreso(true);
+                    }
+                    
+                } else if (!mostrar && analisisEnProgreso) {
+                    analisisEnProgreso = false;
+                    
+                    // Buscar el BorderPane root
+                    javafx.scene.Node current = tabPane;
+                    BorderPane borderPaneRoot = null;
+                    
+                    while (current != null) {
+                        if (current instanceof BorderPane) {
+                            borderPaneRoot = (BorderPane) current;
+                            break;
+                        }
+                        current = current.getParent();
+                    }
+                    
+                    if (borderPaneRoot != null && borderPaneRoot.getCenter() instanceof StackPane) {
+                        StackPane container = (StackPane) borderPaneRoot.getCenter();
+                        
+                        if (container.getChildren().size() > 1) {
+                            // Restaurar el contenido original
+                            javafx.scene.Node originalContent = container.getChildren().get(0);
+                            borderPaneRoot.setCenter(originalContent);
+                        }
+                    }
+                    
+                    overlayProgreso.setVisible(false);
+                    overlayProgreso.setManaged(false);
                 }
-                
-                overlayProgreso.setVisible(true);
-                overlayProgreso.setManaged(true);
-                overlayProgreso.toFront();
-                
-            } else if (!mostrar && analisisEnProgreso) {
-                analisisEnProgreso = false;
-                overlayProgreso.setVisible(false);
-                overlayProgreso.setManaged(false);
-                
-                // Remover del contenedor
-                StackPane root = (StackPane) tabPane.getScene().getRoot();
-                root.getChildren().remove(overlayProgreso);
+            } catch (Exception e) {
+                System.err.println("Error al mostrar overlay: " + e.getMessage());
+                e.printStackTrace();
+                mostrarProgreso(mostrar);
             }
         });
     }
     
-    // ==================== CONFIGURACIÓN DE GRÁFICAS ====================
+    // CONFIGURACIÓN DE GRÁFICAS
     
     private void configurarGraficas() {
         configurarGrafica(chartTendenciaVentas1);
@@ -268,41 +362,11 @@ public class InteligenciaNegocioController {
             "    -fx-background-radius: 5px; " +
             "    -fx-padding: 5px; " +
             "} " +
-            ".default-color1.chart-series-line { " +
-            "    -fx-stroke: #10B981; " +
-            "} " +
-            ".default-color1.chart-line-symbol { " +
-            "    -fx-background-color: #10B981, white; " +
-            "} " +
             ".default-color0.chart-bar { " +
             "    -fx-bar-fill: linear-gradient(to bottom, #60A5FA 0%, #3B82F6 100%); " +
             "} " +
             ".default-color1.chart-bar { " +
             "    -fx-bar-fill: linear-gradient(to bottom, #34D399 0%, #10B981 100%); " +
-            "} " +
-            ".default-color2.chart-bar { " +
-            "    -fx-bar-fill: linear-gradient(to bottom, #A78BFA 0%, #8B5CF6 100%); " +
-            "} " +
-            ".default-color3.chart-bar { " +
-            "    -fx-bar-fill: linear-gradient(to bottom, #FBBF24 0%, #F59E0B 100%); " +
-            "} " +
-            ".default-color4.chart-bar { " +
-            "    -fx-bar-fill: linear-gradient(to bottom, #F87171 0%, #EF4444 100%); " +
-            "} " +
-            ".chart-bar:hover { " +
-            "    -fx-opacity: 0.85; " +
-            "    -fx-cursor: hand; " +
-            "} " +
-            ".chart-vertical-grid-lines, .chart-horizontal-grid-lines { " +
-            "    -fx-stroke: #E2E8F0; " +
-            "    -fx-stroke-width: 0.5; " +
-            "} " +
-            ".chart-plot-background { " +
-            "    -fx-background-color: #FFFFFF; " +
-            "} " +
-            ".chart-legend-item { " +
-            "    -fx-text-fill: #64748B; " +
-            "    -fx-font-size: 11px; " +
             "}";
         
         aplicarEstiloAGrafica(chartTendenciaVentas1, estiloCSS);
@@ -317,7 +381,7 @@ public class InteligenciaNegocioController {
         }
     }
     
-    // ==================== CARGA DE DATOS EN GRÁFICAS ====================
+    // CARGA DE DATOS EN GRÁFICAS
     
     private void cargarDatosGraficasIniciales() {
         try {
@@ -327,7 +391,6 @@ public class InteligenciaNegocioController {
             if (chartMargenGanancia != null) cargarGraficaMargenGananciaReal();
         } catch (Exception e) {
             System.err.println("Error cargando gráficas: " + e.getMessage());
-            e.printStackTrace();
         }
     }
     
@@ -442,20 +505,8 @@ public class InteligenciaNegocioController {
             
             chartMargenGanancia.getData().addAll(serieCostos, serieGanancias);
             
-            Platform.runLater(() -> {
-                String estiloStacked = 
-                    ".default-color0.chart-bar { " +
-                    "    -fx-bar-fill: linear-gradient(to right, #F87171 0%, #EF4444 100%); " +
-                    "} " +
-                    ".default-color1.chart-bar { " +
-                    "    -fx-bar-fill: linear-gradient(to right, #34D399 0%, #10B981 100%); " +
-                    "}";
-                chartMargenGanancia.setStyle(chartMargenGanancia.getStyle() + estiloStacked);
-            });
-            
         } catch (Exception e) {
             System.err.println("Error en margen de ganancia: " + e.getMessage());
-            e.printStackTrace();
         }
     }
     
@@ -475,7 +526,7 @@ public class InteligenciaNegocioController {
         }
     }
     
-    // ==================== HANDLERS DE EVENTOS ====================
+    // HANDLERS DE EVENTOS
     
     @FXML
     private void handleSoloGraficas() {
@@ -494,10 +545,39 @@ public class InteligenciaNegocioController {
             return;
         }
         
-        ejecutarAnalisisAsync(() -> {
+        ejecutarAnalisisConOverlay(() -> {
             ContextoNegocio contexto = crearContextoNegocio();
             return inteligenciaServicio.generarAnalisisCompleto(contexto);
         }, "Completo");
+    }
+    
+    @FXML
+    private void handleAnalisisVentas() {
+        if (analisisEnProgreso) {
+            mostrarAdvertencia("Análisis en Progreso", 
+                "Ya hay un análisis ejecutándose. Por favor espera a que termine.");
+            return;
+        }
+        
+        ejecutarAnalisisConOverlay(() -> {
+            List<Venta> ventas = ventaServicio.listarVentas();
+            List<Producto> productos = productoServicio.listarProductos();
+            return inteligenciaServicio.analizarVentas(ventas, productos);
+        }, "Ventas");
+    }
+    
+    @FXML
+    private void handleAnalisisInventario() {
+        if (analisisEnProgreso) {
+            mostrarAdvertencia("Análisis en Progreso", 
+                "Ya hay un análisis ejecutándose. Por favor espera a que termine.");
+            return;
+        }
+        
+        ejecutarAnalisisConOverlay(() -> {
+            List<Producto> productos = productoServicio.listarProductos();
+            return inteligenciaServicio.analizarInventario(productos);
+        }, "Inventario");
     }
     
     @FXML
@@ -509,7 +589,6 @@ public class InteligenciaNegocioController {
         }
         
         mostrarOverlayProgreso(true);
-        mostrarProgreso(true);
         
         new Thread(() -> {
             try {
@@ -527,12 +606,11 @@ public class InteligenciaNegocioController {
                     
                     actualizarFechaAnalisis();
                     mostrarOverlayProgreso(false);
-                    mostrarProgreso(false);
                     
                     if (nuevasRecomendaciones.isEmpty()) {
                         mostrarInfo("Sin Recomendaciones", "No hay recomendaciones urgentes.");
                     } else {
-                        mostrarInfo("✅ Éxito", 
+                        mostrarInfo("Éxito", 
                             String.format("Se generaron %d recomendaciones.", nuevasRecomendaciones.size()));
                     }
                 });
@@ -541,7 +619,6 @@ public class InteligenciaNegocioController {
                 Platform.runLater(() -> {
                     mostrarError("Error", "Error generando recomendaciones: " + e.getMessage());
                     mostrarOverlayProgreso(false);
-                    mostrarProgreso(false);
                 });
             }
         }).start();
@@ -610,12 +687,8 @@ public class InteligenciaNegocioController {
     
     @FXML
     private void handleLimpiar() {
-        // NO limpiar el análisis, solo las áreas de texto visuales
-        if (txtAnalisisIA != null && ultimoAnalisis != null) {
-            txtAnalisisIA.setText(formatearAnalisisIA(ultimoAnalisis.getResumenIA()));
-        }
-        if (txtMetricas != null && ultimoAnalisis != null) {
-            actualizarMetricas(ultimoAnalisis);
+        if (analisisRepositorio.tieneAnalisisActual()) {
+            restaurarAnalisisGuardado();
         }
         
         cargarDatosGraficasIniciales();
@@ -623,8 +696,98 @@ public class InteligenciaNegocioController {
     }
     
     @FXML
+    private void handleCopiarMetricas() {
+        if (txtMetricas == null || txtMetricas.getText().isEmpty()) {
+            mostrarAdvertencia("Sin Datos", "No hay métricas para copiar");
+            return;
+        }
+        
+        try {
+            final javafx.scene.input.Clipboard clipboard = javafx.scene.input.Clipboard.getSystemClipboard();
+            final javafx.scene.input.ClipboardContent content = new javafx.scene.input.ClipboardContent();
+            content.putString(txtMetricas.getText());
+            clipboard.setContent(content);
+            
+            mostrarInfo("Copiado", "Métricas copiadas al portapapeles");
+        } catch (Exception e) {
+            mostrarError("Error", "No se pudo copiar al portapapeles");
+        }
+    }
     
-   private void handleExportar() {
+    @FXML
+    private void handleGuardarMetricas() {
+        if (txtMetricas == null || txtMetricas.getText().isEmpty()) {
+            mostrarAdvertencia("Sin Datos", "No hay métricas para guardar");
+            return;
+        }
+        
+        try {
+            javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+            fileChooser.setTitle("Guardar Métricas");
+            fileChooser.setInitialFileName("metricas_" + 
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + ".txt");
+            fileChooser.getExtensionFilters().add(
+                new javafx.stage.FileChooser.ExtensionFilter("Archivo de texto", "*.txt")
+            );
+
+            java.io.File archivo = fileChooser.showSaveDialog(tabPane.getScene().getWindow());
+
+            if (archivo != null) {
+                java.nio.file.Files.write(archivo.toPath(), txtMetricas.getText().getBytes());
+                mostrarInfo("Guardado", "Métricas guardadas exitosamente");
+            }
+        } catch (Exception e) {
+            mostrarError("Error", "Error al guardar: " + e.getMessage());
+        }
+    }
+    
+    @FXML
+    private void handleCopiarAnalisis() {
+        if (txtAnalisisIA == null || txtAnalisisIA.getText().isEmpty()) {
+            mostrarAdvertencia("Sin Datos", "No hay análisis para copiar");
+            return;
+        }
+        
+        try {
+            final javafx.scene.input.Clipboard clipboard = javafx.scene.input.Clipboard.getSystemClipboard();
+            final javafx.scene.input.ClipboardContent content = new javafx.scene.input.ClipboardContent();
+            content.putString(txtAnalisisIA.getText());
+            clipboard.setContent(content);
+            
+            mostrarInfo("Copiado", "Análisis copiado al portapapeles");
+        } catch (Exception e) {
+            mostrarError("Error", "No se pudo copiar al portapapeles");
+        }
+    }
+    
+    @FXML
+    private void handleExportarPDFDirecto() {
+        if (ultimoAnalisis == null) {
+            mostrarAdvertencia("Sin Datos", "Debes generar un análisis primero");
+            return;
+        }
+        
+        try {
+            javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+            fileChooser.setTitle("Guardar Reporte PDF");
+            fileChooser.setInitialFileName("reporte_analisis_" + 
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + ".pdf");
+            fileChooser.getExtensionFilters().add(
+                new javafx.stage.FileChooser.ExtensionFilter("Documento PDF", "*.pdf")
+            );
+
+            java.io.File archivo = fileChooser.showSaveDialog(tabPane.getScene().getWindow());
+
+            if (archivo != null) {
+                handleExportarPDF(archivo.getAbsolutePath());
+            }
+        } catch (Exception e) {
+            mostrarError("Error", "Error al seleccionar archivo: " + e.getMessage());
+        }
+    }
+    
+    @FXML
+    private void handleExportar() {
         if (ultimoAnalisis == null && recomendaciones.isEmpty()) {
             mostrarAdvertencia("Sin Datos", "No hay datos para exportar");
             return;
@@ -634,29 +797,105 @@ public class InteligenciaNegocioController {
             String contenido = generarReporteExportacion();
             
             javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
-            fileChooser.setTitle("Guardar AnÃ¡lisis");
+            fileChooser.setTitle("Guardar Análisis");
             fileChooser.setInitialFileName("analisis_" + 
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + ".txt");
-            fileChooser.getExtensionFilters().add(
-                new javafx.stage.FileChooser.ExtensionFilter("Archivo de texto", "*.txt")
+            fileChooser.getExtensionFilters().addAll(
+                new javafx.stage.FileChooser.ExtensionFilter("Archivo de texto", "*.txt"),
+                new javafx.stage.FileChooser.ExtensionFilter("Documento PDF", "*.pdf")
             );
 
             java.io.File archivo = fileChooser.showSaveDialog(tabPane.getScene().getWindow());
 
             if (archivo != null) {
-                java.nio.file.Files.write(archivo.toPath(), contenido.getBytes());
-                mostrarInfo("âœ… Ã‰xito", "AnÃ¡lisis exportado:\n" + archivo.getAbsolutePath());
+                String ruta = archivo.getAbsolutePath();
+                
+                if (ruta.endsWith(".pdf")) {
+                    // Exportar como PDF
+                    handleExportarPDF(ruta);
+                } else {
+                    // Exportar como TXT
+                    java.nio.file.Files.write(archivo.toPath(), contenido.getBytes());
+                    mostrarInfo("Éxito", "Análisis exportado:\n" + archivo.getAbsolutePath());
+                }
             }
 
         } catch (Exception e) {
             mostrarError("Error", "Error al exportar: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     
-    // ==================== MÉTODOS AUXILIARES ====================
+    /**
+     * Exporta el análisis como PDF con gráficas
+     */
+    private void handleExportarPDF(String rutaArchivo) {
+        mostrarOverlayProgreso(true);
+        
+        new Thread(() -> {
+            try {
+                final String tipoAnalisis = ultimoAnalisis != null ? 
+                    ultimoAnalisis.getTipoAnalisis() : "Análisis General";
+                
+                final String analisisTexto = txtAnalisisIA != null ? 
+                    txtAnalisisIA.getText() : "";
+                
+                final String metricas = txtMetricas != null ? 
+                    txtMetricas.getText() : "";
+                
+                // Recolectar gráficas visibles (compatible con Java 11)
+                final List<Chart> graficas = new java.util.ArrayList<>();
+                if (chartTendenciaVentas1 != null && chartTendenciaVentas1.isVisible()) {
+                    graficas.add(chartTendenciaVentas1);
+                }
+                if (chartTop5Productos1 != null && chartTop5Productos1.isVisible()) {
+                    graficas.add(chartTop5Productos1);
+                }
+                if (chartMargenGanancia != null && chartMargenGanancia.isVisible()) {
+                    graficas.add(chartMargenGanancia);
+                }
+                if (chartTop5Productos2 != null && chartTop5Productos2.isVisible()) {
+                    graficas.add(chartTop5Productos2);
+                }
+                
+                // Generar PDF en hilo de JavaFX (necesario para capturar gráficas)
+                Platform.runLater(() -> {
+                    try {
+                        generadorPDF.generarReporteCompleto(
+                            rutaArchivo,
+                            tipoAnalisis,
+                            analisisTexto,
+                            metricas,
+                            graficas
+                        );
+                        
+                        mostrarOverlayProgreso(false);
+                        mostrarInfo("PDF Generado", 
+                            "Reporte exportado exitosamente:\n" + rutaArchivo);
+                        
+                    } catch (Exception e) {
+                        mostrarOverlayProgreso(false);
+                        mostrarError("Error al generar PDF", e.getMessage());
+                        e.printStackTrace();
+                    }
+                });
+                
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    mostrarOverlayProgreso(false);
+                    mostrarError("Error", "Error al preparar PDF: " + e.getMessage());
+                });
+            }
+        }).start();
+    }
     
-    private void ejecutarAnalisisAsync(AnalisisTask task, String tipoAnalisis) {
-        mostrarProgreso(true);
+    // MÉTODOS AUXILIARES
+    
+    /**
+     * Ejecuta análisis con overlay visual centrado
+     */
+    private void ejecutarAnalisisConOverlay(AnalisisTask task, String tipoAnalisis) {
+        mostrarOverlayProgreso(true);
         
         if (txtAnalisisIA != null) {
             txtAnalisisIA.setText("Analizando con IA...\nEsto puede tardar 5-15 segundos.");
@@ -666,10 +905,16 @@ public class InteligenciaNegocioController {
             try {
                 AnalisisEstadistico analisis = task.ejecutar();
                 
+                // Guardar en repositorio
+                ResultadoAnalisisIA resultadoParaGuardar = convertirAResultadoAnalisisIA(analisis);
+                analisisRepositorio.guardar(resultadoParaGuardar);
+                
                 Platform.runLater(() -> {
                     ultimoAnalisis = analisis;
                     
                     if (txtAnalisisIA != null) {
+                        // Limpiar el texto antes de mostrarlo
+                        String textoLimpio = limpiarMarkdown(analisis.getResumenIA());
                         txtAnalisisIA.setText(formatearAnalisisIA(analisis.getResumenIA()));
                     }
                     
@@ -680,9 +925,11 @@ public class InteligenciaNegocioController {
                         tabPane.getSelectionModel().select(2);
                     }
                     
-                    mostrarProgreso(false);
-                    mostrarInfo("Éxito", "Análisis completado");
+                    mostrarOverlayProgreso(false);
+                    mostrarInfo("Éxito", "Análisis completado y guardado");
                     cargarDatosGraficasIniciales();
+                    
+                    System.out.println("Análisis guardado en repositorio: " + resultadoParaGuardar.getId());
                 });
                 
             } catch (ConfiguracionAIFaltanteException e) {
@@ -690,7 +937,7 @@ public class InteligenciaNegocioController {
                     if (txtAnalisisIA != null) {
                         txtAnalisisIA.setText("ERROR: API Key no configurada\n\n" + e.getMessage());
                     }
-                    mostrarProgreso(false);
+                    mostrarOverlayProgreso(false);
                     verificarConfiguracion();
                 });
             } catch (Exception e) {
@@ -698,11 +945,23 @@ public class InteligenciaNegocioController {
                     if (txtAnalisisIA != null) {
                         txtAnalisisIA.setText("Error: " + e.getMessage());
                     }
-                    mostrarProgreso(false);
+                    mostrarOverlayProgreso(false);
                     mostrarError("Error", e.getMessage());
                 });
             }
         }).start();
+    }
+    
+    /**
+     * Convierte AnalisisEstadistico a ResultadoAnalisisIA para guardar
+     */
+    private ResultadoAnalisisIA convertirAResultadoAnalisisIA(AnalisisEstadistico analisis) {
+        ResultadoAnalisisIA resultado = new ResultadoAnalisisIA();
+        resultado.setTipoAnalisis(analisis.getTipoAnalisis());
+        resultado.setAnalisisTexto(analisis.getResumenIA());
+        resultado.setMetricas(analisis.getMetricas());
+        resultado.setFechaGeneracion(LocalDateTime.now());
+        return resultado;
     }
     
     private ContextoNegocio crearContextoNegocio() {
@@ -757,7 +1016,11 @@ public class InteligenciaNegocioController {
         StringBuilder formateado = new StringBuilder();
         formateado.append("ANÁLISIS DE INTELIGENCIA ARTIFICIAL\n");
         formateado.append("=".repeat(60)).append("\n\n");
-        formateado.append(analisisTexto);
+        
+        // Limpiar y formatear el texto Markdown
+        String textoLimpio = limpiarMarkdown(analisisTexto);
+        formateado.append(textoLimpio);
+        
         formateado.append("\n\n");
         formateado.append("=".repeat(60)).append("\n");
         formateado.append("Generado: ").append(
@@ -765,6 +1028,50 @@ public class InteligenciaNegocioController {
         );
         
         return formateado.toString();
+    }
+    
+    /**
+     * Limpia el formato Markdown y convierte a texto plano legible
+     */
+    private String limpiarMarkdown(String texto) {
+        if (texto == null || texto.isEmpty()) {
+            return "";
+        }
+        
+        StringBuilder resultado = new StringBuilder();
+        String[] lineas = texto.split("\n");
+        
+        for (String linea : lineas) {
+            String lineaLimpia = linea;
+            
+            // Eliminar asteriscos de negrita/cursiva
+            lineaLimpia = lineaLimpia.replaceAll("\\*\\*\\*(.+?)\\*\\*\\*", "$1"); // ***texto***
+            lineaLimpia = lineaLimpia.replaceAll("\\*\\*(.+?)\\*\\*", "$1");       // **texto**
+            lineaLimpia = lineaLimpia.replaceAll("\\*(.+?)\\*", "$1");             // *texto*
+            
+            // Convertir encabezados Markdown a texto con formato
+            if (lineaLimpia.startsWith("####")) {
+                lineaLimpia = "    " + lineaLimpia.replaceFirst("####\\s*", "").toUpperCase();
+            } else if (lineaLimpia.startsWith("###")) {
+                lineaLimpia = "  • " + lineaLimpia.replaceFirst("###\\s*", "").toUpperCase();
+            } else if (lineaLimpia.startsWith("##")) {
+                lineaLimpia = "\n" + lineaLimpia.replaceFirst("##\\s*", "").toUpperCase() + "\n" + "-".repeat(50);
+            } else if (lineaLimpia.startsWith("#")) {
+                lineaLimpia = "\n" + lineaLimpia.replaceFirst("#\\s*", "").toUpperCase() + "\n" + "=".repeat(50);
+            }
+            
+            // Limpiar guiones de listas pero mantener la estructura
+            if (lineaLimpia.trim().startsWith("-")) {
+                lineaLimpia = lineaLimpia.replaceFirst("-\\s*", "  • ");
+            }
+            
+            // Eliminar emojis de encabezados críticos
+            lineaLimpia = lineaLimpia.replaceAll("🔴|⚠️|✅|📊|💡|🎯", "");
+            
+            resultado.append(lineaLimpia).append("\n");
+        }
+        
+        return resultado.toString().trim();
     }
     
     private void actualizarMetricas(AnalisisEstadistico analisis) {
@@ -804,23 +1111,23 @@ public class InteligenciaNegocioController {
     
     private String generarReporteExportacion() {
         StringBuilder reporte = new StringBuilder();
-        reporte.append("╔════════════════════════════════════════════════════════════════════╗\n");
-        reporte.append("║           REPORTE DE ANÁLISIS - STOCKFLOW                          ║\n");
-        reporte.append("╚════════════════════════════════════════════════════════════════════╝\n\n");
+        reporte.append("════════════════════════════════════════════════════════════════\n");
+        reporte.append("           REPORTE DE ANÁLISIS - STOCKFLOW                      \n");
+        reporte.append("════════════════════════════════════════════════════════════════\n\n");
         reporte.append("Fecha: ").append(LocalDateTime.now().format(
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))).append("\n\n");
         
         if (ultimoAnalisis != null) {
-            reporte.append("═══════════════════════════════════════════════════════════════════\n");
+            reporte.append("════════════════════════════════════════════════════════════════\n");
             reporte.append("ANÁLISIS: ").append(ultimoAnalisis.getTipoAnalisis()).append("\n");
-            reporte.append("═══════════════════════════════════════════════════════════════════\n\n");
+            reporte.append("════════════════════════════════════════════════════════════════\n\n");
             reporte.append(ultimoAnalisis.getResumenIA()).append("\n\n");
         }
         
         if (!recomendaciones.isEmpty()) {
-            reporte.append("═══════════════════════════════════════════════════════════════════\n");
+            reporte.append("════════════════════════════════════════════════════════════════\n");
             reporte.append("RECOMENDACIONES (").append(recomendaciones.size()).append(")\n");
-            reporte.append("═══════════════════════════════════════════════════════════════════\n\n");
+            reporte.append("════════════════════════════════════════════════════════════════\n\n");
             
             int i = 1;
             for (Recomendacion rec : recomendaciones) {

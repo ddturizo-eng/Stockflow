@@ -227,57 +227,56 @@
                             </VBox>
                         </Tab>
                         
-                        <!-- TAB: MÉTRICAS -->
-                        <Tab closable="false" text="📈 Métricas">
-                            <VBox spacing="12" style="-fx-background-color: #F8FAFC;">
-                                <padding>
-                                    <Insets bottom="20" left="20" right="20" top="20" />
-                                </padding>
-                                
-                                <!-- HEADER DE MÉTRICAS -->
-                                <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16; -fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-border-width: 1;">
-                                    <Label style="-fx-text-fill: #1E3A8A; -fx-font-weight: bold; -fx-font-size: 16px;" text="Métricas del Análisis" />
-                                    <Region HBox.hgrow="ALWAYS" />
-                                    <Button style="-fx-background-color: #EFF6FF; -fx-text-fill: #3B82F6; -fx-font-size: 12px; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 8 16;" text="📋 Copiar" />
-                                    <Button style="-fx-background-color: #F0FDF4; -fx-text-fill: #10B981; -fx-font-size: 12px; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 8 16;" text="💾 Guardar" />
-                                </HBox>
-                                
-                                <!-- ÁREA DE TEXTO PARA MÉTRICAS -->
-                                <VBox style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-border-width: 1;" VBox.vgrow="ALWAYS">
-                                    <padding>
-                                        <Insets bottom="16" left="16" right="16" top="16" />
-                                    </padding>
-                                    <TextArea fx:id="txtMetricas" editable="false" style="-fx-font-family: 'Consolas', 'Monaco', 'Courier New', monospace; -fx-font-size: 13px; -fx-background-color: #F8FAFC; -fx-control-inner-background: #F8FAFC; -fx-text-fill: #1E293B; -fx-border-color: transparent;" wrapText="true" VBox.vgrow="ALWAYS" />
-                                </VBox>
-                            </VBox>
-                        </Tab>
-                        
-                        <!-- TAB: ANÁLISIS IA -->
-                        <Tab closable="false" text="🤖 Análisis IA">
-                            <VBox spacing="12" style="-fx-background-color: #F8FAFC;">
-                                <padding>
-                                    <Insets bottom="20" left="20" right="20" top="20" />
-                                </padding>
-                                
-                                <!-- HEADER DE ANÁLISIS IA -->
-                                <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16; -fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-border-width: 1;">
-                                    <Label style="-fx-text-fill: #1E3A8A; -fx-font-weight: bold; -fx-font-size: 16px;" text="Resultados del Análisis con IA" />
-                                    <Region HBox.hgrow="ALWAYS" />
-                                    <Label fx:id="lblFechaAnalisis" style="-fx-font-size: 11px; -fx-text-fill: #64748B;" text="" />
-                                    <Button style="-fx-background-color: #EFF6FF; -fx-text-fill: #3B82F6; -fx-font-size: 12px; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 8 16;" text="📋 Copiar" />
-                                    <Button style="-fx-background-color: #CC6C64; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 8 16; -fx-font-size: 12px; -fx-font-weight: bold;" text="📑 PDF" />
-                                </HBox>
-                                
-                                <!-- ÁREA DE TEXTO PARA ANÁLISIS IA -->
-                                <VBox style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-border-width: 1;" VBox.vgrow="ALWAYS">
-                                    <padding>
-                                        <Insets bottom="16" left="16" right="16" top="16" />
-                                    </padding>
-                                    <TextArea fx:id="txtAnalisisIA" editable="false" style="-fx-font-family: 'Consolas', 'Monaco', 'Courier New', monospace; -fx-font-size: 13px; -fx-background-color: #F8FAFC; -fx-control-inner-background: #F8FAFC; -fx-text-fill: #1E293B; -fx-border-color: transparent;" wrapText="true" VBox.vgrow="ALWAYS" />
-                                </VBox>
-                            </VBox>
-                        </Tab>
-                        
+                        <!-- TAB: MÉTRICAS - Actualizado -->
+<Tab closable="false" text="📈 Métricas">
+    <VBox spacing="12" style="-fx-background-color: #F8FAFC;">
+        <padding>
+            <Insets bottom="20" left="20" right="20" top="20" />
+        </padding>
+        
+        <!-- HEADER DE MÉTRICAS -->
+        <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16; -fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-border-width: 1;">
+            <Label style="-fx-text-fill: #1E3A8A; -fx-font-weight: bold; -fx-font-size: 16px;" text="Métricas del Análisis" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="btnCopiarMetricas" onAction="#handleCopiarMetricas" style="-fx-background-color: #EFF6FF; -fx-text-fill: #3B82F6; -fx-font-size: 12px; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 8 16;" text="📋 Copiar" />
+            <Button fx:id="btnGuardarMetricas" onAction="#handleGuardarMetricas" style="-fx-background-color: #F0FDF4; -fx-text-fill: #10B981; -fx-font-size: 12px; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 8 16;" text="💾 Guardar" />
+        </HBox>
+        
+        <!-- ÁREA DE TEXTO PARA MÉTRICAS -->
+        <VBox style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-border-width: 1;" VBox.vgrow="ALWAYS">
+            <padding>
+                <Insets bottom="16" left="16" right="16" top="16" />
+            </padding>
+            <TextArea fx:id="txtMetricas" editable="false" style="-fx-font-family: 'Consolas', 'Monaco', 'Courier New', monospace; -fx-font-size: 13px; -fx-background-color: #F8FAFC; -fx-control-inner-background: #F8FAFC; -fx-text-fill: #1E293B; -fx-border-color: transparent;" wrapText="true" VBox.vgrow="ALWAYS" />
+        </VBox>
+    </VBox>
+</Tab>
+
+<!-- TAB: ANÁLISIS IA - Actualizado -->
+<Tab closable="false" text="🤖 Análisis IA">
+    <VBox spacing="12" style="-fx-background-color: #F8FAFC;">
+        <padding>
+            <Insets bottom="20" left="20" right="20" top="20" />
+        </padding>
+        
+        <!-- HEADER DE ANÁLISIS IA -->
+        <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16; -fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-border-width: 1;">
+            <Label style="-fx-text-fill: #1E3A8A; -fx-font-weight: bold; -fx-font-size: 16px;" text="Resultados del Análisis con IA" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label fx:id="lblFechaAnalisis" style="-fx-font-size: 11px; -fx-text-fill: #64748B;" text="" />
+            <Button fx:id="btnCopiarAnalisis" onAction="#handleCopiarAnalisis" style="-fx-background-color: #EFF6FF; -fx-text-fill: #3B82F6; -fx-font-size: 12px; -fx-cursor: hand; -fx-background-radius: 6; -fx-padding: 8 16;" text="📋 Copiar" />
+            <Button fx:id="btnExportarPDF" onAction="#handleExportarPDFDirecto" style="-fx-background-color: #DC2626; -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 8 16; -fx-font-size: 12px; -fx-font-weight: bold;" text="📄 PDF" />
+        </HBox>
+        
+        <!-- ÁREA DE TEXTO PARA ANÁLISIS IA -->
+        <VBox style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-border-width: 1;" VBox.vgrow="ALWAYS">
+            <padding>
+                <Insets bottom="16" left="16" right="16" top="16" />
+            </padding>
+            <TextArea fx:id="txtAnalisisIA" editable="false" style="-fx-font-family: 'Consolas', 'Monaco', 'Courier New', monospace; -fx-font-size: 13px; -fx-background-color: #F8FAFC; -fx-control-inner-background: #F8FAFC; -fx-text-fill: #1E293B; -fx-border-color: transparent;" wrapText="true" VBox.vgrow="ALWAYS" />
+        </VBox>
+    </VBox>
+</Tab>                        
                         <!-- TAB: RECOMENDACIONES -->
                         <Tab closable="false" text="💡 Recomendaciones">
                             <VBox spacing="12" style="-fx-background-color: #F8FAFC;">
