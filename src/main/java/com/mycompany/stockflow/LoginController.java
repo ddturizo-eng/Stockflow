@@ -2,9 +2,7 @@ package com.mycompany.stockflow;
 
 import com.mycompany.stockflow.Logica.AutenticacionServicio;
 import com.mycompany.stockflow.Modelo.Usuario;
-import javafx.animation.FadeTransition;
-import javafx.animation.ParallelTransition;
-import javafx.animation.ScaleTransition;
+import javafx.animation.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -24,50 +22,54 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-/**
- * FXML Controller class
- */
 public class LoginController implements Initializable {
     
     @FXML
     private TextField txtUsuario;
+    
     @FXML
     private PasswordField txtPassword;
+    
+    @FXML
+    private TextField txtPasswordVisible;
+    
     @FXML
     private Button btnLogin;
+    
+    @FXML
+    private Button btnVolver;
+    
+    @FXML
+    private Button btnTogglePassword;
+    
+    @FXML
+    private Label lblEyeIcon;
+    
     @FXML
     private Label lblOlvidePassword;
+    
     @FXML
     private Label lblError;
+    
     @FXML
     private StackPane rootPane;
     
     private AutenticacionServicio autenticacionServicio;
+    private boolean passwordVisible = false;
     
-    /**
-     * Initializes the controller class.
-     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Inicializar el servicio de autenticación
         autenticacionServicio = new AutenticacionServicio();
         
-        // Ocultar mensaje de error al inicio
         lblError.setVisible(false);
         
-        // Limpiar error cuando el usuario escriba
-        txtUsuario.textProperty().addListener((obs, oldVal, newVal) -> {
-            lblError.setVisible(false);
-            txtUsuario.setStyle("-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 8;");
-        });
+        configurarListenersInput();
+        sincronizarCamposPassword();
+        configurarHoverButtons();
         
-        txtPassword.textProperty().addListener((obs, oldVal, newVal) -> {
-            lblError.setVisible(false);
-            txtPassword.setStyle("-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 8;");
-        });
-        
-        // Permitir login con Enter en el campo contraseña
+        // Permitir login con Enter en ambos campos
         txtPassword.setOnAction(this::ini_sesion);
+        txtPasswordVisible.setOnAction(this::ini_sesion);
         
         // Animación de entrada suave
         if (rootPane != null) {
@@ -77,12 +79,106 @@ public class LoginController implements Initializable {
             fadeIn.setToValue(1);
             fadeIn.play();
         }
-    }    
+        
+        System.out.println("Login inicializado correctamente");
+    }
+    
+    private void sincronizarCamposPassword() {
+        // Sincronizar texto entre PasswordField y TextField
+        txtPassword.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (!passwordVisible) {
+                txtPasswordVisible.setText(newVal);
+            }
+        });
+        
+        txtPasswordVisible.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (passwordVisible) {
+                txtPassword.setText(newVal);
+            }
+        });
+    }
+    
+    @FXML
+    private void togglePasswordVisibility() {
+        passwordVisible = !passwordVisible;
+        
+        if (passwordVisible) {
+            // Mostrar contraseña
+            txtPasswordVisible.setText(txtPassword.getText());
+            txtPassword.setVisible(false);
+            txtPasswordVisible.setVisible(true);
+            lblEyeIcon.setText("👁‍🗨");
+            txtPasswordVisible.requestFocus();
+            txtPasswordVisible.positionCaret(txtPasswordVisible.getText().length());
+        } else {
+            // Ocultar contraseña
+            txtPassword.setText(txtPasswordVisible.getText());
+            txtPasswordVisible.setVisible(false);
+            txtPassword.setVisible(true);
+            lblEyeIcon.setText("👁");
+            txtPassword.requestFocus();
+            txtPassword.positionCaret(txtPassword.getText().length());
+        }
+    }
+    
+    private String getPasswordText() {
+        return passwordVisible ? txtPasswordVisible.getText() : txtPassword.getText();
+    }
+    
+    private void configurarListenersInput() {
+        // Limpiar error cuando el usuario escriba
+        txtUsuario.textProperty().addListener((obs, oldVal, newVal) -> {
+            lblError.setVisible(false);
+            txtUsuario.setStyle("-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 8;");
+        });
+        
+        txtPassword.textProperty().addListener((obs, oldVal, newVal) -> {
+            lblError.setVisible(false);
+            txtPassword.setStyle("-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 8 40 8 8;");
+            txtPasswordVisible.setStyle("-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 8 40 8 8;");
+        });
+        
+        txtPasswordVisible.textProperty().addListener((obs, oldVal, newVal) -> {
+            lblError.setVisible(false);
+            txtPassword.setStyle("-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 8 40 8 8;");
+            txtPasswordVisible.setStyle("-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 8 40 8 8;");
+        });
+    }
+    
+    private void configurarHoverButtons() {
+        // Hover en botón Volver
+        btnVolver.setOnMouseEntered(e -> {
+            btnVolver.setStyle(
+                "-fx-background-color: rgba(255, 255, 255, 0.95);" +
+                "-fx-background-radius: 25;" +
+                "-fx-cursor: hand;" +
+                "-fx-effect: dropshadow(gaussian, rgba(33, 150, 243, 0.4), 12, 0.4, 0, 3);"
+            );
+        });
+        
+        btnVolver.setOnMouseExited(e -> {
+            btnVolver.setStyle(
+                "-fx-background-color: rgba(255, 255, 255, 0.9);" +
+                "-fx-background-radius: 25;" +
+                "-fx-cursor: hand;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0.3, 0, 2);"
+            );
+        });
+        
+        // Hover en botón ojo
+        btnTogglePassword.setOnMouseEntered(e -> {
+            lblEyeIcon.setStyle("-fx-font-size: 18; -fx-text-fill: #2196F3;");
+        });
+        
+        btnTogglePassword.setOnMouseExited(e -> {
+            lblEyeIcon.setStyle("-fx-font-size: 18; -fx-text-fill: #666666;");
+        });
+    }
     
     @FXML
     private void ini_sesion(ActionEvent event) {
         String usuario = txtUsuario.getText().trim();
-        String password = txtPassword.getText();
+        String password = getPasswordText();
         
         // Validar campos vacíos
         if (usuario.isEmpty()) {
@@ -93,7 +189,8 @@ public class LoginController implements Initializable {
         
         if (password.isEmpty()) {
             mostrarError("El campo contraseña es obligatorio");
-            txtPassword.setStyle("-fx-background-radius: 5; -fx-border-color: #e74c3c; -fx-border-width: 2; -fx-border-radius: 5; -fx-padding: 8;");
+            txtPassword.setStyle("-fx-background-radius: 5; -fx-border-color: #e74c3c; -fx-border-width: 2; -fx-border-radius: 5; -fx-padding: 8 40 8 8;");
+            txtPasswordVisible.setStyle("-fx-background-radius: 5; -fx-border-color: #e74c3c; -fx-border-width: 2; -fx-border-radius: 5; -fx-padding: 8 40 8 8;");
             return;
         }
         
@@ -114,7 +211,8 @@ public class LoginController implements Initializable {
                 // Credenciales incorrectas
                 mostrarError("Usuario o contraseña incorrectos");
                 txtUsuario.setStyle("-fx-background-radius: 5; -fx-border-color: #e74c3c; -fx-border-width: 2; -fx-border-radius: 5; -fx-padding: 8;");
-                txtPassword.setStyle("-fx-background-radius: 5; -fx-border-color: #e74c3c; -fx-border-width: 2; -fx-border-radius: 5; -fx-padding: 8;");
+                txtPassword.setStyle("-fx-background-radius: 5; -fx-border-color: #e74c3c; -fx-border-width: 2; -fx-border-radius: 5; -fx-padding: 8 40 8 8;");
+                txtPasswordVisible.setStyle("-fx-background-radius: 5; -fx-border-color: #e74c3c; -fx-border-width: 2; -fx-border-radius: 5; -fx-padding: 8 40 8 8;");
                 btnLogin.setDisable(false);
                 btnLogin.setText("INICIAR SESIÓN");
                 animarError();
@@ -130,7 +228,7 @@ public class LoginController implements Initializable {
     }
     
     private void cargarDashboard() {
-        // Animación de salida
+        // Animación de salida suave
         if (rootPane != null) {
             animarSalida(() -> cambiarADashboard());
         } else {
@@ -148,7 +246,7 @@ public class LoginController implements Initializable {
             Scene currentScene = txtUsuario.getScene();
             Stage stage = (Stage) currentScene.getWindow();
             
-            // Cambiar la raíz de la Scene actual
+            // Cambiar la raíz de la Scene actual sin redimensionar
             currentScene.setRoot(root);
             stage.setTitle("StockFlow - Dashboard");
             
@@ -159,9 +257,11 @@ public class LoginController implements Initializable {
                 }
             });
             
+            stage.setFullScreenExitHint("Presiona F11 o ESC para salir de pantalla completa");
+            
             // Animación de entrada del Dashboard
             root.setOpacity(0);
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(400), root);
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), root);
             fadeIn.setFromValue(0);
             fadeIn.setToValue(1);
             fadeIn.play();
@@ -174,6 +274,57 @@ public class LoginController implements Initializable {
             mostrarError("Error al cargar el dashboard");
             btnLogin.setDisable(false);
             btnLogin.setText("INICIAR SESIÓN");
+        }
+    }
+    
+    @FXML
+    private void volverABienvenida() {
+        System.out.println("Volviendo a Bienvenida...");
+        
+        if (rootPane != null) {
+            animarSalida(() -> cambiarABienvenida());
+        } else {
+            cambiarABienvenida();
+        }
+    }
+    
+    private void cambiarABienvenida() {
+        try {
+            // Cargar Bienvenida
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("Bienvenida.fxml"));
+            Parent root = loader.load();
+            
+            // Obtener Stage actual
+            Stage stage = (Stage) btnVolver.getScene().getWindow();
+            Scene scene = new Scene(root, 1000, 600);
+            
+            stage.setScene(scene);
+            stage.setTitle("StockFlow - Bienvenida");
+            stage.setResizable(true);
+            stage.setMaximized(true);
+            
+            // Configurar F11
+            scene.setOnKeyPressed(event -> {
+                if (event.getCode() == KeyCode.F11) {
+                    stage.setFullScreen(!stage.isFullScreen());
+                }
+            });
+            
+            stage.setFullScreenExitHint("Presiona F11 o ESC para salir de pantalla completa");
+            
+            // Animación de entrada
+            root.setOpacity(0);
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), root);
+            fadeIn.setFromValue(0);
+            fadeIn.setToValue(1);
+            fadeIn.play();
+            
+            System.out.println("✓ Volviendo a Bienvenida");
+            
+        } catch (IOException e) {
+            System.err.println("Error al cargar Bienvenida: " + e.getMessage());
+            e.printStackTrace();
+            mostrarError("Error al volver a bienvenida");
         }
     }
     
@@ -195,40 +346,39 @@ public class LoginController implements Initializable {
         
         txtUsuario.setTranslateX(distancia);
         txtPassword.setTranslateX(distancia);
+        txtPasswordVisible.setTranslateX(distancia);
         
-        javafx.animation.Timeline timeline = new javafx.animation.Timeline(
-            new javafx.animation.KeyFrame(Duration.millis(50), e -> {
+        Timeline timeline = new Timeline(
+            new KeyFrame(Duration.millis(50), e -> {
                 txtUsuario.setTranslateX(-distancia);
                 txtPassword.setTranslateX(-distancia);
+                txtPasswordVisible.setTranslateX(-distancia);
             }),
-            new javafx.animation.KeyFrame(Duration.millis(100), e -> {
+            new KeyFrame(Duration.millis(100), e -> {
                 txtUsuario.setTranslateX(distancia);
                 txtPassword.setTranslateX(distancia);
+                txtPasswordVisible.setTranslateX(distancia);
             }),
-            new javafx.animation.KeyFrame(Duration.millis(150), e -> {
+            new KeyFrame(Duration.millis(150), e -> {
                 txtUsuario.setTranslateX(-distancia/2);
                 txtPassword.setTranslateX(-distancia/2);
+                txtPasswordVisible.setTranslateX(-distancia/2);
             }),
-            new javafx.animation.KeyFrame(Duration.millis(200), e -> {
+            new KeyFrame(Duration.millis(200), e -> {
                 txtUsuario.setTranslateX(0);
                 txtPassword.setTranslateX(0);
+                txtPasswordVisible.setTranslateX(0);
             })
         );
         timeline.play();
     }
     
     private void animarSalida(Runnable onFinished) {
-        // Zoom y fade out
-        ScaleTransition scale = new ScaleTransition(Duration.millis(300), rootPane);
-        scale.setToX(0.95);
-        scale.setToY(0.95);
-        
-        FadeTransition fade = new FadeTransition(Duration.millis(300), rootPane);
+        // Solo fade out suave, sin zoom
+        FadeTransition fade = new FadeTransition(Duration.millis(250), rootPane);
         fade.setFromValue(1.0);
         fade.setToValue(0.0);
-        
-        ParallelTransition parallel = new ParallelTransition(scale, fade);
-        parallel.setOnFinished(e -> onFinished.run());
-        parallel.play();
+        fade.setOnFinished(e -> onFinished.run());
+        fade.play();
     }
 }

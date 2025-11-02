@@ -159,6 +159,16 @@
         public void setFechaEmision(LocalDateTime fechaEmision) {
             this.fechaEmision = fechaEmision;
         }
+        
+         /**
+            * Obtiene la fecha y hora de emisión de la factura.
+            * Alias de getFechaEmision() para compatibilidad.
+            * 
+            * @return la fecha de emisión
+            */
+           public LocalDateTime getFecha() {
+               return fechaEmision;
+           }
 
         /**
          * Obtiene el estado actual de la factura.

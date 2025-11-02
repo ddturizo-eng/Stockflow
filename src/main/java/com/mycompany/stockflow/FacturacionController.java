@@ -3,6 +3,7 @@ package com.mycompany.stockflow;
 import com.mycompany.stockflow.Modelo.Factura;
 import com.mycompany.stockflow.Modelo.DetalleVenta;
 import com.mycompany.stockflow.Logica.FacturacionServicio;
+import com.mycompany.stockflow.utils.GeneradorPDFComprobante;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -11,8 +12,10 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,9 +37,11 @@ public class FacturacionController {
     @FXML private TableColumn<FacturaItem, String> colMetodoPago;
     @FXML private TableColumn<FacturaItem, String> colEstado;
 
-    // FXML Components - Labels
+    // FXML Components - Labels (Estadísticas)
     @FXML private Label lblTotalComprobantes;
     @FXML private Label lblTotalFacturado;
+    @FXML private Label lblTotalAnulados;
+    @FXML private Label lblTicketPromedio;
 
     // Servicios y datos
     private FacturacionServicio facturacionServicio;
@@ -52,7 +57,7 @@ public class FacturacionController {
 
     @FXML
     public void initialize() {
-        System.out.println("FacturacionController inicializado");
+        System.out.println("✅ FacturacionController inicializado");
         
         configurarTabla();
         configurarComboBoxEstado();
@@ -131,7 +136,7 @@ public class FacturacionController {
             
             facturasFiltradas.setAll(facturaItems);
             
-            System.out.println("Facturas cargadas: " + facturas.size());
+            System.out.println("📊 Facturas cargadas: " + facturas.size());
             
         } catch (Exception e) {
             mostrarError("Error al cargar facturas: " + e.getMessage());
@@ -154,7 +159,8 @@ public class FacturacionController {
                     item.getNumeroComprobante().toLowerCase().contains(numeroBuscar);
                 
                 boolean coincideCliente = clienteBuscar.isEmpty() || 
-                    item.getCliente().toLowerCase().contains(clienteBuscar);
+                    item.getCliente().toLowerCase().contains(clienteBuscar) ||
+                    item.getCedula().toLowerCase().contains(clienteBuscar);
                 
                 boolean coincideEstado = "Todos".equals(estadoSeleccionado) || 
                     item.getEstado().equals(estadoSeleccionado);
@@ -168,6 +174,8 @@ public class FacturacionController {
         
         if (resultados.isEmpty()) {
             mostrarInformacion("No se encontraron facturas con los criterios especificados");
+        } else {
+            mostrarInformacion("Se encontraron " + resultados.size() + " comprobantes");
         }
     }
 
@@ -187,14 +195,35 @@ public class FacturacionController {
      * Actualiza las estadísticas en pantalla
      */
     private void actualizarEstadisticas() {
+        // Total de comprobantes
         int totalComprobantes = facturasFiltradas.size();
+        
+        // Total facturado (solo PAGADAS)
         double totalFacturado = facturasFiltradas.stream()
             .filter(item -> "PAGADA".equals(item.getEstado()))
             .mapToDouble(FacturaItem::getTotal)
             .sum();
         
+        // Total anulados
+        long totalAnulados = facturasFiltradas.stream()
+            .filter(item -> "ANULADA".equals(item.getEstado()))
+            .count();
+        
+        // Ticket promedio (solo PAGADAS)
+        double ticketPromedio = 0;
+        long comprobantesValidos = facturasFiltradas.stream()
+            .filter(item -> "PAGADA".equals(item.getEstado()))
+            .count();
+        
+        if (comprobantesValidos > 0) {
+            ticketPromedio = totalFacturado / comprobantesValidos;
+        }
+        
+        // Actualizar labels
         lblTotalComprobantes.setText(String.valueOf(totalComprobantes));
         lblTotalFacturado.setText(formatoMoneda.format(totalFacturado));
+        lblTotalAnulados.setText(String.valueOf(totalAnulados));
+        lblTicketPromedio.setText(formatoMoneda.format(ticketPromedio));
     }
 
     /**
@@ -205,7 +234,7 @@ public class FacturacionController {
         FacturaItem facturaSeleccionada = tblFacturas.getSelectionModel().getSelectedItem();
         
         if (facturaSeleccionada == null) {
-            mostrarAdvertencia("Seleccione una factura para ver el detalle");
+            mostrarAdvertencia("⚠️ Seleccione una factura para ver el detalle");
             return;
         }
         
@@ -223,19 +252,20 @@ public class FacturacionController {
      */
     private void mostrarDetalleFactura(Factura factura) {
         StringBuilder detalle = new StringBuilder();
-        detalle.append("========================================\n");
-        detalle.append("       STOCKFLOW\n");
+        detalle.append("════════════════════════════════════════\n");
+        detalle.append("              STOCKFLOW\n");
         detalle.append("   Sistema de Gestión de Inventario\n");
-        detalle.append("========================================\n");
-        detalle.append("COMPROBANTE DE VENTA\n");
-        detalle.append("(No válido como factura fiscal)\n\n");
+        detalle.append("════════════════════════════════════════\n");
+        detalle.append("       COMPROBANTE DE VENTA\n");
+        detalle.append("   (No válido como factura fiscal)\n\n");
         detalle.append("Nro: ").append(factura.getNumeroComprobante()).append("\n");
         detalle.append("Fecha: ").append(factura.getFechaFormateada()).append("\n");
-        detalle.append("----------------------------------------\n");
+        detalle.append("Estado: ").append(factura.getEstado()).append("\n");
+        detalle.append("────────────────────────────────────────\n");
         detalle.append("CLIENTE:\n");
-        detalle.append(factura.getNombreCliente()).append("\n");
-        detalle.append("CC: ").append(factura.getCedulaCliente()).append("\n");
-        detalle.append("----------------------------------------\n");
+        detalle.append("  ").append(factura.getNombreCliente()).append("\n");
+        detalle.append("  CC: ").append(factura.getCedulaCliente()).append("\n");
+        detalle.append("────────────────────────────────────────\n");
         detalle.append("PRODUCTOS:\n\n");
         
         if (factura.getVenta() != null && factura.getVenta().getDetalles() != null) {
@@ -249,13 +279,17 @@ public class FacturacionController {
             }
         }
         
-        detalle.append("\n----------------------------------------\n");
-        detalle.append(String.format("              Subtotal: %s\n", formatoMoneda.format(factura.getSubtotal())));
-        detalle.append(String.format("         Descuento: -%s\n", formatoMoneda.format(factura.getDescuento())));
-        detalle.append(String.format("           IVA 16%%: %s\n", formatoMoneda.format(factura.getIva())));
-        detalle.append("----------------------------------------\n");
-        detalle.append(String.format("              TOTAL: %s\n", formatoMoneda.format(factura.getTotal())));
-        detalle.append("========================================\n");
+        detalle.append("\n────────────────────────────────────────\n");
+        detalle.append(String.format("                Subtotal: %s\n", formatoMoneda.format(factura.getSubtotal())));
+        
+        if (factura.getDescuento() > 0) {
+            detalle.append(String.format("              Descuento: -%s\n", formatoMoneda.format(factura.getDescuento())));
+        }
+        
+        detalle.append(String.format("             IVA (16%%): %s\n", formatoMoneda.format(factura.getIva())));
+        detalle.append("────────────────────────────────────────\n");
+        detalle.append(String.format("                  TOTAL: %s\n", formatoMoneda.format(factura.getTotal())));
+        detalle.append("════════════════════════════════════════\n");
         detalle.append("Método de Pago: ").append(factura.getMetodoPago()).append("\n");
         
         if ("Efectivo".equals(factura.getMetodoPago())) {
@@ -263,11 +297,9 @@ public class FacturacionController {
             detalle.append("Cambio: ").append(formatoMoneda.format(factura.getCambio())).append("\n");
         }
         
-        detalle.append("========================================\n");
-        detalle.append("Estado: ").append(factura.getEstado()).append("\n");
-        detalle.append("========================================\n");
-        detalle.append("   ¡Gracias por su compra!\n");
-        detalle.append("========================================\n");
+        detalle.append("════════════════════════════════════════\n");
+        detalle.append("        ¡Gracias por su compra!\n");
+        detalle.append("════════════════════════════════════════\n");
         
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Detalle de Comprobante");
@@ -275,35 +307,117 @@ public class FacturacionController {
         alert.setContentText(detalle.toString());
         
         // Hacer el diálogo más grande
-        alert.getDialogPane().setPrefWidth(500);
-        alert.getDialogPane().setPrefHeight(600);
+        alert.getDialogPane().setPrefWidth(550);
+        alert.getDialogPane().setPrefHeight(650);
         
         alert.showAndWait();
     }
 
     /**
-     * Imprime o exporta la factura a PDF
+     * Imprime o exporta la factura a PDF formato A4
      */
     @FXML
-    private void imprimirFactura() {
+    private void imprimirComprobanteA4() {
         FacturaItem facturaSeleccionada = tblFacturas.getSelectionModel().getSelectedItem();
         
         if (facturaSeleccionada == null) {
-            mostrarAdvertencia("Seleccione una factura para imprimir");
+            mostrarAdvertencia("⚠️ Seleccione una factura para imprimir");
             return;
         }
         
         try {
             Factura factura = facturacionServicio.buscarFactura(facturaSeleccionada.getNumeroComprobante());
             
-            // Por ahora solo mostramos el detalle
-            // En una implementación real, aquí se integraría con una librería PDF como iText
-            mostrarDetalleFactura(factura);
+            // Selector de archivo
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Guardar Comprobante PDF (A4)");
+            fileChooser.setInitialFileName("Comprobante_" + factura.getNumeroComprobante() + "_A4.pdf");
+            fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("PDF Files", "*.pdf")
+            );
             
-            mostrarInformacion("Función de impresión/PDF en desarrollo.\nPor ahora puede copiar el texto del detalle.");
+            File archivo = fileChooser.showSaveDialog(tblFacturas.getScene().getWindow());
+            
+            if (archivo != null) {
+                // Generar PDF en formato A4
+                GeneradorPDFComprobante.generarComprobanteA4(factura, archivo.getAbsolutePath());
+                
+                mostrarExito("✅ Comprobante PDF (A4) generado exitosamente:\n" + archivo.getAbsolutePath());
+                
+                // Preguntar si desea abrir el archivo
+                Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+                confirmacion.setTitle("PDF Generado");
+                confirmacion.setHeaderText("Comprobante generado exitosamente");
+                confirmacion.setContentText("¿Desea abrir el archivo PDF?");
+                
+                confirmacion.showAndWait().ifPresent(response -> {
+                    if (response == ButtonType.OK) {
+                        try {
+                            java.awt.Desktop.getDesktop().open(archivo);
+                        } catch (Exception e) {
+                            mostrarError("No se pudo abrir el archivo: " + e.getMessage());
+                        }
+                    }
+                });
+            }
             
         } catch (Exception e) {
-            mostrarError("Error al preparar impresión: " + e.getMessage());
+            mostrarError("Error al generar PDF: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Imprime o exporta la factura a PDF formato Ticket
+     */
+    @FXML
+    private void imprimirComprobanteTicket() {
+        FacturaItem facturaSeleccionada = tblFacturas.getSelectionModel().getSelectedItem();
+        
+        if (facturaSeleccionada == null) {
+            mostrarAdvertencia("⚠️ Seleccione una factura para imprimir");
+            return;
+        }
+        
+        try {
+            Factura factura = facturacionServicio.buscarFactura(facturaSeleccionada.getNumeroComprobante());
+            
+            // Selector de archivo
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Guardar Comprobante PDF (Ticket)");
+            fileChooser.setInitialFileName("Comprobante_" + factura.getNumeroComprobante() + "_Ticket.pdf");
+            fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("PDF Files", "*.pdf")
+            );
+            
+            File archivo = fileChooser.showSaveDialog(tblFacturas.getScene().getWindow());
+            
+            if (archivo != null) {
+                // Generar PDF en formato Ticket
+                GeneradorPDFComprobante.generarComprobanteTicket(factura, archivo.getAbsolutePath());
+                
+                mostrarExito("✅ Comprobante PDF (Ticket) generado exitosamente:\n" + archivo.getAbsolutePath());
+                
+                // Preguntar si desea abrir el archivo
+                Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+                confirmacion.setTitle("PDF Generado");
+                confirmacion.setHeaderText("Comprobante generado exitosamente");
+                confirmacion.setContentText("¿Desea abrir el archivo PDF?");
+                
+                confirmacion.showAndWait().ifPresent(response -> {
+                    if (response == ButtonType.OK) {
+                        try {
+                            java.awt.Desktop.getDesktop().open(archivo);
+                        } catch (Exception e) {
+                            mostrarError("No se pudo abrir el archivo: " + e.getMessage());
+                        }
+                    }
+                });
+            }
+            
+        } catch (Exception e) {
+            mostrarError("Error al generar PDF: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -315,12 +429,12 @@ public class FacturacionController {
         FacturaItem facturaSeleccionada = tblFacturas.getSelectionModel().getSelectedItem();
         
         if (facturaSeleccionada == null) {
-            mostrarAdvertencia("Seleccione una factura para anular");
+            mostrarAdvertencia("⚠️ Seleccione una factura para anular");
             return;
         }
         
         if ("ANULADA".equals(facturaSeleccionada.getEstado())) {
-            mostrarAdvertencia("Esta factura ya está anulada");
+            mostrarAdvertencia("⚠️ Esta factura ya está anulada");
             return;
         }
         
@@ -329,13 +443,14 @@ public class FacturacionController {
         confirmacion.setHeaderText("¿Está seguro de anular esta factura?");
         confirmacion.setContentText("Factura: " + facturaSeleccionada.getNumeroComprobante() + 
                                    "\nCliente: " + facturaSeleccionada.getCliente() +
-                                   "\nTotal: " + formatoMoneda.format(facturaSeleccionada.getTotal()));
+                                   "\nTotal: " + formatoMoneda.format(facturaSeleccionada.getTotal()) +
+                                   "\n\n⚠️ Esta acción no se puede deshacer");
         
         confirmacion.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 try {
                     facturacionServicio.anularFactura(facturaSeleccionada.getNumeroComprobante());
-                    mostrarInformacion("Factura anulada exitosamente");
+                    mostrarExito("✅ Factura anulada exitosamente");
                     actualizarLista();
                 } catch (Exception e) {
                     mostrarError("Error al anular factura: " + e.getMessage());
@@ -351,13 +466,14 @@ public class FacturacionController {
     private void actualizarLista() {
         cargarFacturas();
         limpiarFiltros();
-        mostrarInformacion("Lista actualizada");
+        mostrarInformacion("✅ Lista actualizada");
     }
 
-    // Métodos de alertas
+    // ==================== MÉTODOS DE ALERTAS ====================
+    
     private void mostrarError(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
+        alert.setTitle("❌ Error");
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
         alert.showAndWait();
@@ -365,7 +481,7 @@ public class FacturacionController {
 
     private void mostrarAdvertencia(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Advertencia");
+        alert.setTitle("⚠️ Advertencia");
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
         alert.showAndWait();
@@ -373,12 +489,22 @@ public class FacturacionController {
 
     private void mostrarInformacion(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Información");
+        alert.setTitle("ℹ️ Información");
+        alert.setHeaderText(null);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
+    }
+    
+    private void mostrarExito(String mensaje) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("✅ Éxito");
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
         alert.showAndWait();
     }
 
+    // ==================== CLASE INTERNA ====================
+    
     /**
      * Clase interna para representar items en la tabla
      */

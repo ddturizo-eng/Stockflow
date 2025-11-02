@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
@@ -21,8 +23,25 @@
         </image>
     </ImageView>
     
+    <!-- Botón Volver (esquina superior izquierda) -->
+    <HBox alignment="TOP_LEFT" pickOnBounds="false">
+        <padding>
+            <Insets top="30.0" left="30.0" />
+        </padding>
+        <Button fx:id="btnVolver" mnemonicParsing="false" onAction="#volverABienvenida"
+                style="-fx-background-color: rgba(255, 255, 255, 0.9); -fx-background-radius: 25; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0.3, 0, 2);"
+                prefHeight="50.0" prefWidth="140.0">
+            <graphic>
+                <HBox alignment="CENTER" spacing="8">
+                    <Label text="←" style="-fx-font-size: 20; -fx-text-fill: #2196F3; -fx-font-weight: bold;" />
+                    <Label text="Volver" style="-fx-font-size: 14; -fx-text-fill: #2196F3; -fx-font-weight: bold;" />
+                </HBox>
+            </graphic>
+        </Button>
+    </HBox>
+    
     <!-- Panel de login centrado -->
-    <Pane prefHeight="450.0" prefWidth="350.0" maxHeight="450.0" maxWidth="350.0"
+    <Pane prefHeight="480.0" prefWidth="350.0" maxHeight="480.0" maxWidth="350.0"
           style="-fx-background-color: rgba(255, 255, 255, 0.95); -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 20, 0, 0, 5);">
         
         <children>
@@ -63,17 +82,52 @@
                 </font>
             </Label>
             
-            <!-- Campo Contraseña -->
-            <PasswordField fx:id="txtPassword" layoutX="30.0" layoutY="240.0" prefHeight="40.0" prefWidth="290.0" 
+            <!-- Contenedor de Contraseña con botón ojo -->
+            <StackPane layoutX="30.0" layoutY="240.0" prefHeight="40.0" prefWidth="290.0">
+                <!-- PasswordField (oculto) -->
+                <PasswordField fx:id="txtPassword" prefHeight="40.0" prefWidth="290.0"
+                              promptText="Ingrese su contraseña" 
+                              style="-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 8 40 8 8;">
+                    <font>
+                        <Font size="14.0" />
+                    </font>
+                </PasswordField>
+                
+                <!-- TextField visible (inicialmente oculto) -->
+                <TextField fx:id="txtPasswordVisible" prefHeight="40.0" prefWidth="290.0" visible="false"
                           promptText="Ingrese su contraseña" 
-                          style="-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 8;">
+                          style="-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 8 40 8 8;">
+                    <font>
+                        <Font size="14.0" />
+                    </font>
+                </TextField>
+                
+                <!-- Botón del ojo -->
+                <HBox alignment="CENTER_RIGHT" pickOnBounds="false">
+                    <padding>
+                        <Insets right="8" />
+                    </padding>
+                    <Button fx:id="btnTogglePassword" mnemonicParsing="false" onAction="#togglePasswordVisibility"
+                            style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 5;"
+                            prefWidth="30.0" prefHeight="30.0">
+                        <graphic>
+                            <Label fx:id="lblEyeIcon" text="👁" style="-fx-font-size: 18; -fx-text-fill: #666666;" />
+                        </graphic>
+                    </Button>
+                </HBox>
+            </StackPane>
+            
+            <!-- Mensaje de error (oculto por defecto) -->
+            <Label fx:id="lblError" layoutX="30.0" layoutY="290.0" prefWidth="290.0" 
+                   textAlignment="CENTER" textFill="RED" visible="false"
+                   wrapText="true">
                 <font>
-                    <Font size="14.0" />
+                    <Font size="12.0" />
                 </font>
-            </PasswordField>
+            </Label>
             
             <!-- Botón Iniciar Sesión -->
-            <Button fx:id="btnLogin" layoutX="30.0" layoutY="310.0" mnemonicParsing="false" 
+            <Button fx:id="btnLogin" layoutX="30.0" layoutY="330.0" mnemonicParsing="false" 
                     onAction="#ini_sesion" prefHeight="45.0" prefWidth="290.0" 
                     style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 14; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;" 
                     text="INICIAR SESIÓN" textFill="#f7f3f3">
@@ -83,7 +137,7 @@
             </Button>
             
             <!-- Link Olvidaste contraseña -->
-            <Label fx:id="lblOlvidePassword" layoutX="95.0" layoutY="375.0" 
+            <Label fx:id="lblOlvidePassword" layoutX="95.0" layoutY="395.0" 
                    style="-fx-cursor: hand; -fx-underline: true;" 
                    text="¿Olvidaste tu contraseña?" textFill="#2196f3">
                 <font>
@@ -91,13 +145,15 @@
                 </font>
             </Label>
             
-            <!-- Mensaje de error (oculto por defecto) -->
-            <Label fx:id="lblError" layoutX="30.0" layoutY="410.0" prefWidth="290.0" 
-                   textAlignment="CENTER" textFill="RED" visible="false">
-                <font>
-                    <Font size="12.0" />
-                </font>
-            </Label>
+            <!-- Footer informativo -->
+            <HBox alignment="CENTER" layoutX="0.0" layoutY="440.0" prefWidth="350.0" spacing="5">
+                <Label text="🔒" style="-fx-font-size: 12;" />
+                <Label text="Conexión segura" textFill="#999999">
+                    <font>
+                        <Font size="11.0" />
+                    </font>
+                </Label>
+            </HBox>
         </children>
     </Pane>
 </StackPane>

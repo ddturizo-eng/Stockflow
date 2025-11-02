@@ -8,36 +8,210 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<ScrollPane fitToWidth="true" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.stockflow.ControlInventarioController">
+<ScrollPane fitToWidth="true" style="-fx-background: #F5F7FA;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.stockflow.ControlInventarioController">
    <content>
-      <VBox alignment="TOP_CENTER" prefHeight="700.0" prefWidth="938.0" spacing="15.0" style="-fx-background-color: #F5F7FA;">
+      <VBox prefWidth="1100.0" spacing="20.0" style="-fx-background-color: #F5F7FA;">
          <padding>
-            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
          </padding>
+         
          <children>
-            <Label style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="Control de Inventario" />
-            
-            <!-- TABLA DE ALERTAS AMPLIADA 100% -->
-            <VBox prefHeight="200.0" prefWidth="898.0" spacing="10.0" style="-fx-background-color: #FFEBEE; -fx-padding: 15; -fx-border-color: #E74C3C; -fx-border-radius: 5; -fx-background-radius: 5;">
+            <!-- Header Section -->
+            <HBox alignment="CENTER_LEFT" spacing="15.0">
                <children>
-                  <HBox alignment="CENTER_LEFT" spacing="10.0">
+                  <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
                      <children>
-                        <Label style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #C62828;" text="⚠ Alertas de Stock Bajo" />
-                        <Label fx:id="lblCantidadAlertas" style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: white; -fx-background-color: #E74C3C; -fx-padding: 2 8; -fx-background-radius: 10;" text="0" />
+                        <Label style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #1e3a5f;" text="Control de Inventario">
+                           <font>
+                              <Font name="System Bold" size="28.0" />
+                           </font>
+                        </Label>
+                        <Label style="-fx-font-size: 13; -fx-text-fill: #64748b;" text="Gestiona movimientos, alertas y estadísticas de stock" />
+                     </children>
+                  </VBox>
+                  
+                  <Button onAction="#generarReporteInventario" style="-fx-background-color: #1e3a5f; -fx-text-fill: white; -fx-padding: 12 24; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 13; -fx-font-weight: bold;" text="Generar Reporte">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                  </Button>
+               </children>
+            </HBox>
+            
+            <!-- Dashboard Cards -->
+            <GridPane hgap="15.0" vgap="15.0">
+               <columnConstraints>
+                  <ColumnConstraints percentWidth="25.0" />
+                  <ColumnConstraints percentWidth="25.0" />
+                  <ColumnConstraints percentWidth="25.0" />
+                  <ColumnConstraints percentWidth="25.0" />
+               </columnConstraints>
+               
+               <!-- Card 1: Total Productos -->
+               <VBox alignment="TOP_LEFT" spacing="10.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);" GridPane.columnIndex="0">
+                  <children>
+                     <HBox alignment="CENTER_LEFT" spacing="12.0">
+                        <children>
+                           <StackPane style="-fx-background-color: #e3f2fd; -fx-background-radius: 10; -fx-pref-width: 48; -fx-pref-height: 48;">
+                              <children>
+                                 <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                       <Image url="@IMG/costo.png" />
+                                    </image>
+                                 </ImageView>
+                              </children>
+                           </StackPane>
+                           <VBox spacing="2.0">
+                              <children>
+                                 <Label style="-fx-font-size: 11; -fx-text-fill: #64748b; -fx-font-weight: 600;" text="TOTAL PRODUCTOS" />
+                                 <Label fx:id="lblTotalProductos" style="-fx-font-size: 26; -fx-font-weight: bold; -fx-text-fill: #1e293b;" text="0">
+                                    <font>
+                                       <Font name="System Bold" size="26.0" />
+                                    </font>
+                                 </Label>
+                              </children>
+                           </VBox>
+                        </children>
+                     </HBox>
+                  </children>
+               </VBox>
+               
+               <!-- Card 2: Stock Total -->
+               <VBox alignment="TOP_LEFT" spacing="10.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);" GridPane.columnIndex="1">
+                  <children>
+                     <HBox alignment="CENTER_LEFT" spacing="12.0">
+                        <children>
+                           <StackPane style="-fx-background-color: #f3e5f5; -fx-background-radius: 10; -fx-pref-width: 48; -fx-pref-height: 48;">
+                              <children>
+                                 <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                       <Image url="@IMG/en-stock.png" />
+                                    </image>
+                                 </ImageView>
+                              </children>
+                           </StackPane>
+                           <VBox spacing="2.0">
+                              <children>
+                                 <Label style="-fx-font-size: 11; -fx-text-fill: #64748b; -fx-font-weight: 600;" text="STOCK TOTAL" />
+                                 <Label fx:id="lblStockTotal" style="-fx-font-size: 26; -fx-font-weight: bold; -fx-text-fill: #1e293b;" text="0">
+                                    <font>
+                                       <Font name="System Bold" size="26.0" />
+                                    </font>
+                                 </Label>
+                              </children>
+                           </VBox>
+                           <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" />
+                        </children>
+                     </HBox>
+                  </children>
+               </VBox>
+               
+               <!-- Card 3: Alertas Críticas -->
+               <VBox alignment="TOP_LEFT" spacing="10.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);" GridPane.columnIndex="2">
+                  <children>
+                     <HBox alignment="CENTER_LEFT" spacing="12.0">
+                        <children>
+                           <StackPane style="-fx-background-color: #ffebee; -fx-background-radius: 10; -fx-pref-width: 48; -fx-pref-height: 48;">
+                              <children>
+                                 <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                       <Image url="@IMG/alarma.png" />
+                                    </image>
+                                 </ImageView>
+                              </children>
+                           </StackPane>
+                           <VBox spacing="2.0">
+                              <children>
+                                 <Label style="-fx-font-size: 11; -fx-text-fill: #64748b; -fx-font-weight: 600;" text="ALERTAS CRÍTICAS" />
+                                 <Label fx:id="lblCantidadAlertas" style="-fx-font-size: 26; -fx-font-weight: bold; -fx-text-fill: #c62828;" text="0">
+                                    <font>
+                                       <Font name="System Bold" size="26.0" />
+                                    </font>
+                                 </Label>
+                              </children>
+                           </VBox>
+                        </children>
+                     </HBox>
+                  </children>
+               </VBox>
+               
+               <!-- Card 4: Movimientos Hoy -->
+               <VBox alignment="TOP_LEFT" spacing="10.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);" GridPane.columnIndex="3">
+                  <children>
+                     <HBox alignment="CENTER_LEFT" spacing="12.0">
+                        <children>
+                           <StackPane style="-fx-background-color: #e8f5e9; -fx-background-radius: 10; -fx-pref-width: 48; -fx-pref-height: 48;">
+                              <children>
+                                 <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                       <Image url="@IMG/flecha-circular.png" />
+                                    </image>
+                                 </ImageView>
+                              </children>
+                           </StackPane>
+                           <VBox spacing="2.0">
+                              <children>
+                                 <Label style="-fx-font-size: 11; -fx-text-fill: #64748b; -fx-font-weight: 600;" text="MOVIMIENTOS HOY" />
+                                 <Label fx:id="lblMovimientosHoy" style="-fx-font-size: 26; -fx-font-weight: bold; -fx-text-fill: #1e293b;" text="0">
+                                    <font>
+                                       <Font name="System Bold" size="26.0" />
+                                    </font>
+                                 </Label>
+                              </children>
+                           </VBox>
+                        </children>
+                     </HBox>
+                  </children>
+               </VBox>
+               <rowConstraints>
+                  <RowConstraints />
+               </rowConstraints>
+            </GridPane>
+            
+            <!-- Alertas Section -->
+            <VBox spacing="15.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);">
+               <children>
+                  <HBox alignment="CENTER_LEFT" spacing="15.0">
+                     <children>
+                        <ImageView fitHeight="35.0" fitWidth="38.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@IMG/advertencia.png" />
+                           </image>
+                        </ImageView>
+                        <Label style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #1e293b;" text="Alertas de Stock Crítico">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="lblCantidadAlertasBadge" style="-fx-background-color: #c62828; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 4 12; -fx-background-radius: 12; -fx-font-size: 12;" text="0" />
+                        
+                        <HBox alignment="CENTER_RIGHT" spacing="10.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Button onAction="#exportarAlertas" style="-fx-background-color: transparent; -fx-text-fill: #1e3a5f; -fx-border-color: #1e3a5f; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 8 16; -fx-cursor: hand; -fx-font-weight: 600;" text="📥 Exportar" />
+                              <Button onAction="#notificarAlertas" style="-fx-background-color: #c62828; -fx-text-fill: white; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 8 16; -fx-cursor: hand; -fx-font-weight: 600;" text="🔔 Notificar" />
+                           </children>
+                        </HBox>
                      </children>
                   </HBox>
                   
-                  <TableView fx:id="tblProductosStockBajo" prefHeight="150.0" minHeight="100.0" prefWidth="866.0" VBox.vgrow="ALWAYS">
+                  <TableView fx:id="tblProductosStockBajo" prefHeight="180.0" style="-fx-background-color: transparent; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-background-radius: 8;">
                     <columns>
-                      <TableColumn fx:id="colAlertaCodigo" minWidth="80.0" prefWidth="100.0" text="Código" />
-                      <TableColumn fx:id="colAlertaProducto" minWidth="250.0" prefWidth="350.0" text="Producto" />
-                      <TableColumn fx:id="colAlertaStock" minWidth="100.0" prefWidth="120.0" text="Stock Actual" />
-                      <TableColumn fx:id="colAlertaMinimo" minWidth="100.0" prefWidth="120.0" text="Stock Mínimo" />
-                      <TableColumn fx:id="colAlertaEstado" minWidth="120.0" prefWidth="160.0" text="Estado" />
+                      <TableColumn fx:id="colAlertaCodigo" minWidth="100.0" prefWidth="120.0" style="-fx-font-weight: 600;" text="Código" />
+                      <TableColumn fx:id="colAlertaProducto" minWidth="250.0" prefWidth="350.0" style="-fx-font-weight: 600;" text="Producto" />
+                      <TableColumn fx:id="colAlertaStock" minWidth="100.0" prefWidth="120.0" style="-fx-font-weight: 600; -fx-alignment: CENTER;" text="Stock Actual" />
+                      <TableColumn fx:id="colAlertaMinimo" minWidth="100.0" prefWidth="120.0" style="-fx-font-weight: 600; -fx-alignment: CENTER;" text="Stock Mínimo" />
+                      <TableColumn fx:id="colAlertaEstado" minWidth="120.0" prefWidth="140.0" style="-fx-font-weight: 600; -fx-alignment: CENTER;" text="Estado" />
+                      <TableColumn fx:id="colAlertaAccion" minWidth="100.0" prefWidth="120.0" style="-fx-font-weight: 600; -fx-alignment: CENTER;" text="Acción" />
                     </columns>
                     <columnResizePolicy>
                       <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -46,114 +220,174 @@
                </children>
             </VBox>
             
-            <VBox spacing="10.0" style="-fx-background-color: white; -fx-padding: 15; -fx-border-color: #BDC3C7; -fx-border-radius: 5; -fx-background-radius: 5;">
+            <!-- Registro Rápido Section -->
+            <VBox spacing="15.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);">
                <children>
-                  <Label style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="Registrar Movimiento de Inventario" />
-                  
                   <HBox alignment="CENTER_LEFT" spacing="10.0">
                      <children>
-                        <VBox spacing="5.0">
-                           <children>
-                              <Label style="-fx-text-fill: #2C3E50; -fx-font-weight: bold;" text="Tipo de Movimiento" />
-                              <ComboBox fx:id="cmbTipoMovimiento" prefWidth="150.0" promptText="Seleccione" />
-                           </children>
-                        </VBox>
-                        
-                        <VBox spacing="5.0">
-                           <children>
-                              <Label style="-fx-text-fill: #2C3E50; -fx-font-weight: bold;" text="Producto" />
-                              <ComboBox fx:id="cmbProducto" prefWidth="300.0" promptText="Seleccione un producto" />
-                           </children>
-                        </VBox>
-                        
-                        <VBox spacing="5.0">
-                           <children>
-                              <Label style="-fx-text-fill: #2C3E50; -fx-font-weight: bold;" text="Cantidad" />
-                              <TextField fx:id="txtCantidad" prefWidth="100.0" promptText="0" />
-                           </children>
-                        </VBox>
-                     </children>
-                  </HBox>
-                  
-                  <VBox spacing="5.0">
-                     <children>
-                        <Label style="-fx-text-fill: #2C3E50; -fx-font-weight: bold;" text="Motivo / Observación" />
-                        <TextField fx:id="txtMotivo" prefWidth="650.0" promptText="Ej: Compra a proveedor, Corrección de inventario, etc." />
-                     </children>
-                  </VBox>
-                  
-                  <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-padding: 10 0 0 0;">
-                     <children>
-                        <Label fx:id="lblStockActual" style="-fx-text-fill: #34495E;" text="Stock actual: --" />
-                        <Label fx:id="lblStockNuevo" style="-fx-text-fill: #27AE60; -fx-font-weight: bold;" text="Nuevo stock: --" />
-                     </children>
-                  </HBox>
-                  
-                  <HBox alignment="CENTER_LEFT" spacing="10.0">
-                     <children>
-                        <Button onAction="#registrarMovimiento" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 10 20;" text="Registrar Movimiento">
+                        <Label style="-fx-text-fill: #1e3a5f; -fx-font-size: 20;" text="➕" />
+                        <Label style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #1e293b;" text="Registro Rápido de Movimiento">
                            <font>
-                              <Font name="System Bold" size="12.0" />
+                              <Font name="System Bold" size="18.0" />
                            </font>
-                        </Button>
-                        
-                        <Button onAction="#limpiarFormulario" style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 10 20;" text="Limpiar" />
+                        </Label>
                      </children>
                   </HBox>
+                  
+                  <GridPane hgap="15.0" vgap="15.0">
+                     <columnConstraints>
+                        <ColumnConstraints percentWidth="25.0" />
+                        <ColumnConstraints percentWidth="40.0" />
+                        <ColumnConstraints percentWidth="15.0" />
+                        <ColumnConstraints percentWidth="20.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints />
+                     </rowConstraints>
+                     
+                     <!-- Tipo de Movimiento -->
+                     <VBox spacing="8.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <children>
+                           <Label style="-fx-text-fill: #1e293b; -fx-font-weight: 600; -fx-font-size: 13;" text="Tipo de Movimiento *" />
+                           <ComboBox fx:id="cmbTipoMovimiento" maxWidth="Infinity" prefHeight="40.0" promptText="Seleccione tipo" style="-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-size: 13;" />
+                        </children>
+                     </VBox>
+                     
+                     <!-- Producto -->
+                     <VBox spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                        <children>
+                           <Label style="-fx-text-fill: #1e293b; -fx-font-weight: 600; -fx-font-size: 13;" text="Producto *" />
+                           <ComboBox fx:id="cmbProducto" maxWidth="Infinity" prefHeight="40.0" promptText="Buscar producto..." style="-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-size: 13;" />
+                        </children>
+                     </VBox>
+                     
+                     <!-- Cantidad -->
+                     <VBox spacing="8.0" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                        <children>
+                           <Label style="-fx-text-fill: #1e293b; -fx-font-weight: 600; -fx-font-size: 13;" text="Cantidad *" />
+                           <TextField fx:id="txtCantidad" prefHeight="40.0" promptText="0" style="-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-size: 15; -fx-font-weight: 600; -fx-alignment: CENTER;" />
+                        </children>
+                     </VBox>
+                     
+                     <!-- Stock Preview -->
+                     <VBox alignment="CENTER" spacing="5.0" style="-fx-background-color: #f8fafc; -fx-padding: 10; -fx-border-radius: 8; -fx-background-radius: 8; -fx-border-color: #e2e8f0;" GridPane.columnIndex="3" GridPane.rowIndex="0">
+                        <children>
+                           <Label style="-fx-text-fill: #64748b; -fx-font-size: 11; -fx-font-weight: 600;" text="STOCK ACTUAL" />
+                           <Label fx:id="lblStockActualNum" style="-fx-text-fill: #1e293b; -fx-font-size: 20; -fx-font-weight: bold;" text="--">
+                              <font>
+                                 <Font name="System Bold" size="20.0" />
+                              </font>
+                           </Label>
+                           <Label style="-fx-text-fill: #64748b; -fx-font-size: 11;" text="→" />
+                           <Label fx:id="lblStockNuevoNum" style="-fx-text-fill: #2e7d32; -fx-font-size: 20; -fx-font-weight: bold;" text="--">
+                              <font>
+                                 <Font name="System Bold" size="20.0" />
+                              </font>
+                           </Label>
+                           <Label style="-fx-text-fill: #64748b; -fx-font-size: 11; -fx-font-weight: 600;" text="NUEVO STOCK" />
+                        </children>
+                     </VBox>
+                     
+                     <!-- Motivo -->
+                     <VBox spacing="8.0" GridPane.columnIndex="0" GridPane.columnSpan="3" GridPane.rowIndex="1">
+                        <children>
+                           <Label style="-fx-text-fill: #1e293b; -fx-font-weight: 600; -fx-font-size: 13;" text="Motivo / Observación *" />
+                           <TextField fx:id="txtMotivo" prefHeight="40.0" promptText="Ej: Compra a proveedor, Ajuste de inventario físico..." style="-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-size: 13;" />
+                        </children>
+                     </VBox>
+                     
+                     <!-- Botones -->
+                     <HBox alignment="CENTER_RIGHT" spacing="12.0" GridPane.columnIndex="3" GridPane.rowIndex="1">
+                        <children>
+                           <Button onAction="#limpiarFormulario" prefHeight="40.0" prefWidth="100.0" style="-fx-background-color: #f1f5f9; -fx-text-fill: #475569; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-weight: 600; -fx-font-size: 13;" text="Limpiar" />
+                           <Button onAction="#registrarMovimiento" prefHeight="40.0" prefWidth="118.0" style="-fx-background-color: #2e7d32; -fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-weight: 600; -fx-font-size: 13;" text=" Registrar">
+                              <font>
+                                 <Font name="System Bold" size="13.0" />
+                              </font>
+                           </Button>
+                        </children>
+                     </HBox>
+                  </GridPane>
                </children>
             </VBox>
             
-            <Label style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" text="Historial de Movimientos Recientes" />
-            
-            <HBox alignment="CENTER_LEFT" spacing="10.0">
+            <!-- Historial Section -->
+            <VBox spacing="15.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);">
                <children>
-                  <VBox spacing="5.0">
+                  <HBox alignment="CENTER_LEFT" spacing="10.0">
                      <children>
-                        <Label style="-fx-text-fill: #2C3E50;" text="Buscar por producto" />
-                        <TextField fx:id="txtBuscarProducto" prefWidth="250.0" promptText="Código o nombre del producto" />
+                        <Label style="-fx-text-fill: #1e3a5f; -fx-font-size: 20;" text="📋" />
+                        <Label style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #1e293b;" text="Historial de Movimientos">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        
+                        <HBox alignment="CENTER_RIGHT" spacing="10.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Label style="-fx-text-fill: #64748b; -fx-font-weight: 600;" text="Total:" />
+                              <Label fx:id="lblTotalMovimientos" style="-fx-background-color: #1e3a5f; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 4 12; -fx-background-radius: 12; -fx-font-size: 12;" text="0" />
+                           </children>
+                        </HBox>
                      </children>
-                  </VBox>
+                  </HBox>
                   
-                  <VBox spacing="5.0">
+                  <!-- Filtros -->
+                  <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: #f8fafc; -fx-padding: 15; -fx-border-radius: 8; -fx-background-radius: 8;">
                      <children>
-                        <Label style="-fx-text-fill: #2C3E50;" text="Filtrar por tipo" />
-                        <ComboBox fx:id="cmbFiltroTipo" prefWidth="150.0" promptText="Todos" />
+                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Label style="-fx-text-fill: #475569; -fx-font-weight: 600; -fx-font-size: 12;" text="Buscar Producto" />
+                              <TextField fx:id="txtBuscarProducto" prefHeight="38.0" promptText="🔍 Código o nombre..." style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 6; -fx-background-radius: 6; -fx-font-size: 13;" />
+                           </children>
+                        </VBox>
+                        
+                        <VBox spacing="8.0">
+                           <children>
+                              <Label style="-fx-text-fill: #475569; -fx-font-weight: 600; -fx-font-size: 12;" text="Tipo Movimiento" />
+                              <ComboBox fx:id="cmbFiltroTipo" prefHeight="38.0" prefWidth="160.0" promptText="Todos" style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 6; -fx-background-radius: 6; -fx-font-size: 13;" />
+                           </children>
+                        </VBox>
+                        
+                        <VBox spacing="8.0">
+                           <children>
+                              <Label style="-fx-text-fill: #475569; -fx-font-weight: 600; -fx-font-size: 12;" text="Período" />
+                              <ComboBox fx:id="cmbFiltroPeriodo" prefHeight="38.0" prefWidth="150.0" promptText="Todos" style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 6; -fx-background-radius: 6; -fx-font-size: 13;" />
+                           </children>
+                        </VBox>
+                        
+                        <VBox alignment="BOTTOM_LEFT" spacing="8.0">
+                           <children>
+                              <Label style="-fx-opacity: 0;" text="." />
+                              <HBox spacing="8.0">
+                                 <children>
+                                    <Button onAction="#buscarMovimientos" prefHeight="38.0" prefWidth="90.0" style="-fx-background-color: #1e3a5f; -fx-text-fill: white; -fx-background-radius: 6; -fx-cursor: hand; -fx-font-weight: 600;" text="Buscar" />
+                                    <Button onAction="#actualizarHistorial" prefHeight="38.0" prefWidth="38.0" style="-fx-background-color: #f1f5f9; -fx-text-fill: #475569; -fx-background-radius: 6; -fx-cursor: hand; -fx-font-size: 16;" text="🔄" />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
                      </children>
-                  </VBox>
+                  </HBox>
                   
-                  <VBox alignment="BOTTOM_LEFT" spacing="5.0">
-                     <children>
-                        <Button onAction="#buscarMovimientos" style="-fx-background-color: #3498db; -fx-text-fill: white;" text="Buscar" />
-                     </children>
-                  </VBox>
-                  
-                  <VBox alignment="BOTTOM_LEFT" spacing="5.0">
-                     <children>
-                        <Button onAction="#actualizarHistorial" style="-fx-background-color: #95a5a6; -fx-text-fill: white;" text="Actualizar" />
-                     </children>
-                  </VBox>
+                  <TableView fx:id="tblMovimientos" prefHeight="280.0" style="-fx-background-color: transparent; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-background-radius: 8;">
+                    <columns>
+                      <TableColumn fx:id="colCodigo" minWidth="90.0" prefWidth="100.0" style="-fx-font-weight: 600;" text="Código" />
+                      <TableColumn fx:id="colFecha" minWidth="130.0" prefWidth="150.0" style="-fx-font-weight: 600;" text="Fecha y Hora" />
+                      <TableColumn fx:id="colTipo" minWidth="90.0" prefWidth="110.0" style="-fx-font-weight: 600; -fx-alignment: CENTER;" text="Tipo" />
+                      <TableColumn fx:id="colProducto" minWidth="200.0" prefWidth="250.0" style="-fx-font-weight: 600;" text="Producto" />
+                      <TableColumn fx:id="colCantidad" minWidth="80.0" prefWidth="90.0" style="-fx-font-weight: 600; -fx-alignment: CENTER;" text="Cantidad" />
+                      <TableColumn fx:id="colStockAnterior" minWidth="80.0" prefWidth="90.0" style="-fx-font-weight: 600; -fx-alignment: CENTER;" text="Stock Ant." />
+                      <TableColumn fx:id="colStockNuevo" minWidth="80.0" prefWidth="90.0" style="-fx-font-weight: 600; -fx-alignment: CENTER;" text="Stock Nuevo" />
+                      <TableColumn fx:id="colMotivo" minWidth="150.0" prefWidth="200.0" style="-fx-font-weight: 600;" text="Motivo" />
+                    </columns>
+                    <columnResizePolicy>
+                      <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                    </columnResizePolicy>
+                  </TableView>
                </children>
-            </HBox>
-            
-            <TableView fx:id="tblMovimientos" prefHeight="200.0" prefWidth="900.0">
-              <columns>
-                <TableColumn fx:id="colCodigo" prefWidth="100.0" text="Código" />
-                <TableColumn fx:id="colFecha" prefWidth="130.0" text="Fecha" />
-                <TableColumn fx:id="colTipo" prefWidth="100.0" text="Tipo" />
-                <TableColumn fx:id="colProducto" prefWidth="250.0" text="Producto" />
-                <TableColumn fx:id="colCantidad" prefWidth="80.0" text="Cantidad" />
-                <TableColumn fx:id="colStockAnterior" prefWidth="80.0" text="Stock Ant." />
-                <TableColumn fx:id="colStockNuevo" prefWidth="80.0" text="Stock Nuevo" />
-                <TableColumn fx:id="colMotivo" prefWidth="180.0" text="Motivo" />
-              </columns>
-            </TableView>
-            
-            <HBox alignment="CENTER_LEFT" spacing="10.0">
-               <children>
-                  <Label style="-fx-text-fill: #2C3E50; -fx-font-weight: bold;" text="Total de movimientos:" />
-                  <Label fx:id="lblTotalMovimientos" style="-fx-text-fill: #27AE60; -fx-font-weight: bold;" text="0" />
-               </children>
-            </HBox>
+            </VBox>
          </children>
       </VBox>
    </content>

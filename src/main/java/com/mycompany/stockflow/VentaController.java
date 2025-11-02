@@ -83,8 +83,7 @@ public class VentaController {
     private ObservableList<DetalleVentaItem> detalleVentaItems;
     private ObservableList<Cliente> clientesEncontrados;
     private ObservableList<Producto> productosEncontrados;
-    private DecimalFormat formatoMoneda = new DecimalFormat("$#,##0.00");
-    
+    private DecimalFormat formatoMoneda = new DecimalFormat("'COP '#,##0");
     private Cliente clienteSeleccionado = null;
     private double subtotalNeto = 0.0;
     private double descuentoGlobalTotal = 0.0;

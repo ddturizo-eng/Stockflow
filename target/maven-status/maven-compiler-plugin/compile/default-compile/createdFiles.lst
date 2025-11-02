@@ -34,6 +34,7 @@ com\mycompany\stockflow\Presentacion\SecondaryController.class
 module-info.class
 com\mycompany\stockflow\Logica\RecomendacionServicio.class
 com\mycompany\stockflow\ControlInventarioController$MovimientoItem.class
+com\mycompany\stockflow\ControlInventarioController$5.class
 com\mycompany\stockflow\Modelo\Entidad.class
 com\mycompany\stockflow\InteligenciaNegocioController.class
 com\mycompany\stockflow\utils\SesionUsuario.class
@@ -45,6 +46,7 @@ com\mycompany\stockflow\DashboardController.class
 com\mycompany\stockflow\ControlInventarioController$4.class
 com\mycompany\stockflow\LoginController.class
 com\mycompany\stockflow\Modelo\DetalleVenta.class
+com\mycompany\stockflow\utils\GeneradorPDFComprobante$TipoFormato.class
 com\mycompany\stockflow\excepciones\AIAPIException.class
 com\mycompany\stockflow\Modelo\Rol.class
 com\mycompany\stockflow\Logica\ProductoServicio.class
@@ -95,6 +97,7 @@ com\mycompany\stockflow\App.class
 com\mycompany\stockflow\Logica\DatosGraficaServicio.class
 com\mycompany\stockflow\utils\ConfiguracionAI.class
 com\mycompany\stockflow\excepciones\ClienteNoEncontradoExcepcion.class
+com\mycompany\stockflow\utils\GeneradorPDFComprobante.class
 com\mycompany\stockflow\Logica\ClienteServicio.class
 com\mycompany\stockflow\Modelo\PromptConfiguracion.class
 com\mycompany\stockflow\ProductosController$3.class

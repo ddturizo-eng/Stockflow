@@ -6,12 +6,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import javafx.animation.FadeTransition;
-import javafx.animation.ParallelTransition;
-import javafx.animation.ScaleTransition;
+import javafx.animation.*;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -20,18 +19,23 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
 /**
  * Controlador principal del Dashboard de StockFlow
  * Gestiona la navegación entre las diferentes vistas del sistema
+ * Incluye animaciones y efectos visuales mejorados
  * 
  * @author 
  */
 public class DashboardController implements Initializable {
     
     // Referencias a botones del menú
+    @FXML
+    private Button btnInicio;
+    
     @FXML
     private Button btnVentas;
     
@@ -69,6 +73,28 @@ public class DashboardController implements Initializable {
     @FXML
     private AnchorPane contenedorPrincipal;
     
+    // Referencias a la vista de inicio y sus elementos
+    @FXML
+    private VBox vistaInicio;
+    
+    @FXML
+    private VBox cardProductos;
+    
+    @FXML
+    private VBox cardVentas;
+    
+    @FXML
+    private VBox cardInventario;
+    
+    @FXML
+    private VBox btnNuevoCliente;
+    
+    @FXML
+    private VBox btnNuevaFactura;
+    
+    @FXML
+    private VBox btnVerReportes;
+    
     // Variable para rastrear el botón activo
     private Button botonActivo;
     
@@ -84,7 +110,7 @@ public class DashboardController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Inicializar el usuario (puedes cambiar "Admin" por el usuario real de la sesión)
+        // Inicializar el usuario
         setUsuario("Admin");
         
         // Inicializar la fecha actual
@@ -93,8 +119,213 @@ public class DashboardController implements Initializable {
         // Configurar efectos hover para todos los botones del menú
         configurarEfectosHover();
         
-        // Mensaje de bienvenida en consola
-        System.out.println("Dashboard inicializado correctamente");
+        // Aplicar animaciones de entrada a la vista de bienvenida
+        aplicarAnimacionesIniciales();
+        
+        // Configurar efectos hover en las tarjetas
+        configurarEfectosTarjetas();
+        
+        // Configurar eventos click en las tarjetas principales
+        configurarClicksTarjetasPrincipales();
+        
+        // Configurar eventos click en acciones rápidas
+        configurarClicksAccionesRapidas();
+        
+        // Establecer botón Inicio como activo por defecto
+        establecerBotonActivo(btnInicio);
+        
+        System.out.println("Dashboard inicializado correctamente con animaciones");
+    }
+    
+    /**
+     * Configura los clicks en las tarjetas principales para navegar
+     */
+    private void configurarClicksTarjetasPrincipales() {
+        if (cardProductos != null) {
+            cardProductos.setOnMouseClicked(e -> mostrarProductos());
+        }
+        
+        if (cardVentas != null) {
+            cardVentas.setOnMouseClicked(e -> mostrarVentas());
+        }
+        
+        if (cardInventario != null) {
+            cardInventario.setOnMouseClicked(e -> mostrarInventario());
+        }
+    }
+    
+    /**
+     * Configura los clicks en las acciones rápidas
+     */
+    private void configurarClicksAccionesRapidas() {
+        if (btnNuevoCliente != null) {
+            btnNuevoCliente.setOnMouseClicked(e -> mostrarClientes());
+        }
+        
+        if (btnNuevaFactura != null) {
+            btnNuevaFactura.setOnMouseClicked(e -> mostrarProductos());
+        }
+        
+        if (btnVerReportes != null) {
+            btnVerReportes.setOnMouseClicked(e -> mostrarEstadisticas());
+        }
+    }
+    
+    /**
+     * Muestra la vista de inicio (Dashboard con tarjetas)
+     */
+    @FXML
+    private void mostrarInicio() {
+        // Limpiar contenedor
+        contenedorPrincipal.getChildren().clear();
+        
+        // Actualizar título
+        animarCambioTexto(lblTituloSeccion, "Dashboard Principal");
+        
+        // Establecer botón activo
+        establecerBotonActivo(btnInicio);
+        
+        // Verificar que vistaInicio existe
+        if (vistaInicio != null) {
+            // Agregar vista de inicio
+            AnchorPane.setTopAnchor(vistaInicio, 0.0);
+            AnchorPane.setBottomAnchor(vistaInicio, 0.0);
+            AnchorPane.setLeftAnchor(vistaInicio, 0.0);
+            AnchorPane.setRightAnchor(vistaInicio, 0.0);
+            
+            contenedorPrincipal.getChildren().add(vistaInicio);
+            
+            // Aplicar animación de entrada
+            aplicarAnimacionFadeIn(vistaInicio);
+            
+            // Re-configurar eventos después de volver a agregar
+            configurarClicksTarjetasPrincipales();
+            configurarClicksAccionesRapidas();
+            configurarEfectosTarjetas();
+            
+            System.out.println("Vista de inicio cargada");
+        } else {
+            System.err.println("Error: vistaInicio es null");
+        }
+    }
+    
+    /**
+     * Aplica animaciones de entrada a los elementos del dashboard
+     */
+    private void aplicarAnimacionesIniciales() {
+        // Obtener todos los VBox hijos del contenedor principal
+        if (contenedorPrincipal.getChildren().isEmpty()) {
+            return;
+        }
+        
+        Node contenido = contenedorPrincipal.getChildren().get(0);
+        if (contenido instanceof VBox) {
+            VBox vbox = (VBox) contenido;
+            
+            // Animar cada hijo del VBox principal
+            for (int i = 0; i < vbox.getChildren().size(); i++) {
+                Node nodo = vbox.getChildren().get(i);
+                
+                // Configurar estado inicial
+                nodo.setOpacity(0);
+                nodo.setTranslateY(30);
+                
+                // Crear animación de entrada con delay progresivo
+                FadeTransition fade = new FadeTransition(Duration.millis(800), nodo);
+                fade.setFromValue(0);
+                fade.setToValue(1);
+                fade.setDelay(Duration.millis(i * 150));
+                
+                TranslateTransition translate = new TranslateTransition(Duration.millis(800), nodo);
+                translate.setFromY(30);
+                translate.setToY(0);
+                translate.setDelay(Duration.millis(i * 150));
+                translate.setInterpolator(Interpolator.EASE_OUT);
+                
+                // Ejecutar animaciones en paralelo
+                ParallelTransition parallel = new ParallelTransition(fade, translate);
+                parallel.play();
+            }
+        }
+    }
+    
+    /**
+     * Configura efectos hover interactivos en las tarjetas
+     */
+    private void configurarEfectosTarjetas() {
+        if (contenedorPrincipal.getChildren().isEmpty()) {
+            return;
+        }
+        
+        Node contenido = contenedorPrincipal.getChildren().get(0);
+        if (contenido instanceof VBox) {
+            VBox vbox = (VBox) contenido;
+            buscarYAnimarTarjetas(vbox);
+        }
+    }
+    
+    /**
+     * Busca VBox que representen tarjetas y agrega efectos hover
+     */
+    private void buscarYAnimarTarjetas(Parent parent) {
+        for (Node node : parent.getChildrenUnmodifiable()) {
+            if (node instanceof VBox) {
+                VBox vboxCard = (VBox) node;
+                String style = vboxCard.getStyle();
+                
+                // Detectar si es una tarjeta por su estilo
+                if (style != null && (style.contains("linear-gradient") || 
+                    (style.contains("#FFFFFF") && style.contains("-fx-cursor: hand")))) {
+                    
+                    configurarEfectoHoverTarjeta(vboxCard);
+                }
+            }
+            
+            // Buscar recursivamente en los hijos
+            if (node instanceof Parent) {
+                buscarYAnimarTarjetas((Parent) node);
+            }
+        }
+    }
+    
+    /**
+     * Configura efecto hover para una tarjeta específica
+     */
+    private void configurarEfectoHoverTarjeta(VBox tarjeta) {
+        // Guardar escala original
+        final double scaleOriginal = 1.0;
+        final double scaleHover = 1.05;
+        
+        tarjeta.setOnMouseEntered(e -> {
+            ScaleTransition scale = new ScaleTransition(Duration.millis(200), tarjeta);
+            scale.setToX(scaleHover);
+            scale.setToY(scaleHover);
+            scale.setInterpolator(Interpolator.EASE_OUT);
+            scale.play();
+        });
+        
+        tarjeta.setOnMouseExited(e -> {
+            ScaleTransition scale = new ScaleTransition(Duration.millis(200), tarjeta);
+            scale.setToX(scaleOriginal);
+            scale.setToY(scaleOriginal);
+            scale.setInterpolator(Interpolator.EASE_OUT);
+            scale.play();
+        });
+        
+        // Efecto de click
+        tarjeta.setOnMousePressed(e -> {
+            ScaleTransition scale = new ScaleTransition(Duration.millis(100), tarjeta);
+            scale.setToX(0.98);
+            scale.setToY(0.98);
+            scale.play();
+        });
+        
+        tarjeta.setOnMouseReleased(e -> {
+            ScaleTransition scale = new ScaleTransition(Duration.millis(100), tarjeta);
+            scale.setToX(scaleHover);
+            scale.setToY(scaleHover);
+            scale.play();
+        });
     }
     
     /**
@@ -110,6 +341,7 @@ public class DashboardController implements Initializable {
      * Configura los efectos hover para los botones del menú
      */
     private void configurarEfectosHover() {
+        configurarHoverBoton(btnInicio);
         configurarHoverBoton(btnVentas);
         configurarHoverBoton(btnProductos);
         configurarHoverBoton(btnClientes);
@@ -120,18 +352,30 @@ public class DashboardController implements Initializable {
     }
     
     /**
-     * Configura el efecto hover para un botón específico
+     * Configura el efecto hover para un botón específico con animación
      */
     private void configurarHoverBoton(Button boton) {
         boton.setOnMouseEntered(e -> {
             if (boton != botonActivo) {
                 boton.setStyle(ESTILO_BOTON_HOVER);
+                
+                // Animación de deslizamiento suave
+                TranslateTransition slide = new TranslateTransition(Duration.millis(200), boton);
+                slide.setToX(5);
+                slide.setInterpolator(Interpolator.EASE_OUT);
+                slide.play();
             }
         });
         
         boton.setOnMouseExited(e -> {
             if (boton != botonActivo) {
                 boton.setStyle(ESTILO_BOTON_INACTIVO);
+                
+                // Regresar a posición original
+                TranslateTransition slide = new TranslateTransition(Duration.millis(200), boton);
+                slide.setToX(0);
+                slide.setInterpolator(Interpolator.EASE_OUT);
+                slide.play();
             }
         });
     }
@@ -143,15 +387,17 @@ public class DashboardController implements Initializable {
         // Remover estilo activo del botón anterior
         if (botonActivo != null) {
             botonActivo.setStyle(ESTILO_BOTON_INACTIVO);
+            botonActivo.setTranslateX(0); // Resetear posición
         }
         
         // Establecer nuevo botón activo
         boton.setStyle(ESTILO_BOTON_ACTIVO);
+        boton.setTranslateX(5); // Mantener desplazado
         botonActivo = boton;
     }
     
     /**
-     * Carga una vista FXML en el contenedor principal
+     * Carga una vista FXML en el contenedor principal con animación
      * 
      * @param rutaFxml Ruta del archivo FXML a cargar
      * @param titulo Título de la sección
@@ -159,8 +405,8 @@ public class DashboardController implements Initializable {
      */
     private void cargarVista(String rutaFxml, String titulo, Button boton) {
         try {
-            // Actualizar título
-            lblTituloSeccion.setText(titulo);
+            // Actualizar título con animación
+            animarCambioTexto(lblTituloSeccion, titulo);
             
             // Establecer botón activo
             establecerBotonActivo(boton);
@@ -169,20 +415,42 @@ public class DashboardController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(rutaFxml));
             Parent vista = loader.load();
             
-            // Limpiar contenedor
-            contenedorPrincipal.getChildren().clear();
-            
-            // Configurar anclajes para que ocupe todo el espacio
-            AnchorPane.setTopAnchor(vista, 0.0);
-            AnchorPane.setBottomAnchor(vista, 0.0);
-            AnchorPane.setLeftAnchor(vista, 0.0);
-            AnchorPane.setRightAnchor(vista, 0.0);
-            
-            // Agregar vista al contenedor
-            contenedorPrincipal.getChildren().add(vista);
-            
-            // Aplicar animación de transición
-            aplicarAnimacionFade(vista);
+            // Animación de salida del contenido actual
+            if (!contenedorPrincipal.getChildren().isEmpty()) {
+                Node contenidoActual = contenedorPrincipal.getChildren().get(0);
+                
+                FadeTransition fadeOut = new FadeTransition(Duration.millis(200), contenidoActual);
+                fadeOut.setFromValue(1.0);
+                fadeOut.setToValue(0.0);
+                
+                fadeOut.setOnFinished(e -> {
+                    // Limpiar contenedor
+                    contenedorPrincipal.getChildren().clear();
+                    
+                    // Configurar anclajes para que ocupe todo el espacio
+                    AnchorPane.setTopAnchor(vista, 0.0);
+                    AnchorPane.setBottomAnchor(vista, 0.0);
+                    AnchorPane.setLeftAnchor(vista, 0.0);
+                    AnchorPane.setRightAnchor(vista, 0.0);
+                    
+                    // Agregar nueva vista al contenedor
+                    contenedorPrincipal.getChildren().add(vista);
+                    
+                    // Aplicar animación de entrada
+                    aplicarAnimacionFadeIn(vista);
+                });
+                
+                fadeOut.play();
+            } else {
+                // No hay contenido previo, cargar directamente
+                AnchorPane.setTopAnchor(vista, 0.0);
+                AnchorPane.setBottomAnchor(vista, 0.0);
+                AnchorPane.setLeftAnchor(vista, 0.0);
+                AnchorPane.setRightAnchor(vista, 0.0);
+                
+                contenedorPrincipal.getChildren().add(vista);
+                aplicarAnimacionFadeIn(vista);
+            }
             
             System.out.println("Vista cargada: " + titulo);
             
@@ -196,76 +464,75 @@ public class DashboardController implements Initializable {
     }
     
     /**
-     * Aplica una animación de fade a un nodo
+     * Aplica una animación de fade-in a un nodo
      */
-    private void aplicarAnimacionFade(Parent nodo) {
-        FadeTransition fade = new FadeTransition(Duration.millis(300), nodo);
+    private void aplicarAnimacionFadeIn(Parent nodo) {
+        nodo.setOpacity(0);
+        
+        FadeTransition fade = new FadeTransition(Duration.millis(400), nodo);
         fade.setFromValue(0.0);
         fade.setToValue(1.0);
+        fade.setInterpolator(Interpolator.EASE_IN);
         fade.play();
+    }
+    
+    /**
+     * Anima el cambio de texto en un Label
+     */
+    private void animarCambioTexto(Label label, String nuevoTexto) {
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(150), label);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+        
+        fadeOut.setOnFinished(e -> {
+            label.setText(nuevoTexto);
+            
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(150), label);
+            fadeIn.setFromValue(0.0);
+            fadeIn.setToValue(1.0);
+            fadeIn.play();
+        });
+        
+        fadeOut.play();
     }
     
     // ========== MÉTODOS PARA CADA OPCIÓN DEL MENÚ ==========
     
-    /**
-     * Muestra la vista de Ventas
-     */
     @FXML
     private void mostrarVentas() {
         cargarVista("Venta.fxml", "Registro de Ventas", btnVentas);
     }
     
-    /**
-     * Muestra la vista de Productos
-     */
     @FXML
     private void mostrarProductos() {
         cargarVista("Productos.fxml", "Gestión de Productos", btnProductos);
     }
     
-    /**
-     * Muestra la vista de Clientes
-     */
     @FXML
     private void mostrarClientes() {
         cargarVista("clientes.fxml", "Gestión de Clientes", btnClientes);
     }
     
-    /**
-     * Muestra la vista de Inventario
-     */
     @FXML
     private void mostrarInventario() {
         cargarVista("ControlInventario.fxml", "Control de Inventario", btnInventario);
     }
     
-    /**
-     * Muestra la vista de Facturación
-     */
     @FXML
     private void mostrarFacturacion() {
         cargarVista("facturacion.fxml", "Facturación", btnFacturacion);
     }
     
-    /**
-     * Muestra la vista de Estadísticas
-     */
     @FXML
     private void mostrarEstadisticas() {
-        cargarVista("inteligenciaDeNegocio.fxml", "Estadísticas y Reportes", btnEstadisticas);
+        cargarVista("inteligenciaDeNegocio.fxml", "", btnEstadisticas);
     }
     
-    /**
-     * Muestra la vista de Usuarios
-     */
     @FXML
     private void mostrarUsuarios() {
         cargarVista("usuarios.fxml", "Gestión de Usuarios", btnUsuarios);
     }
     
-    /**
-     * Cierra la sesión del usuario y regresa a la pantalla de Bienvenida
-     */
     @FXML
     private void cerrarSesion() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -286,7 +553,6 @@ public class DashboardController implements Initializable {
      */
     private void volverABienvenida() {
         try {
-            // Obtener el nodo raíz actual para animación
             Parent rootActual = btnCerrarSesion.getScene().getRoot();
             
             // Animación de salida
@@ -302,32 +568,24 @@ public class DashboardController implements Initializable {
             
             salida.setOnFinished(e -> {
                 try {
-                    // Cargar Bienvenida
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("bienvenida.fxml"));
                     Parent root = loader.load();
                     
-                    // Obtener Stage actual
                     Stage stage = (Stage) btnCerrarSesion.getScene().getWindow();
-                    
-                    // Crear nueva Scene con tamaño de bienvenida
                     Scene scene = new Scene(root, 800, 600);
                     
-                    // Cambiar a la Scene de bienvenida
                     stage.setScene(scene);
                     stage.setTitle("StockFlow - Sistema de Gestión de Inventario");
                     stage.setResizable(true);
                     stage.setMinWidth(800);
                     stage.setMinHeight(600);
                     
-                    // Si estaba maximizado, restaurar tamaño normal
                     if (stage.isMaximized()) {
                         stage.setMaximized(false);
                     }
                     
-                    // Centrar en pantalla
                     stage.centerOnScreen();
                     
-                    // Configurar F11
                     scene.setOnKeyPressed(event -> {
                         if (event.getCode() == KeyCode.F11) {
                             stage.setFullScreen(!stage.isFullScreen());
@@ -359,9 +617,6 @@ public class DashboardController implements Initializable {
         }
     }
     
-    /**
-     * Muestra un mensaje de error
-     */
     private void mostrarError(String titulo, String mensaje) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(titulo);
@@ -370,9 +625,6 @@ public class DashboardController implements Initializable {
         alert.showAndWait();
     }
     
-    /**
-     * Muestra un mensaje de información
-     */
     private void mostrarInformacion(String titulo, String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(titulo);
@@ -381,11 +633,6 @@ public class DashboardController implements Initializable {
         alert.showAndWait();
     }
     
-    /**
-     * Establece el nombre del usuario en la etiqueta
-     * 
-     * @param nombreUsuario Nombre del usuario a mostrar
-     */
     public void setUsuario(String nombreUsuario) {
         if (lblUsuario != null) {
             lblUsuario.setText("Usuario: " + nombreUsuario);

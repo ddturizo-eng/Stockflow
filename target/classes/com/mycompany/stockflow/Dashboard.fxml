@@ -58,6 +58,23 @@
                   <Insets bottom="10.0" left="15.0" right="15.0" top="5.0" />
                </padding>
                <children>
+                  <!-- Botón Inicio/Dashboard (NUEVO) -->
+                  <Button fx:id="btnInicio" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" onAction="#mostrarInicio" prefHeight="48.0" prefWidth="230.0" style="-fx-background-color: rgba(255, 255, 255, 0.2); -fx-background-radius: 10; -fx-cursor: hand; -fx-border-color: rgba(255, 255, 255, 0.3); -fx-border-radius: 10; -fx-border-width: 1;" text="Inicio" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                     <graphic>
+                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@IMG/boton-de-inicio.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                     <padding>
+                        <Insets left="20.0" />
+                     </padding>
+                  </Button>
+                  
                   <!-- Botón Ventas -->
                   <Button fx:id="btnVentas" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" onAction="#mostrarVentas" prefHeight="48.0" prefWidth="230.0" style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-cursor: hand; -fx-border-color: transparent; -fx-border-radius: 10;" text="Registro de Ventas" textFill="#E3F2FD">
                      <font>
@@ -231,36 +248,230 @@
                <content>
                   <AnchorPane fx:id="contenedorPrincipal" style="-fx-background-color: #F5F7FA;">
                      <children>
-                        <!-- Vista por Defecto del Dashboard -->
-                        <VBox alignment="CENTER" prefHeight="720.0" prefWidth="920.0" spacing="35.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <!-- Vista por Defecto del Dashboard MEJORADA -->
+                        <VBox fx:id="vistaInicio" alignment="TOP_CENTER" prefHeight="720.0" prefWidth="920.0" spacing="40.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <padding>
+                              <Insets bottom="40.0" left="40.0" right="40.0" top="50.0" />
+                           </padding>
                            <children>
-                              <VBox alignment="CENTER" spacing="12.0">
+                              <!-- Encabezado de Bienvenida -->
+                              <VBox alignment="CENTER" spacing="15.0">
                                  <children>
                                     <Label text="Bienvenido a StockFlow" textFill="#1e3c72">
                                        <font>
-                                          <Font name="System Bold" size="34.0" />
+                                          <Font name="System Bold" size="38.0" />
                                        </font>
                                     </Label>
-                                    <Label text="Sistema de Gestión de Inventario" textFill="#6B7C93">
+                                    <Label text="Sistema Integral de Gestión de Inventario" textFill="#6B7C93">
                                        <font>
-                                          <Font size="17.0" />
+                                          <Font size="16.0" />
                                        </font>
                                     </Label>
+                                    <Region prefHeight="10.0" />
+                                    <HBox alignment="CENTER" spacing="8.0">
+                                       <children>
+                                          <Region prefHeight="3.0" prefWidth="50.0" style="-fx-background-color: linear-gradient(to right, transparent, #2a5298);" />
+                                          <Label text="●" textFill="#2a5298">
+                                             <font>
+                                                <Font size="8.0" />
+                                             </font>
+                                          </Label>
+                                          <Region prefHeight="3.0" prefWidth="50.0" style="-fx-background-color: linear-gradient(to left, transparent, #2a5298);" />
+                                       </children>
+                                    </HBox>
                                  </children>
                               </VBox>
                               
                               <!-- Tarjetas de Métricas -->
-                              <HBox alignment="CENTER" spacing="25.0" />
+                              <HBox alignment="CENTER" spacing="25.0">
+                                 <children>
+                                    <!-- Tarjeta 1: Productos -->
+                                    <VBox fx:id="cardProductos" alignment="CENTER" prefHeight="160.0" prefWidth="240.0" spacing="15.0" style="-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(102, 126, 234, 0.4), 15, 0, 0, 5); -fx-cursor: hand;">
+                                       <padding>
+                                          <Insets bottom="20.0" left="25.0" right="25.0" top="20.0" />
+                                       </padding>
+                                       <children>
+                                          <ImageView fitHeight="50.0" fitWidth="50.0" opacity="0.9" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@IMG/agregar-producto.png" />
+                                             </image>
+                                          </ImageView>
+                                          <Label text="Productos" textFill="WHITE">
+                                             <font>
+                                                <Font name="System Bold" size="16.0" />
+                                             </font>
+                                          </Label>
+                                          <Label text="Gestiona tu catálogo" textFill="#73a7cc">
+                                             <font>
+                                                <Font size="12.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </VBox>
+                                    
+                                    <!-- Tarjeta 2: Ventas -->
+                                    <VBox fx:id="cardVentas" alignment="CENTER" prefHeight="160.0" prefWidth="240.0" spacing="15.0" style="-fx-background-color: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(245, 87, 108, 0.4), 15, 0, 0, 5); -fx-cursor: hand;">
+                                       <padding>
+                                          <Insets bottom="20.0" left="25.0" right="25.0" top="20.0" />
+                                       </padding>
+                                       <children>
+                                          <ImageView fitHeight="50.0" fitWidth="50.0" opacity="0.9" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@IMG/ventas.png" />
+                                             </image>
+                                          </ImageView>
+                                          <Label text="Ventas" textFill="WHITE">
+                                             <font>
+                                                <Font name="System Bold" size="16.0" />
+                                             </font>
+                                          </Label>
+                                          <Label text="Registra transacciones" textFill="#d9afaf">
+                                             <font>
+                                                <Font size="12.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </VBox>
+                                    
+                                    <!-- Tarjeta 3: Inventario -->
+                                    <VBox fx:id="cardInventario" alignment="CENTER" prefHeight="160.0" prefWidth="240.0" spacing="15.0" style="-fx-background-color: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(79, 172, 254, 0.4), 15, 0, 0, 5); -fx-cursor: hand;">
+                                       <padding>
+                                          <Insets bottom="20.0" left="25.0" right="25.0" top="20.0" />
+                                       </padding>
+                                       <children>
+                                          <ImageView fitHeight="50.0" fitWidth="50.0" opacity="0.9" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@IMG/inventario.png" />
+                                             </image>
+                                          </ImageView>
+                                          <Label text="Inventario" textFill="WHITE">
+                                             <font>
+                                                <Font name="System Bold" size="16.0" />
+                                             </font>
+                                          </Label>
+                                          <Label text="Control de stock" textFill="#93b6bf">
+                                             <font>
+                                                <Font size="12.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
                               
-                              <Label text="Seleccione una opción del menú lateral para comenzar" textFill="#6B7C93">
-                                 <font>
-                                    <Font size="15.0" />
-                                 </font>
-                              </Label>
+                              <!-- Sección de Acciones Rápidas -->
+                              <VBox alignment="CENTER" spacing="20.0">
+                                 <children>
+                                    <Label text="Acciones Rápidas" textFill="#1e3c72">
+                                       <font>
+                                          <Font name="System Bold" size="20.0" />
+                                       </font>
+                                    </Label>
+                                    
+                                    <HBox alignment="CENTER" spacing="20.0">
+                                       <children>
+                                          <!-- Botón Acción 1: Nuevo Cliente -->
+                                          <VBox fx:id="btnNuevoCliente" alignment="CENTER" prefHeight="130.0" prefWidth="200.0" spacing="12.0" style="-fx-background-color: #FFFFFF; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 3); -fx-cursor: hand;">
+                                             <padding>
+                                                <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
+                                             </padding>
+                                             <children>
+                                                <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                                                   <image>
+                                                      <Image url="@IMG/cliente.png" />
+                                                   </image>
+                                                </ImageView>
+                                                <Label text="Nuevo Cliente" textFill="#2a5298">
+                                                   <font>
+                                                      <Font name="System Bold" size="14.0" />
+                                                   </font>
+                                                </Label>
+                                                <Label text="Registrar cliente" textAlignment="CENTER" textFill="#d1baa1" wrapText="true">
+                                                   <font>
+                                                      <Font size="11.0" />
+                                                   </font>
+                                                </Label>
+                                             </children>
+                                          </VBox>
+                                          
+                                          <!-- Botón Acción 2: Nueva Factura -->
+                                          <VBox fx:id="btnNuevaFactura" alignment="CENTER" prefHeight="130.0" prefWidth="200.0" spacing="12.0" style="-fx-background-color: #FFFFFF; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 3); -fx-cursor: hand;">
+                                             <padding>
+                                                <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
+                                             </padding>
+                                             <children>
+                                                <ImageView fitHeight="42.0" fitWidth="53.0" pickOnBounds="true" preserveRatio="true">
+                                                   <image>
+                                                      <Image url="@IMG/caja.png" />
+                                                   </image>
+                                                </ImageView>
+                                                <Label text="Nuevo Producto" textFill="#2a5298">
+                                                   <font>
+                                                      <Font name="System Bold" size="14.0" />
+                                                   </font>
+                                                </Label>
+                                                <Label text="Generar factura" textAlignment="CENTER" textFill="#84a4cf" wrapText="true">
+                                                   <font>
+                                                      <Font size="11.0" />
+                                                   </font>
+                                                </Label>
+                                             </children>
+                                          </VBox>
+                                          
+                                          <!-- Botón Acción 3: Ver Reportes -->
+                                          <VBox fx:id="btnVerReportes" alignment="CENTER" prefHeight="130.0" prefWidth="200.0" spacing="12.0" style="-fx-background-color: #FFFFFF; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 3); -fx-cursor: hand;">
+                                             <padding>
+                                                <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
+                                             </padding>
+                                             <children>
+                                                <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                                                   <image>
+                                                      <Image url="@IMG/estadisticas.png" />
+                                                   </image>
+                                                </ImageView>
+                                                <Label text="Ver Reportes" textFill="#2a5298">
+                                                   <font>
+                                                      <Font name="System Bold" size="14.0" />
+                                                   </font>
+                                                </Label>
+                                                <Label text="Análisis de negocio" textAlignment="CENTER" textFill="#86d47e" wrapText="true">
+                                                   <font>
+                                                      <Font size="11.0" />
+                                                   </font>
+                                                </Label>
+                                             </children>
+                                          </VBox>
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                              
+                              <!-- Mensaje inferior -->
+                              <VBox alignment="CENTER" spacing="10.0">
+                                 <children>
+                                    <Region prefHeight="20.0" />
+                                    <Label text="Seleccione una opción del menú lateral para comenzar" textFill="#8B93A5">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <HBox alignment="CENTER" spacing="15.0">
+                                       <children>
+                                          <Label text="⚡" textFill="#2a5298">
+                                             <font>
+                                                <Font size="16.0" />
+                                             </font>
+                                          </Label>
+                                          <Label text="Sistema optimizado y listo para usar" textFill="#A0A8B8">
+                                             <font>
+                                                <Font size="12.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
                            </children>
-                           <padding>
-                              <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
-                           </padding>
                         </VBox>
                      </children>
                   </AnchorPane>
