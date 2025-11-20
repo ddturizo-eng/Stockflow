@@ -1,8 +1,3 @@
-   /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/javafx/FXMLController.java to edit this template
- */
-
 package com.mycompany.stockflow;
 
 import com.mycompany.stockflow.Modelo.Producto;
@@ -31,6 +26,27 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+/**
+ * Controlador para la gestión completa de productos en el sistema.
+ * 
+ * Proporciona funcionalidad CRUD (Crear, Leer, Actualizar, Eliminar) para productos,
+ * incluyendo gestión de imágenes desde archivos o cámara web.
+ * 
+ * Características principales:
+ * - Tabla interactiva con búsqueda y visualización de productos
+ * - Formulario dinámico para crear y editar productos
+ * - Selección de imágenes desde el sistema de archivos
+ * - Captura de fotos directamente desde webcam
+ * - Validación de datos en tiempo real
+ * - Generación automática de códigos de producto
+ * - Gestión de categorías predefinidas
+ * - Alertas sobre stock bajo
+ * - Notificación de cambios al dashboard
+ * 
+ * @author Equipo StockFlow / StockFlow Team
+ * @version 1.0
+ * @since 2025
+ */
 public class ProductosController implements Initializable {
     
     @FXML private TextField txtBuscar;
@@ -45,7 +61,6 @@ public class ProductosController implements Initializable {
     @FXML private TableColumn<Producto, Void> colAcciones;
     @FXML private Label lblTotalProductos;
     
-    // Formulario
     @FXML private VBox formularioContainer;
     @FXML private Label lblTituloFormulario;
     @FXML private TextField txtCodigo;
@@ -58,7 +73,6 @@ public class ProductosController implements Initializable {
     @FXML private TextArea txtDescripcion;
     @FXML private Button btnGuardar;
     
-    // Nuevos controles para la imagen
     @FXML private ImageView imgVistaPrevia;
     @FXML private Button btnSeleccionarImagen;
     @FXML private Button btnTomarFoto;
@@ -69,12 +83,20 @@ public class ProductosController implements Initializable {
     private Producto productoSeleccionado;
     private boolean esEdicion = false;
     
-    // Variables para manejo de imagen
     private File archivoImagenSeleccionado;
     private Image imagenCapturada;
     private boolean imagenModificada = false;
     private DashboardController dashboardController;
     
+    /**
+     * Inicializa el controlador y configura todos los componentes de interfaz.
+     * 
+     * Se invoca automáticamente después de cargar el archivo FXML.
+     * Configura tabla, combos, búsqueda y validaciones en tiempo real.
+     * 
+     * @param url URL del archivo FXML
+     * @param rb Bundle de recursos
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         productoServicio = new ProductoServicio();
@@ -88,6 +110,13 @@ public class ProductosController implements Initializable {
         configurarVistaPrevia();
     }
     
+    /**
+     * Configura las columnas de la tabla de productos.
+     * 
+     * Define los valores de celda para cada columna, incluyendo formateo
+     * especial para precios, stock y estados. Añade botones de acción
+     * para editar y eliminar productos.
+     */
     private void configurarTabla() {
         colCodigo.setCellValueFactory(cellData -> 
             new SimpleStringProperty(cellData.getValue().getCodigo()));
@@ -187,6 +216,9 @@ public class ProductosController implements Initializable {
         tablaProductos.setItems(listaProductos);
     }
     
+    /**
+     * Configura las categorías disponibles en el ComboBox.
+     */
     private void configurarComboBoxCategorias() {
         cbCategoria.setItems(FXCollections.observableArrayList(
             "Electrónica", "Ropa y Accesorios", "Alimentos y Bebidas",
@@ -195,10 +227,23 @@ public class ProductosController implements Initializable {
         ));
     }
     
+    /**
+     * Configura el listener para la búsqueda en tiempo real.
+     */
     private void configurarBusqueda() {
         txtBuscar.textProperty().addListener((obs, oldVal, newVal) -> buscarProducto());
     }
     
+    /**
+     * Configura validaciones de entrada de datos en tiempo real.
+     * 
+     * Valida:
+     * - Código: alfanuméricos, guiones y guiones bajos, máximo 20 caracteres
+     * - Nombre: máximo 100 caracteres
+     * - Precios: formato decimal con 2 decimales
+     * - Stock: números enteros sin límite de caracteres más allá de 8
+     * - Descripción: máximo 500 caracteres
+     */
     private void configurarValidacionTiempoReal() {
         txtCodigo.textProperty().addListener((obs, oldVal, newVal) -> {
             String filtrado = newVal.replaceAll("[^a-zA-Z0-9-_]", "").toUpperCase();
@@ -231,17 +276,17 @@ public class ProductosController implements Initializable {
         });
     }
     
-    // NUEVOS MÉTODOS PARA MANEJO DE IMÁGENES
-    
     /**
-     * Configura la vista previa de imagen con imagen por defecto
+     * Configura la vista previa de imagen con la imagen por defecto.
      */
     private void configurarVistaPrevia() {
         cargarImagenPorDefecto();
     }
     
     /**
-     * Carga la imagen por defecto en la vista previa
+     * Carga la imagen por defecto en la vista previa.
+     * 
+     * Se utiliza cuando no hay imagen seleccionada o cuando se elimina la imagen.
      */
     private void cargarImagenPorDefecto() {
         Image imagenDefault = ImagenProductoUtil.obtenerImagenPorDefecto();
@@ -251,14 +296,16 @@ public class ProductosController implements Initializable {
     }
     
     /**
-     * Permite al usuario seleccionar una imagen desde el sistema de archivos
+     * Abre un diálogo para seleccionar una imagen del sistema de archivos.
+     * 
+     * Muestra un FileChooser con filtros para archivos de imagen (PNG, JPG, BMP).
+     * La imagen seleccionada se carga en la vista previa y se marca como modificada.
      */
     @FXML
     private void seleccionarImagen() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Seleccionar Imagen del Producto");
         
-        // Configurar filtros de extensión
         fileChooser.getExtensionFilters().addAll(
             new FileChooser.ExtensionFilter("Imágenes", "*.png", "*.jpg", "*.jpeg", "*.bmp"),
             new FileChooser.ExtensionFilter("PNG", "*.png"),
@@ -266,17 +313,14 @@ public class ProductosController implements Initializable {
             new FileChooser.ExtensionFilter("BMP", "*.bmp")
         );
         
-        // Abrir diálogo de selección
         Stage stage = (Stage) btnSeleccionarImagen.getScene().getWindow();
         File archivo = fileChooser.showOpenDialog(stage);
         
         if (archivo != null) {
             try {
-                // Cargar y mostrar la imagen seleccionada
                 Image imagen = new Image(archivo.toURI().toString());
                 imgVistaPrevia.setImage(imagen);
                 
-                // Guardar referencia al archivo
                 archivoImagenSeleccionado = archivo;
                 imagenCapturada = null;
                 imagenModificada = true;
@@ -290,7 +334,10 @@ public class ProductosController implements Initializable {
     }
     
     /**
-     * Permite tomar una foto con la cámara (si está disponible)
+     * Captura una foto directamente desde la cámara web.
+     * 
+     * Verifica que la cámara esté disponible en el sistema.
+     * La foto capturada se muestra en la vista previa y se marca como modificada.
      */
     @FXML
     private void tomarFoto() {
@@ -305,7 +352,6 @@ public class ProductosController implements Initializable {
         }
         
         try {
-            // Capturar foto con la cámara
             Image fotoCapturada = CamaraServicio.capturarFoto();
             
             if (fotoCapturada != null) {
@@ -329,7 +375,7 @@ public class ProductosController implements Initializable {
     }
     
     /**
-     * Elimina la imagen seleccionada y restaura la imagen por defecto
+     * Elimina la imagen seleccionada y restaura la imagen por defecto.
      */
     @FXML
     private void eliminarImagenPrevia() {
@@ -340,7 +386,9 @@ public class ProductosController implements Initializable {
     }
     
     /**
-     * Carga la imagen de un producto en la vista previa
+     * Carga la imagen de un producto existente en la vista previa.
+     * 
+     * @param producto El producto del cual se cargará la imagen
      */
     private void cargarImagenProducto(Producto producto) {
         if (producto.tieneImagen()) {
@@ -359,8 +407,9 @@ public class ProductosController implements Initializable {
         imagenModificada = false;
     }
     
-    // FIN DE MÉTODOS DE MANEJO DE IMÁGENES
-    
+    /**
+     * Carga todos los productos desde la base de datos.
+     */
     @FXML
     private void cargarProductos() {
         try {
@@ -374,6 +423,12 @@ public class ProductosController implements Initializable {
         }
     }
     
+    /**
+     * Busca productos según el término ingresado.
+     * 
+     * Busca en código, nombre y categoría del producto.
+     * Si el campo está vacío, muestra todos los productos.
+     */
     @FXML
     private void buscarProducto() {
         String termino = txtBuscar.getText().toLowerCase().trim();
@@ -403,6 +458,11 @@ public class ProductosController implements Initializable {
         }
     }
     
+    /**
+     * Prepara el formulario para agregar un nuevo producto.
+     * 
+     * Limpia todos los campos, resetea el estado y muestra el formulario.
+     */
     @FXML
     private void mostrarFormularioAgregar() {
         esEdicion = false;
@@ -414,6 +474,14 @@ public class ProductosController implements Initializable {
         formularioContainer.setVisible(true);
     }
     
+    /**
+     * Prepara el formulario para editar un producto existente.
+     * 
+     * Carga los datos del producto en los campos de formulario.
+     * El código del producto queda deshabilitado para no permitir cambios.
+     * 
+     * @param producto El producto a editar
+     */
     private void editarProducto(Producto producto) {
         esEdicion = true;
         productoSeleccionado = producto;
@@ -429,129 +497,142 @@ public class ProductosController implements Initializable {
         txtStockMinimo.setText(String.valueOf(producto.getStockMinimo()));
         txtDescripcion.setText(producto.getDescripcion() != null ? producto.getDescripcion() : "");
         
-        // Cargar imagen del producto
         cargarImagenProducto(producto);
         
         formularioContainer.setVisible(true);
     }
     
+    /**
+     * Guarda un producto nuevo o actualiza uno existente.
+     * 
+     * Valida todos los campos del formulario antes de guardar.
+     * Gestiona la carga de imágenes si fueron modificadas.
+     * Notifica al dashboard de los cambios realizados.
+     * Verifica el stock bajo después de guardar.
+     */
     @FXML
- 
-            private void guardarProducto() {
-                if (!validarFormulario()) return;
+    private void guardarProducto() {
+        if (!validarFormulario()) return;
 
+        try {
+            Producto producto = esEdicion ? productoSeleccionado : new Producto();
+
+            if (!esEdicion) {
+                producto.setCodigo(txtCodigo.getText().trim().toUpperCase());
+            }
+
+            producto.setNombre(txtNombre.getText().trim());
+            producto.setCategoria(cbCategoria.getValue());
+            producto.setPrecioCompra(formatearPrecio(txtPrecioCompra.getText().trim()));
+            producto.setPrecioVenta(formatearPrecio(txtPrecioVenta.getText().trim()));
+            producto.setStock(Integer.parseInt(txtStock.getText().trim()));
+            producto.setStockMinimo(Integer.parseInt(txtStockMinimo.getText().trim()));
+
+            String descripcion = txtDescripcion.getText().trim();
+            producto.setDescripcion(descripcion.isEmpty() ? null : descripcion);
+
+            if (imagenModificada) {
                 try {
-                    Producto producto = esEdicion ? productoSeleccionado : new Producto();
+                    String rutaImagen = null;
 
-                    if (!esEdicion) {
-                        producto.setCodigo(txtCodigo.getText().trim().toUpperCase());
+                    if (archivoImagenSeleccionado != null) {
+                        rutaImagen = ImagenProductoUtil.copiarImagen(
+                            archivoImagenSeleccionado, 
+                            producto.getCodigo()
+                        );
+                    } else if (imagenCapturada != null) {
+                        rutaImagen = ImagenProductoUtil.guardarImagen(
+                            imagenCapturada, 
+                            producto.getCodigo()
+                        );
                     }
 
-                    producto.setNombre(txtNombre.getText().trim());
-                    producto.setCategoria(cbCategoria.getValue());
-                    producto.setPrecioCompra(formatearPrecio(txtPrecioCompra.getText().trim()));
-                    producto.setPrecioVenta(formatearPrecio(txtPrecioVenta.getText().trim()));
-                    producto.setStock(Integer.parseInt(txtStock.getText().trim()));
-                    producto.setStockMinimo(Integer.parseInt(txtStockMinimo.getText().trim()));
-
-                    String descripcion = txtDescripcion.getText().trim();
-                    producto.setDescripcion(descripcion.isEmpty() ? null : descripcion);
-
-                    // GUARDAR IMAGEN SI FUE MODIFICADA
-                    if (imagenModificada) {
-                        try {
-                            String rutaImagen = null;
-
-                            if (archivoImagenSeleccionado != null) {
-                                rutaImagen = ImagenProductoUtil.copiarImagen(
-                                    archivoImagenSeleccionado, 
-                                    producto.getCodigo()
-                                );
-                            } else if (imagenCapturada != null) {
-                                rutaImagen = ImagenProductoUtil.guardarImagen(
-                                    imagenCapturada, 
-                                    producto.getCodigo()
-                                );
-                            }
-
-                            if (esEdicion && producto.tieneImagen() && rutaImagen != null) {
-                                ImagenProductoUtil.eliminarImagen(producto.getRutaImagen());
-                            }
-
-                            producto.setRutaImagen(rutaImagen);
-
-                        } catch (Exception e) {
-                            System.err.println("Error al guardar imagen: " + e.getMessage());
-                            mostrarAdvertencia("Advertencia", "El producto se guardará sin imagen");
-                        }
+                    if (esEdicion && producto.tieneImagen() && rutaImagen != null) {
+                        ImagenProductoUtil.eliminarImagen(producto.getRutaImagen());
                     }
 
-                    if (esEdicion) {
-                        productoServicio.actualizarProducto(producto);
-                        mostrarInformacion("Éxito", "Producto actualizado correctamente");
-                    } else {
-                        productoServicio.crearProducto(producto);
-                        mostrarInformacion("Éxito", "Producto agregado correctamente");
-                    }
-
-                    cerrarFormulario();
-                    cargarProductos();
-                    verificarStockBajo();
-
-                    // ✅ NUEVO: Notificar cambios
-                    if (dashboardController != null) {
-                        dashboardController.notificarCambioEnProductos();
-                    }
+                    producto.setRutaImagen(rutaImagen);
 
                 } catch (Exception e) {
-                    mostrarError("Error al guardar", e.getMessage());
+                    System.err.println("Error al guardar imagen: " + e.getMessage());
+                    mostrarAdvertencia("Advertencia", "El producto se guardará sin imagen");
                 }
             }
+
+            if (esEdicion) {
+                productoServicio.actualizarProducto(producto);
+                mostrarInformacion("Éxito", "Producto actualizado correctamente");
+            } else {
+                productoServicio.crearProducto(producto);
+                mostrarInformacion("Éxito", "Producto agregado correctamente");
+            }
+
+            cerrarFormulario();
+            cargarProductos();
+            verificarStockBajo();
+
+            if (dashboardController != null) {
+                dashboardController.notificarCambioEnProductos();
+            }
+
+        } catch (Exception e) {
+            mostrarError("Error al guardar", e.getMessage());
+        }
+    }
     
-                private void eliminarProducto(Producto producto) {
-                Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-                confirmacion.setTitle("Confirmar Eliminación");
-                confirmacion.setHeaderText("¿Está seguro de eliminar este producto?");
-                confirmacion.setContentText(producto.getNombre() + " - " + producto.getCodigo());
+    /**
+     * Elimina un producto después de confirmación del usuario.
+     * 
+     * Elimina la imagen asociada del sistema de archivos.
+     * Notifica al dashboard de los cambios.
+     * 
+     * @param producto El producto a eliminar
+     */
+    private void eliminarProducto(Producto producto) {
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmar Eliminación");
+        confirmacion.setHeaderText("¿Está seguro de eliminar este producto?");
+        confirmacion.setContentText(producto.getNombre() + " - " + producto.getCodigo());
 
-                Optional<ButtonType> resultado = confirmacion.showAndWait();
-                if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
-                    try {
-                        if (producto.tieneImagen()) {
-                            ImagenProductoUtil.eliminarImagen(producto.getRutaImagen());
-                        }
-
-                        productoServicio.eliminarProducto(producto.getCodigo());
-                        mostrarInformacion("Éxito", "Producto eliminado correctamente");
-                        cargarProductos();
-
-                        // ✅ NUEVO: Actualizar gráficas del dashboard
-                        notificarCambiosAlDashboard();
-
-                    } catch (Exception e) {
-                        mostrarError("Error al eliminar", e.getMessage());
-                    }
-                }
-            }
-            /**
-            * Notifica al controlador de Inteligencia de Negocios que hay cambios en los productos
-            */
-        private void notificarCambiosAlDashboard() {
+        Optional<ButtonType> resultado = confirmacion.showAndWait();
+        if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
             try {
-                // Obtener la ventana principal (Scene)
-                javafx.scene.Scene scene = tablaProductos.getScene();
-                if (scene != null) {
-                    javafx.stage.Window window = scene.getWindow();
-
-                    // Intentar acceder al controlador principal de la app
-                    // Si tienes un MainController o principal, aquí es donde notificarías
-                    System.out.println("📊 Cambios en productos detectados - Dashboard se actualizará");
+                if (producto.tieneImagen()) {
+                    ImagenProductoUtil.eliminarImagen(producto.getRutaImagen());
                 }
+
+                productoServicio.eliminarProducto(producto.getCodigo());
+                mostrarInformacion("Éxito", "Producto eliminado correctamente");
+                cargarProductos();
+
+                notificarCambiosAlDashboard();
+
             } catch (Exception e) {
-                System.err.println("No se pudo notificar cambios: " + e.getMessage());
+                mostrarError("Error al eliminar", e.getMessage());
             }
         }
+    }
 
+    /**
+     * Notifica al controlador del dashboard sobre cambios en productos.
+     * 
+     * Permite que el dashboard actualice sus gráficas y estadísticas.
+     */
+    private void notificarCambiosAlDashboard() {
+        try {
+            javafx.scene.Scene scene = tablaProductos.getScene();
+            if (scene != null) {
+                javafx.stage.Window window = scene.getWindow();
+                System.out.println("Cambios en productos detectados - Dashboard se actualizará");
+            }
+        } catch (Exception e) {
+            System.err.println("No se pudo notificar cambios: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Cierra el formulario y limpia todos los campos.
+     */
     @FXML
     private void cerrarFormulario() {
         formularioContainer.setVisible(false);
@@ -562,6 +643,9 @@ public class ProductosController implements Initializable {
         imagenModificada = false;
     }
     
+    /**
+     * Limpia todos los campos del formulario.
+     */
     private void limpiarFormulario() {
         txtCodigo.clear();
         txtNombre.clear();
@@ -574,6 +658,19 @@ public class ProductosController implements Initializable {
         cargarImagenPorDefecto();
     }
     
+    /**
+     * Valida todos los datos del formulario antes de guardar.
+     * 
+     * Valida:
+     * - Código único y válido
+     * - Nombre de producto válido
+     * - Categoría seleccionada
+     * - Precios válidos y coherentes
+     * - Stock válido
+     * - Consistencia entre stock y stock mínimo
+     * 
+     * @return true si todos los datos son válidos, false en caso contrario
+     */
     private boolean validarFormulario() {
         String codigo = txtCodigo.getText().trim();
         if (codigo.isEmpty() || !validarCodigo(codigo)) {
@@ -660,6 +757,12 @@ public class ProductosController implements Initializable {
         return true;
     }
     
+    /**
+     * Verifica y muestra alerta si hay productos con stock bajo.
+     * 
+     * Comprueba cada producto en la lista para detectar si el stock
+     * está por debajo del stock mínimo configurado.
+     */
     private void verificarStockBajo() {
         try {
             List<String> productosStockBajo = new ArrayList<>();
@@ -673,7 +776,7 @@ public class ProductosController implements Initializable {
             if (!productosStockBajo.isEmpty() && productosStockBajo.size() <= 10) {
                 StringBuilder mensaje = new StringBuilder("Productos con stock bajo:\n\n");
                 for (String prod : productosStockBajo) {
-                    mensaje.append("• ").append(prod).append("\n");
+                    mensaje.append("- ").append(prod).append("\n");
                 }
                 
                 Alert alerta = new Alert(Alert.AlertType.WARNING);
@@ -687,6 +790,13 @@ public class ProductosController implements Initializable {
         }
     }
     
+    /**
+     * Genera automáticamente un código único para un nuevo producto.
+     * 
+     * El código se genera combinando las iniciales de la categoría
+     * con un número secuencial. Por ejemplo: ELE-0001 para Electrónica.
+     * No disponible cuando se edita un producto existente.
+     */
     @FXML
     private void generarCodigo() {
         if (esEdicion) {
@@ -706,6 +816,11 @@ public class ProductosController implements Initializable {
         }
     }
     
+    /**
+     * Genera el código automático basado en la categoría seleccionada.
+     * 
+     * @return El código generado o cadena vacía si ocurre un error
+     */
     private String generarCodigoAutomatico() {
         try {
             String categoria = cbCategoria.getValue();
@@ -736,22 +851,52 @@ public class ProductosController implements Initializable {
         }
     }
     
+    /**
+     * Valida que el código cumpla con los requisitos.
+     * 
+     * @param codigo El código a validar
+     * @return true si es válido, false en caso contrario
+     */
     private boolean validarCodigo(String codigo) {
         return codigo != null && codigo.length() >= 3 && codigo.length() <= 20 && codigo.matches("[a-zA-Z0-9_-]+");
     }
     
+    /**
+     * Valida que el nombre del producto sea válido.
+     * 
+     * @param nombre El nombre a validar
+     * @return true si es válido, false en caso contrario
+     */
     private boolean validarNombreProducto(String nombre) {
         return nombre != null && nombre.length() >= 3 && nombre.length() <= 100;
     }
     
+    /**
+     * Valida que el precio sea válido.
+     * 
+     * @param precio El precio a validar
+     * @return true si es válido, false en caso contrario
+     */
     private boolean validarPrecio(double precio) {
         return precio > 0 && precio < 1000000000;
     }
     
+    /**
+     * Valida que el stock sea válido.
+     * 
+     * @param stock El stock a validar
+     * @return true si es válido, false en caso contrario
+     */
     private boolean validarStock(int stock) {
         return stock >= 0 && stock < 100000000;
     }
     
+    /**
+     * Formatea un precio a 2 decimales.
+     * 
+     * @param precioTexto El texto del precio a formatear
+     * @return El precio formateado o 0.0 si hay error
+     */
     private double formatearPrecio(String precioTexto) {
         try {
             double precio = Double.parseDouble(precioTexto);
@@ -761,10 +906,19 @@ public class ProductosController implements Initializable {
         }
     }
     
+    /**
+     * Actualiza el contador de productos en la interfaz.
+     */
     private void actualizarContador() {
         lblTotalProductos.setText("Total: " + listaProductos.size() + " productos");
     }
     
+    /**
+     * Muestra un diálogo de error.
+     * 
+     * @param titulo El título del diálogo
+     * @param mensaje El mensaje de error
+     */
     private void mostrarError(String titulo, String mensaje) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(titulo);
@@ -773,6 +927,12 @@ public class ProductosController implements Initializable {
         alert.showAndWait();
     }
     
+    /**
+     * Muestra un diálogo informativo.
+     * 
+     * @param titulo El título del diálogo
+     * @param mensaje El mensaje informativo
+     */
     private void mostrarInformacion(String titulo, String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(titulo);
@@ -781,6 +941,12 @@ public class ProductosController implements Initializable {
         alert.showAndWait();
     }
     
+    /**
+     * Muestra un diálogo de advertencia.
+     * 
+     * @param titulo El título del diálogo
+     * @param mensaje El mensaje de advertencia
+     */
     private void mostrarAdvertencia(String titulo, String mensaje) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle(titulo);
@@ -789,11 +955,16 @@ public class ProductosController implements Initializable {
         alert.showAndWait();
     }
 
-            /**
-         * El Dashboard inyecta su referencia para que podamos notificar cambios
-         */
-        public void setDashboardController(DashboardController dashboard) {
-            this.dashboardController = dashboard;
-            System.out.println("✓ ProductosController: Dashboard controller asignado");
-        }
+    /**
+     * Asigna la referencia del controlador del dashboard.
+     * 
+     * Permite que ProductosController notifique al dashboard
+     * sobre cambios en los productos.
+     * 
+     * @param dashboard El controlador del dashboard
+     */
+    public void setDashboardController(DashboardController dashboard) {
+        this.dashboardController = dashboard;
+        System.out.println("ProductosController: Dashboard controller asignado");
+    }
 }

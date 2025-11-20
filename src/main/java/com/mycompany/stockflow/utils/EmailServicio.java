@@ -5,36 +5,78 @@
 package com.mycompany.stockflow.utils;
 
 import com.mycompany.stockflow.excepciones.EmailException;
-
 import javax.mail.*;
 import javax.mail.internet.*;
 import javax.activation.*;
-
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
 
 /**
  * Servicio para envio de correos electronicos con archivos adjuntos.
- * Soporta multiples proveedores SMTP y maneja errores de forma robusta.
+ * 
+ * <p>Esta clase proporciona funcionalidad completa para enviar correos electronicos
+ * a traves de servidores SMTP, incluyendo:</p>
+ * <ul>
+ *   <li>Envio de correos con archivos PDF adjuntos</li>
+ *   <li>Soporte para multiples proveedores SMTP (Gmail, Outlook, etc.)</li>
+ *   <li>Validacion de direcciones de correo</li>
+ *   <li>Manejo robusto de errores y excepciones</li>
+ *   <li>Mensajes HTML formateados</li>
+ * </ul>
+ * 
+ * <p>El servicio utiliza ConfiguracionEmail para obtener los parametros SMTP
+ * necesarios (servidor, puerto, autenticacion).</p>
+ * 
+ * <p>Ejemplo de uso:</p>
+ * <pre>
+ * EmailServicio servicio = new EmailServicio();
+ * servicio.enviarComprobanteCliente(
+ *     "cliente@ejemplo.com",
+ *     "Juan Perez",
+ *     "COMP-001",
+ *     pdfBytes
+ * );
+ * </pre>
+ * 
+ * @author StockFlow Team
+ * @version 2.0
+ * @since 1.0
  */
 public class EmailServicio {
     
+    /** Configuracion SMTP utilizada por el servicio */
     private ConfiguracionEmail config;
     
+    /**
+     * Constructor que inicializa el servicio con configuracion por defecto.
+     * Carga la configuracion desde ConfiguracionEmail.
+     */
     public EmailServicio() {
         this.config = new ConfiguracionEmail();
     }
     
+    /**
+     * Constructor que inicializa el servicio con configuracion personalizada.
+     * 
+     * @param config objeto de configuracion SMTP personalizado
+     */
     public EmailServicio(ConfiguracionEmail config) {
         this.config = config;
     }
     
     /**
-     * Envia el comprobante de venta por email al cliente
+     * Envia el comprobante de venta por email al cliente.
+     * 
+     * <p>Este metodo es especializado para enviar comprobantes de ventas,
+     * generando automaticamente un mensaje HTML profesional con la informacion
+     * de la compra y adjuntando el PDF del comprobante.</p>
+     * 
+     * @param emailDestino direccion de correo del cliente
+     * @param nombreCliente nombre completo del cliente
+     * @param numeroComprobante numero identificador del comprobante
+     * @param pdfBytes contenido del PDF en bytes
+     * @throws EmailException si hay error en la configuracion o envio
      */
     public void enviarComprobanteCliente(String emailDestino, String nombreCliente, 
                                          String numeroComprobante, byte[] pdfBytes) 
@@ -62,7 +104,22 @@ public class EmailServicio {
     }
     
     /**
-     * Envia un email con archivo PDF adjunto
+     * Envia un email con archivo PDF adjunto.
+     * 
+     * <p>Este es el metodo principal de envio que:</p>
+     * <ol>
+     *   <li>Establece la sesion SMTP con autenticacion</li>
+     *   <li>Construye el mensaje MIME multipart</li>
+     *   <li>Adjunta el contenido HTML y el archivo PDF</li>
+     *   <li>Envia el correo a traves del servidor SMTP</li>
+     * </ol>
+     * 
+     * @param destinatario direccion de correo del destinatario
+     * @param asunto asunto del correo
+     * @param mensaje cuerpo del mensaje en formato HTML
+     * @param pdfBytes contenido del PDF en bytes
+     * @param nombreArchivo nombre del archivo adjunto
+     * @throws EmailException si hay error durante el envio
      */
     public void enviarEmailConAdjunto(String destinatario, String asunto, String mensaje,
                                       byte[] pdfBytes, String nombreArchivo) 
@@ -71,6 +128,7 @@ public class EmailServicio {
         try {
             Properties props = config.getMailProperties();
             
+            // Crear sesion con autenticacion
             Session session = Session.getInstance(props, new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
@@ -83,32 +141,38 @@ public class EmailServicio {
             
             Message message = new MimeMessage(session);
             
+            // Configurar remitente
             message.setFrom(new InternetAddress(
                 config.getFromEmail(), 
                 config.getFromName()
             ));
             
+            // Configurar destinatario
             message.setRecipients(
                 Message.RecipientType.TO,
                 InternetAddress.parse(destinatario)
             );
             
+            // Configurar asunto
             message.setSubject(asunto);
             
+            // Crear parte del mensaje HTML
             MimeBodyPart messageBodyPart = new MimeBodyPart();
             messageBodyPart.setContent(mensaje, "text/html; charset=utf-8");
             
+            // Crear parte del adjunto PDF
             MimeBodyPart adjuntoBodyPart = new MimeBodyPart();
             DataSource source = new ByteArrayDataSource(pdfBytes, "application/pdf");
             adjuntoBodyPart.setDataHandler(new DataHandler(source));
             adjuntoBodyPart.setFileName(nombreArchivo);
             
+            // Combinar partes en multipart
             Multipart multipart = new MimeMultipart();
             multipart.addBodyPart(messageBodyPart);
             multipart.addBodyPart(adjuntoBodyPart);
             
+            // Establecer contenido y enviar
             message.setContent(multipart);
-            
             Transport.send(message);
             
             System.out.println("Email enviado exitosamente a: " + destinatario);
@@ -126,6 +190,21 @@ public class EmailServicio {
         }
     }
     
+    /**
+     * Construye el mensaje HTML para el comprobante de venta.
+     * 
+     * <p>Genera un HTML profesional y responsive con:</p>
+     * <ul>
+     *   <li>Encabezado con branding de StockFlow</li>
+     *   <li>Informacion del comprobante resaltada</li>
+     *   <li>Mensaje de agradecimiento personalizado</li>
+     *   <li>Footer con informacion de contacto</li>
+     * </ul>
+     * 
+     * @param nombreCliente nombre del cliente para personalizar el mensaje
+     * @param numeroComprobante numero del comprobante
+     * @return String con el HTML completo del mensaje
+     */
     private String construirMensajeComprobante(String nombreCliente, String numeroComprobante) {
         StringBuilder html = new StringBuilder();
         html.append("<html><body style='font-family: Arial, sans-serif;'>");
@@ -156,6 +235,12 @@ public class EmailServicio {
         return html.toString();
     }
     
+    /**
+     * Valida el formato de una direccion de correo electronico.
+     * 
+     * @param email direccion de correo a validar
+     * @return true si el formato es valido, false en caso contrario
+     */
     private boolean esEmailValido(String email) {
         if (email == null || email.trim().isEmpty()) {
             return false;
@@ -165,6 +250,14 @@ public class EmailServicio {
         return email.matches(regex);
     }
     
+    /**
+     * Extrae un mensaje de error comprensible desde una MessagingException.
+     * 
+     * <p>Traduce errores tecnicos de JavaMail a mensajes mas amigables para el usuario.</p>
+     * 
+     * @param e la excepcion de mensajeria
+     * @return mensaje de error simplificado y comprensible
+     */
     private String extraerMensajeError(MessagingException e) {
         String mensaje = e.getMessage();
         
@@ -184,17 +277,30 @@ public class EmailServicio {
         return mensaje;
     }
     
+    /**
+     * Verifica si la configuracion SMTP es valida y completa.
+     * 
+     * @return true si la configuracion es valida
+     */
     public boolean verificarConfiguracion() {
         return config.isConfiguracionValida();
     }
     
     /**
-     * Clase auxiliar para manejar byte arrays como DataSource
+     * Clase auxiliar interna para manejar arrays de bytes como DataSource.
+     * Implementa la interfaz DataSource de JavaMail para permitir adjuntar
+     * contenido de bytes como archivos PDF.
      */
     private static class ByteArrayDataSource implements DataSource {
         private byte[] data;
         private String type;
         
+        /**
+         * Constructor del DataSource.
+         * 
+         * @param data contenido en bytes
+         * @param type tipo MIME del contenido
+         */
         public ByteArrayDataSource(byte[] data, String type) {
             this.data = data;
             this.type = type;

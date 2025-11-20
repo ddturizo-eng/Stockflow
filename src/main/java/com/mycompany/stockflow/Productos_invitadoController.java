@@ -30,6 +30,26 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Controlador para la vista de catálogo de productos destinada a usuarios invitados.
+ * 
+ * Proporciona funcionalidad de visualización de productos en formato de galería de tarjetas
+ * con capacidades de búsqueda, filtrado por categoría y visualización de detalles.
+ * Los usuarios invitados pueden explorar el catálogo pero no pueden realizar modificaciones.
+ * 
+ * Características principales:
+ * - Visualización de productos en grid con tarjetas interactivas
+ * - Búsqueda en tiempo real por código, nombre y categoría
+ * - Filtrado dinámico por categorías
+ * - Animaciones de entrada y transición
+ * - Ventana emergente con detalles completos del producto
+ * - Acceso a chatbot de asistencia al cliente
+ * - Validación de stock disponible
+ * 
+ * @author Equipo StockFlow / StockFlow Team
+ * @version 1.0
+ * @since 2025
+ */
 public class Productos_invitadoController implements Initializable {
     
     @FXML private TextField txtBuscar;
@@ -46,6 +66,15 @@ public class Productos_invitadoController implements Initializable {
     private String categoriaActual = "TODAS";
     private List<Button> botonesCategorias = new ArrayList<>();
 
+    /**
+     * Inicializa el controlador y configura los componentes de interfaz.
+     * 
+     * Se invoca automáticamente después de cargar el archivo FXML.
+     * Realiza la carga inicial de productos, configuración de filtros y animaciones.
+     * 
+     * @param location URL del archivo FXML
+     * @param resources Bundle de recursos
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         productoServicio = new ProductoServicio();
@@ -58,6 +87,15 @@ public class Productos_invitadoController implements Initializable {
         actualizarContador();
     }
 
+    /**
+     * Carga todos los productos de la base de datos.
+     * 
+     * Obtiene la lista completa de productos desde el servicio y los carga en
+     * la lista observable. Si la carga es exitosa, anima la aparición del grid.
+     * Muestra una alerta si el catálogo está vacío.
+     * 
+     * @see ProductoServicio#listarProductos()
+     */
     private void cargarProductos() {
         try {
             List<Producto> productos = productoServicio.listarProductos();
@@ -88,7 +126,12 @@ public class Productos_invitadoController implements Initializable {
     }
 
     /**
-     * Muestra los productos en formato de grid (cards de tienda)
+     * Renderiza los productos en el grid utilizando tarjetas visuales.
+     * 
+     * Limpia el contenedor del grid y añade una tarjeta de producto
+     * para cada producto en la lista filtrada.
+     * 
+     * @see #crearTarjetaProducto(Producto)
      */
     private void mostrarProductosEnGrid() {
         gridProductos.getChildren().clear();
@@ -100,7 +143,20 @@ public class Productos_invitadoController implements Initializable {
     }
 
     /**
-     * Crea una tarjeta visual para cada producto (estilo e-commerce)
+     * Crea una tarjeta visual para un producto en estilo e-commerce.
+     * 
+     * Construye una tarjeta VBox que contiene:
+     * - Imagen del producto con badge de oferta si aplica
+     * - Nombre, código y categoría del producto
+     * - Precio de venta en formato destacado
+     * - Indicador de estado del stock
+     * - Botón de detalles con efectos hover
+     * 
+     * La tarjeta tiene animaciones de escala al pasar el mouse y mantiene
+     * el estado visual del producto (disponible, pocas unidades, agotado).
+     * 
+     * @param producto El producto para el cual se crea la tarjeta
+     * @return VBox con la tarjeta del producto completamente formateada
      */
     private VBox crearTarjetaProducto(Producto producto) {
         VBox card = new VBox(12);
@@ -113,7 +169,6 @@ public class Productos_invitadoController implements Initializable {
                      "-fx-cursor: hand;");
         card.setPadding(new Insets(15));
         
-        // Contenedor de imagen
         VBox contenedorImagen = new VBox();
         contenedorImagen.setAlignment(Pos.CENTER);
         contenedorImagen.setPrefHeight(200);
@@ -125,7 +180,6 @@ public class Productos_invitadoController implements Initializable {
         imageView.setFitHeight(180);
         imageView.setPreserveRatio(true);
         
-        // Cargar imagen del producto
         Image imagen;
         if (producto.tieneImagen()) {
             imagen = ImagenProductoUtil.cargarImagen(producto.getRutaImagen());
@@ -142,9 +196,8 @@ public class Productos_invitadoController implements Initializable {
         
         contenedorImagen.getChildren().add(imageView);
         
-        // Badge de descuento/oferta (opcional - basado en margen)
         if (producto.tieneMargenBajo()) {
-            Label badgeOferta = new Label("¡OFERTA!");
+            Label badgeOferta = new Label("OFERTA!");
             badgeOferta.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; " +
                                "-fx-background-radius: 15; -fx-padding: 4 12; -fx-font-size: 10px; " +
                                "-fx-font-weight: bold;");
@@ -152,7 +205,6 @@ public class Productos_invitadoController implements Initializable {
             contenedorImagen.getChildren().add(0, badgeOferta);
         }
         
-        // Nombre del producto
         Label lblNombre = new Label(producto.getNombre());
         lblNombre.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; " +
                           "-fx-text-alignment: center;");
@@ -160,21 +212,17 @@ public class Productos_invitadoController implements Initializable {
         lblNombre.setMaxWidth(220);
         lblNombre.setAlignment(Pos.CENTER);
         
-        // Código del producto
         Label lblCodigo = new Label("Código: " + producto.getCodigo());
         lblCodigo.setStyle("-fx-font-size: 11px; -fx-text-fill: #7f8c8d;");
         
-        // Categoría
         Label lblCategoria = new Label(producto.getCategoria());
         lblCategoria.setStyle("-fx-background-color: #EFF6FF; -fx-text-fill: #2a5298; " +
                             "-fx-background-radius: 12; -fx-padding: 4 10; -fx-font-size: 10px; " +
                             "-fx-font-weight: bold;");
         
-        // Precio
         Label lblPrecio = new Label(String.format("$%,.2f", producto.getPrecioVenta()));
         lblPrecio.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #27ae60;");
         
-        // Stock badge
         Label lblStock = new Label();
         int stock = producto.getStock();
         int stockMinimo = producto.getStockMinimo();
@@ -201,11 +249,9 @@ public class Productos_invitadoController implements Initializable {
                             "-fx-font-weight: bold;");
         }
         
-        // Separador
         javafx.scene.control.Separator separador = new javafx.scene.control.Separator();
         separador.setStyle("-fx-background-color: #E0E6ED;");
         
-        // Botón de ver detalles
         Button btnVerDetalles = new Button("Ver Detalles");
         btnVerDetalles.setStyle("-fx-background-color: #2a5298; -fx-text-fill: white; " +
                                "-fx-background-radius: 8; -fx-cursor: hand; -fx-font-weight: bold; " +
@@ -213,7 +259,6 @@ public class Productos_invitadoController implements Initializable {
         btnVerDetalles.setMaxWidth(Double.MAX_VALUE);
         btnVerDetalles.setOnAction(e -> mostrarDetallesProducto(producto));
         
-        // Efecto hover en el botón
         btnVerDetalles.setOnMouseEntered(e -> {
             btnVerDetalles.setStyle("-fx-background-color: #1e3a72; -fx-text-fill: white; " +
                                    "-fx-background-radius: 8; -fx-cursor: hand; -fx-font-weight: bold; " +
@@ -225,7 +270,6 @@ public class Productos_invitadoController implements Initializable {
                                    "-fx-padding: 10 20; -fx-font-size: 12px;");
         });
         
-        // Efecto hover en la tarjeta completa
         card.setOnMouseEntered(e -> {
             card.setStyle("-fx-background-color: white; -fx-background-radius: 12; " +
                          "-fx-border-color: #2a5298; -fx-border-radius: 12; -fx-border-width: 2; " +
@@ -248,7 +292,6 @@ public class Productos_invitadoController implements Initializable {
             scale.play();
         });
         
-        // Agregar todos los elementos a la tarjeta
         card.getChildren().addAll(
             contenedorImagen,
             lblNombre,
@@ -264,18 +307,24 @@ public class Productos_invitadoController implements Initializable {
     }
 
     /**
-     * Muestra un diálogo con los detalles completos del producto
+     * Muestra un diálogo con los detalles completos del producto.
+     * 
+     * Abre una ventana de alerta con información detallada incluyendo:
+     * - Imagen del producto
+     * - Código, categoría y precio de venta
+     * - Stock disponible y mínimo
+     * - Descripción del producto
+     * 
+     * @param producto El producto cuyos detalles se mostrarán
      */
     private void mostrarDetallesProducto(Producto producto) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Detalles del Producto");
         alert.setHeaderText(producto.getNombre());
         
-        // Crear contenido personalizado
         VBox contenido = new VBox(10);
         contenido.setPadding(new Insets(10));
         
-        // Imagen del producto
         ImageView imageView = new ImageView();
         imageView.setFitWidth(200);
         imageView.setFitHeight(200);
@@ -299,7 +348,6 @@ public class Productos_invitadoController implements Initializable {
         contenedorImagen.setAlignment(Pos.CENTER);
         contenedorImagen.setStyle("-fx-background-color: #F5F7FA; -fx-background-radius: 8; -fx-padding: 10;");
         
-        // Información del producto
         String detalles = String.format(
             "Código: %s\n\n" +
             "Categoría: %s\n\n" +
@@ -330,6 +378,13 @@ public class Productos_invitadoController implements Initializable {
         alert.showAndWait();
     }
 
+    /**
+     * Carga las categorías disponibles de forma dinámica desde los productos.
+     * 
+     * Extrae todas las categorías únicas de la lista de productos y crea
+     * botones dinámicos para cada una, permitiendo filtrar por categoría.
+     * El primer botón "Todas las Categorías" selecciona todos los productos.
+     */
     private void cargarCategoriasdinamicas() {
         if (contenedorFiltros == null) {
             System.err.println("Error: contenedorFiltros es null");
@@ -366,6 +421,13 @@ public class Productos_invitadoController implements Initializable {
         contenedorFiltros.getChildren().add(spacer);
     }
 
+    /**
+     * Crea un botón para filtrar por categoría.
+     * 
+     * @param texto El texto del botón (nombre de la categoría)
+     * @param activo Indica si el botón debe tener el estilo activo
+     * @return Button con estilos aplicados y efecto hover configurado
+     */
     private Button crearBotonCategoria(String texto, boolean activo) {
         Button boton = new Button(texto);
         
@@ -382,18 +444,37 @@ public class Productos_invitadoController implements Initializable {
         return boton;
     }
 
+    /**
+     * Aplica el filtro de categoría seleccionada.
+     * 
+     * @param categoria La categoría a filtrar
+     * @param botonPresionado El botón que fue presionado para aplicar el filtro
+     */
     private void filtrarPorCategoria(String categoria, Button botonPresionado) {
         categoriaActual = categoria;
         actualizarEstiloBotones(botonPresionado);
         aplicarFiltros();
     }
 
+    /**
+     * Configura el listener para búsqueda en tiempo real.
+     * 
+     * Detecta cambios en el campo de texto de búsqueda y aplica los filtros
+     * correspondientes.
+     */
     private void configurarBusqueda() {
         txtBuscar.textProperty().addListener((obs, oldVal, newVal) -> {
             aplicarFiltros();
         });
     }
 
+    /**
+     * Aplica todos los filtros activos (búsqueda y categoría).
+     * 
+     * Filtra la lista de productos según el texto de búsqueda y la categoría
+     * seleccionada, considerando código, nombre y categoría del producto.
+     * Actualiza el grid y el contador después de filtrar.
+     */
     private void aplicarFiltros() {
         filtrado.setPredicate(producto -> {
             String textoBusqueda = txtBuscar.getText();
@@ -421,6 +502,12 @@ public class Productos_invitadoController implements Initializable {
         animarActualizacion();
     }
 
+    /**
+     * Actualiza el contador de productos mostrado en la interfaz.
+     * 
+     * Muestra el número total de productos que coinciden con los filtros
+     * aplicados y anima el cambio.
+     */
     private void actualizarContador() {
         int total = filtrado != null ? filtrado.size() : listaProductos.size();
         lblTotalProductos.setText("Total: " + total + " producto" + (total != 1 ? "s" : ""));
@@ -435,6 +522,14 @@ public class Productos_invitadoController implements Initializable {
         scale.play();
     }
 
+    /**
+     * Actualiza el estilo visual de los botones de categoría.
+     * 
+     * Marca el botón activo con el estilo de seleccionado y el resto con
+     * el estilo inactivo. Aplica una animación de escala al botón activo.
+     * 
+     * @param botonActivo El botón que debe mostrarse como activo
+     */
     private void actualizarEstiloBotones(Button botonActivo) {
         String estiloInactivo = "-fx-background-color: white; -fx-background-radius: 20; -fx-cursor: hand; " +
                                "-fx-text-fill: #6B7C93; -fx-border-color: #E0E6ED; -fx-border-radius: 20; " +
@@ -457,6 +552,14 @@ public class Productos_invitadoController implements Initializable {
         scale.play();
     }
 
+    /**
+     * Maneja el evento del botón de búsqueda.
+     * 
+     * Valida que se haya ingresado un término de búsqueda y muestra un
+     * mensaje si no se encontraron resultados.
+     * 
+     * @param event El evento de acción del botón
+     */
     @FXML
     private void buscarProducto(ActionEvent event) {
         String texto = txtBuscar.getText().trim();
@@ -477,6 +580,12 @@ public class Productos_invitadoController implements Initializable {
         }
     }
 
+    /**
+     * Configura las animaciones de la interfaz.
+     * 
+     * Añade efectos hover a botones principales y configura animaciones
+     * para campos de texto cuando reciben o pierden el foco.
+     */
     private void configurarAnimaciones() {
         agregarEfectoHover(btnBuscar);
         agregarEfectoHover(btnVolver);
@@ -496,6 +605,11 @@ public class Productos_invitadoController implements Initializable {
         });
     }
 
+    /**
+     * Añade un efecto de escala al pasar el mouse sobre un botón.
+     * 
+     * @param boton El botón al cual aplicar el efecto
+     */
     private void agregarEfectoHover(Button boton) {
         boton.setOnMouseEntered(e -> {
             ScaleTransition scale = new ScaleTransition(Duration.millis(100), boton);
@@ -512,6 +626,9 @@ public class Productos_invitadoController implements Initializable {
         });
     }
 
+    /**
+     * Anima la aparición del grid de productos con una transición de desvanecimiento.
+     */
     private void animarEntradaGrid() {
         gridProductos.setOpacity(0);
         FadeTransition fade = new FadeTransition(Duration.millis(400), gridProductos);
@@ -520,6 +637,9 @@ public class Productos_invitadoController implements Initializable {
         fade.play();
     }
 
+    /**
+     * Anima la actualización del grid cuando cambian los filtros.
+     */
     private void animarActualizacion() {
         FadeTransition fade = new FadeTransition(Duration.millis(200), gridProductos);
         fade.setFromValue(0.7);
@@ -527,6 +647,11 @@ public class Productos_invitadoController implements Initializable {
         fade.play();
     }
 
+    /**
+     * Anima un efecto de pulso en un botón.
+     * 
+     * @param boton El botón que se animará
+     */
     private void animarPulso(Button boton) {
         ScaleTransition scale = new ScaleTransition(Duration.millis(100), boton);
         scale.setFromX(1.0);
@@ -538,6 +663,14 @@ public class Productos_invitadoController implements Initializable {
         scale.play();
     }
 
+    /**
+     * Maneja el evento de volver a la pantalla de inicio.
+     * 
+     * Carga la escena de bienvenida y la muestra con una transición suave.
+     * Configura las teclas para modo pantalla completa.
+     * 
+     * @param event El evento de acción del botón
+     */
     @FXML
     private void volverInicio(ActionEvent event) {
         try {
@@ -575,6 +708,13 @@ public class Productos_invitadoController implements Initializable {
         }
     }
 
+    /**
+     * Muestra una alerta con el título, mensaje y tipo especificados.
+     * 
+     * @param titulo El título de la alerta
+     * @param mensaje El mensaje a mostrar
+     * @param tipo El tipo de alerta (información, advertencia, error)
+     */
     private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
         Alert alerta = new Alert(tipo);
         alerta.setTitle(titulo);
@@ -586,21 +726,14 @@ public class Productos_invitadoController implements Initializable {
         
         alerta.showAndWait();
     }
-    // AGREGAR ESTE MÉTODO AL FINAL DE LA CLASE Productos_invitadoController
-/**
-     * Abre una ventana del chatbot de asistencia al cliente
-     */
-// TAMBIÉN AGREGAR ESTA IMPORT AL INICIO DEL ARCHIVO:
-// import javafx.scene.Scene;
-    
-
-
-// ====== CÓDIGO COMPLETO DEL MÉTODO PARA COPIAR ======
-
-// Agregar después del método volverInicio y antes del método mostrarAlerta:
 
     /**
-     * Abre una ventana del chatbot de asistencia al cliente
+     * Abre una ventana del chatbot de asistencia al cliente.
+     * 
+     * Carga y muestra el controlador de ChatBotInvitado en una ventana modal
+     * independiente donde el usuario puede interactuar con el asistente virtual.
+     * 
+     * @param event El evento de acción del botón
      */
     @FXML
     private void abrirChatBot(ActionEvent event) {

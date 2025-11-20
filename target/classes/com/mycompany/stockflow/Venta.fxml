@@ -18,7 +18,6 @@
    </padding>
    
    <children>
-      <!-- Encabezado -->
       <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0, 0, 2);">
          <padding>
             <Insets bottom="18.0" left="24.0" right="24.0" top="18.0" />
@@ -73,8 +72,6 @@
             </VBox>
          </children>
       </HBox>
-      
-      <!-- Sección Clientes -->
       <VBox spacing="14.0" style="-fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0, 0, 2);">
          <padding>
             <Insets bottom="20.0" left="24.0" right="24.0" top="20.0" />
@@ -144,8 +141,6 @@
             </TableView>
          </children>
       </VBox>
-      
-      <!-- Sección Productos -->
       <VBox spacing="14.0" style="-fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0, 0, 2);">
          <padding>
             <Insets bottom="20.0" left="24.0" right="24.0" top="20.0" />
@@ -230,8 +225,6 @@
             </TableView>
          </children>
       </VBox>
-      
-      <!-- Detalle de Venta -->
       <VBox spacing="12.0" style="-fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0, 0, 2);">
          <padding>
             <Insets bottom="20.0" left="24.0" right="24.0" top="20.0" />
@@ -265,11 +258,8 @@
             </TableView>
          </children>
       </VBox>
-      
-      <!-- Resumen y Pago -->
       <HBox spacing="12.0">
          <children>
-            <!-- Método de Pago -->
             <VBox spacing="14.0" style="-fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0, 0, 2);" HBox.hgrow="ALWAYS">
                <padding>
                   <Insets bottom="20.0" left="24.0" right="24.0" top="20.0" />
@@ -335,8 +325,6 @@
                   </VBox>
                </children>
             </VBox>
-            
-            <!-- Resumen Financiero -->
             <VBox spacing="14.0" style="-fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0, 0, 2);">
                <padding>
                   <Insets bottom="20.0" left="24.0" right="24.0" top="20.0" />
@@ -420,8 +408,6 @@
             </VBox>
          </children>
       </HBox>
-      
-      <!-- Botones de Acción -->
       <HBox alignment="CENTER_RIGHT" spacing="12.0">
          <padding>
             <Insets top="8.0" />

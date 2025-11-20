@@ -61,8 +61,6 @@
      */
     public class DashboardController implements Initializable {
 
-        // ========== COMPONENTES FXML ==========
-
         @FXML private Button btnInicio;
         @FXML private Button btnVentas;
         @FXML private Button btnProductos;
@@ -88,14 +86,11 @@
         @FXML private VBox btnNuevaFactura;
         @FXML private VBox btnVerReportes;
 
-        // ========== VARIABLES DE INSTANCIA ==========
 
         private Button botonActivo;
         private InteligenciaNegocioController inteligenciaControllerActual;
         private ProductosController productosControllerActual;
         private SesionUsuario sesionUsuario;
-
-        // ========== ESTILOS CSS ==========
 
         private static final String ESTILO_BOTON_ACTIVO = 
             "-fx-background-color: rgba(255, 255, 255, 0.2); -fx-background-radius: 10; " +
@@ -114,7 +109,6 @@
             "-fx-background-color: transparent; -fx-background-radius: 10; " +
             "-fx-text-fill: rgba(255, 255, 255, 0.4); -fx-opacity: 0.5;";
 
-        // ========== INICIALIZACIÓN ==========
 
         /**
          * Inicializa el controlador del Dashboard.
@@ -133,7 +127,7 @@
 
             // Verificar que hay sesión activa
             if (!sesionUsuario.haySesionActiva()) {
-                System.err.println("⚠️ Error: No hay sesión activa en el Dashboard");
+                System.err.println(" Error: No hay sesión activa en el Dashboard");
                 mostrarError("Error de Sesión", "No hay un usuario activo. Regresando al login...");
                 volverABienvenida();
                 return;
@@ -158,11 +152,10 @@
             // Establecer botón Inicio como activo
             establecerBotonActivo(btnInicio);
 
-            System.out.println("✓ Dashboard inicializado para: " + sesionUsuario.getNombreUsuario());
+            System.out.println(" Dashboard inicializado para: " + sesionUsuario.getNombreUsuario());
             System.out.println("  Rol: " + sesionUsuario.getRolActual().getNombre());
         }
 
-        // ========== CONFIGURACIÓN POR ROL ==========
 
         /**
          * Configura la interfaz según el rol del usuario actual.
@@ -188,14 +181,14 @@
             if (!sesionUsuario.puedeGestionarUsuarios()) {
                 btnUsuarios.setVisible(false);
                 btnUsuarios.setManaged(false);
-                System.out.println("🔒 Botón Usuarios ocultado - Requiere rol ADMIN");
+                System.out.println("Botón Usuarios ocultado - Requiere rol ADMIN");
             }
 
             // ⭐ CONTROL DE ACCESO: Estadísticas/BI (ADMIN y DUEÑO)
             if (!sesionUsuario.puedeVerEstadisticas()) {
                 btnEstadisticas.setVisible(false);
                 btnEstadisticas.setManaged(false);
-                System.out.println("🔒 Botón Estadísticas ocultado - Requiere rol ADMIN o DUEÑO");
+                System.out.println("Botón Estadísticas ocultado - Requiere rol ADMIN o DUEÑO");
             }
 
             // Registrar permisos del usuario actual
@@ -210,16 +203,15 @@
             System.out.println("\n═══════════════════════════════════════");
             System.out.println("  PERMISOS DEL USUARIO");
             System.out.println("═══════════════════════════════════════");
-            System.out.println("👤 Usuario: " + sesionUsuario.getNombreUsuario());
-            System.out.println("🎭 Rol: " + sesionUsuario.getRolActual().getNombre());
+            System.out.println(" Usuario: " + sesionUsuario.getNombreUsuario());
+            System.out.println("Rol: " + sesionUsuario.getRolActual().getNombre());
             System.out.println("───────────────────────────────────────");
-            System.out.println("✓ Gestionar Usuarios: " + (sesionUsuario.puedeGestionarUsuarios() ? "SÍ" : "NO"));
-            System.out.println("✓ Ver Estadísticas: " + (sesionUsuario.puedeVerEstadisticas() ? "SÍ" : "NO"));
-            System.out.println("✓ Ver BI: " + (sesionUsuario.puedeVerInteligenciaNegocio() ? "SÍ" : "NO"));
+            System.out.println(" Gestionar Usuarios: " + (sesionUsuario.puedeGestionarUsuarios() ? "SÍ" : "NO"));
+            System.out.println(" Ver Estadísticas: " + (sesionUsuario.puedeVerEstadisticas() ? "SÍ" : "NO"));
+            System.out.println("Ver BI: " + (sesionUsuario.puedeVerInteligenciaNegocio() ? "SÍ" : "NO"));
             System.out.println("═══════════════════════════════════════\n");
         }
 
-        // ========== NAVEGACIÓN CON VALIDACIÓN DE PERMISOS ==========
 
         /**
          * Muestra la vista de gestión de usuarios.
@@ -232,14 +224,14 @@
         private void mostrarUsuarios() {
             // ⭐ VALIDAR PERMISOS ANTES DE CARGAR
             if (!sesionUsuario.puedeGestionarUsuarios()) {
-                System.err.println("❌ Acceso denegado: Usuario sin permisos para gestionar usuarios");
+                System.err.println("Acceso denegado: Usuario sin permisos para gestionar usuarios");
                 mostrarAccesoDenegado(
                     "Solo los administradores pueden acceder a la gestión de usuarios"
                 );
                 return;
             }
 
-            System.out.println("✓ Acceso permitido: Cargando gestión de usuarios");
+            System.out.println(" Acceso permitido: Cargando gestión de usuarios");
             cargarVista("Usuarios.fxml", "Gestión de Usuarios", btnUsuarios);
         }
 
@@ -253,14 +245,14 @@
         private void mostrarEstadisticas() {
             // ⭐ VALIDAR PERMISOS
             if (!sesionUsuario.puedeVerEstadisticas()) {
-                System.err.println("❌ Acceso denegado: Usuario sin permisos para ver estadísticas");
+                System.err.println(" Acceso denegado: Usuario sin permisos para ver estadísticas");
                 mostrarAccesoDenegado(
                     "Esta sección requiere permisos de Administrador o Dueño"
                 );
                 return;
             }
 
-            System.out.println("✓ Acceso permitido: Cargando estadísticas");
+            System.out.println("Acceso permitido: Cargando estadísticas");
             cargarVista("inteligenciaDeNegocio.fxml", "", btnEstadisticas);
         }
 
@@ -319,8 +311,6 @@
             }
         }
 
-        // ========== CARGA DE VISTAS ==========
-
         /**
          * Carga una vista FXML en el contenedor principal con animación.
          * 
@@ -339,11 +329,11 @@
                 // Guardar referencias a controladores
                 if (rutaFxml.contains("inteligenciaDeNegocio")) {
                     inteligenciaControllerActual = loader.getController();
-                    System.out.println("✓ InteligenciaNegocioController cargado");
+                    System.out.println("InteligenciaNegocioController cargado");
                 } else if (rutaFxml.contains("Productos")) {
                     productosControllerActual = loader.getController();
                     productosControllerActual.setDashboardController(this);
-                    System.out.println("✓ ProductosController cargado");
+                    System.out.println(" ProductosController cargado");
                 }
 
                 // Animación de transición
@@ -394,10 +384,10 @@
          */
         public void notificarCambioEnProductos() {
             if (inteligenciaControllerActual != null) {
-                System.out.println("📊 Dashboard: Productos cambió - Actualizando gráficas...");
+                System.out.println(" Dashboard: Productos cambió - Actualizando gráficas...");
                 inteligenciaControllerActual.actualizarTodasLasGraficas();
             } else {
-                System.out.println("ℹ️ Dashboard: InteligenciaNegocioController no está cargado aún");
+                System.out.println(" Dashboard: InteligenciaNegocioController no está cargado aún");
             }
         }
 
@@ -422,7 +412,7 @@
 
             alert.showAndWait().ifPresent(response -> {
                 if (response == ButtonType.OK) {
-                    System.out.println("🔓 Cerrando sesión de: " + sesionUsuario.getUsername());
+                    System.out.println("Cerrando sesión de: " + sesionUsuario.getUsername());
 
                     // ⭐ CERRAR SESIÓN EN EL SISTEMA
                     sesionUsuario.cerrarSesion();
@@ -510,7 +500,7 @@
         private void mostrarAccesoDenegado(String mensaje) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Acceso Denegado");
-            alert.setHeaderText("🔒 No tienes permisos para esta acción");
+            alert.setHeaderText(" No tienes permisos para esta acción");
             alert.setContentText(
                 mensaje + "\n\n" +
                 "Tu rol actual: " + sesionUsuario.getRolActual().getNombre() + "\n" +

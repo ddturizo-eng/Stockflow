@@ -28,8 +28,25 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 /**
- * Controller para la gestión completa de usuarios
- * Incluye CRUD, búsqueda, filtros, estadísticas y botones con iconos
+ * Controlador para la gestión completa de usuarios del sistema.
+ * 
+ * Proporciona funcionalidad CRUD (Crear, Leer, Actualizar, Eliminar) para usuarios,
+ * con búsqueda, filtrado por rol y estado, y estadísticas de usuarios.
+ * 
+ * Características principales:
+ * - Tabla interactiva con lista de todos los usuarios
+ * - Búsqueda en tiempo real por username, nombre o email
+ * - Filtrado por rol (Administrador, Dueño, Cajero)
+ * - Filtrado por estado (Activo, Inactivo)
+ * - Botones de acción con iconos para editar, cambiar estado y eliminar
+ * - Panel de estadísticas mostrando totales por rol
+ * - Protección de usuarios críticos (no permitir desactivar el último admin)
+ * - Diálogos modales para crear y editar usuarios
+ * - Validaciones y confirmaciones de operaciones
+ * 
+ * @author Equipo StockFlow / StockFlow Team
+ * @version 1.0
+ * @since 2025
  */
 public class UsuariosController implements Initializable {
 
@@ -62,6 +79,15 @@ public class UsuariosController implements Initializable {
     private ObservableList<Usuario> listaUsuarios;
     private FilteredList<Usuario> listaFiltrada;
 
+    /**
+     * Inicializa el controlador de usuarios.
+     * 
+     * Se invoca automáticamente después de cargar el archivo FXML.
+     * Configura la tabla, filtros, búsqueda y carga los usuarios iniciales.
+     * 
+     * @param url URL del archivo FXML
+     * @param rb Bundle de recursos
+     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         usuarioServicio = new UsuarioServicio();
@@ -73,13 +99,21 @@ public class UsuariosController implements Initializable {
         cargarUsuarios();
         actualizarEstadisticas();
         
-        System.out.println("✓ UsuariosController inicializado");
+        System.out.println("UsuariosController inicializado");
     }
 
-    // ========== CONFIGURACIÓN DE TABLA ==========
+    // ========== CONFIGURACION DE TABLA ==========
     
+    /**
+     * Configura todas las columnas de la tabla de usuarios.
+     * 
+     * Incluye:
+     * - Columnas de datos (username, nombre, email, rol, estado, último acceso)
+     * - Columna de acciones con botones para editar, cambiar estado y eliminar
+     * - Estilos condicionales para estado y rol
+     * - Iconos en botones de acción
+     */
     private void configurarTabla() {
-        // Configurar columnas
         colUsername.setCellValueFactory(data -> 
             new SimpleStringProperty(data.getValue().getUsername()));
         
@@ -100,7 +134,7 @@ public class UsuariosController implements Initializable {
         colUltimoAcceso.setCellValueFactory(data -> 
             data.getValue().ultimoAccesoProperty());
         
-        // Columna de acciones con botones con ImageView
+        // Columna de acciones con botones
         colAcciones.setCellFactory(param -> new TableCell<Usuario, Void>() {
             private final HBox hbox = new HBox(8);
             private final Button btnEditar = new Button();
@@ -111,17 +145,17 @@ public class UsuariosController implements Initializable {
                 hbox.setAlignment(Pos.CENTER);
                 hbox.setPrefWidth(Double.MAX_VALUE);
                 
-                // Botón Editar (Azul)
+                // Botón Editar
                 ImageView imgEditar = crearImageView("file:src/main/resources/com/mycompany/stockflow/IMG/editar_usuario.png");
                 btnEditar.setGraphic(imgEditar);
                 configurarBotonAccion(btnEditar, "#FFFFFF00", "Editar", (usuario) -> handleEditarUsuario(usuario));
                 
-                // Botón Toggle Estado (Naranja)
+                // Botón Toggle Estado
                 ImageView imgEstado = crearImageView("file:src/main/resources/com/mycompany/stockflow/IMG/estado.png");
                 btnToggleEstado.setGraphic(imgEstado);
                 configurarBotonAccion(btnToggleEstado, "#FFFFFF00", "Cambiar Estado", (usuario) -> handleToggleEstado(usuario));
                 
-                // Botón Eliminar (Rojo)
+                // Botón Eliminar
                 ImageView imgEliminar = crearImageView("file:src/main/resources/com/mycompany/stockflow/IMG/eliminar_us.png");
                 btnEliminar.setGraphic(imgEliminar);
                 configurarBotonAccion(btnEliminar, "#FFFFFF00", "Eliminar", (usuario) -> handleEliminarUsuario(usuario));
@@ -129,6 +163,12 @@ public class UsuariosController implements Initializable {
                 hbox.getChildren().addAll(btnEditar, btnToggleEstado, btnEliminar);
             }
             
+            /**
+             * Crea un ImageView desde una ruta de imagen.
+             * 
+             * @param rutaImagen La ruta de la imagen
+             * @return El ImageView creado o uno vacío si hay error
+             */
             private ImageView crearImageView(String rutaImagen) {
                 try {
                     Image imagen = new Image(rutaImagen);
@@ -144,6 +184,14 @@ public class UsuariosController implements Initializable {
                 }
             }
             
+            /**
+             * Configura los estilos y eventos de un botón de acción.
+             * 
+             * @param btn El botón a configurar
+             * @param color El color de fondo del botón
+             * @param tooltip El texto del tooltip
+             * @param accion La acción a ejecutar al hacer clic
+             */
             private void configurarBotonAccion(Button btn, String color, String tooltip, 
                                               java.util.function.Consumer<Usuario> accion) {
                 btn.setStyle(
@@ -173,7 +221,7 @@ public class UsuariosController implements Initializable {
             }
         });
         
-        // Estilo de columna Estado
+        // Estilo condicional para columna Estado
         colEstado.setCellFactory(col -> new TableCell<Usuario, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -192,7 +240,7 @@ public class UsuariosController implements Initializable {
             }
         });
         
-        // Estilo de columna Rol
+        // Estilo condicional para columna Rol
         colRol.setCellFactory(col -> new TableCell<Usuario, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -218,8 +266,14 @@ public class UsuariosController implements Initializable {
         });
     }
 
-    // ========== CONFIGURACIÓN DE FILTROS ==========
+    // ========== CONFIGURACION DE FILTROS ==========
     
+    /**
+     * Configura los ComboBox de filtros de rol y estado.
+     * 
+     * Define las opciones disponibles y configura los listeners
+     * para aplicar filtros cuando cambia la selección.
+     */
     private void configurarFiltros() {
         // Filtro de rol
         cmbFiltroRol.setItems(FXCollections.observableArrayList(
@@ -238,10 +292,23 @@ public class UsuariosController implements Initializable {
         cmbFiltroEstado.setOnAction(e -> aplicarFiltros());
     }
     
+    /**
+     * Configura el listener para búsqueda en tiempo real.
+     */
     private void configurarBusqueda() {
         txtBuscar.textProperty().addListener((obs, oldVal, newVal) -> aplicarFiltros());
     }
     
+    /**
+     * Aplica todos los filtros activos (búsqueda, rol y estado).
+     * 
+     * Filtra la lista de usuarios según:
+     * - Texto de búsqueda en username, nombre o email
+     * - Rol seleccionado
+     * - Estado (activo/inactivo)
+     * 
+     * Actualiza el contador de resultados después de filtrar.
+     */
     private void aplicarFiltros() {
         if (listaFiltrada == null) return;
         
@@ -276,6 +343,12 @@ public class UsuariosController implements Initializable {
 
     // ========== CARGA DE DATOS ==========
     
+    /**
+     * Carga todos los usuarios desde la base de datos.
+     * 
+     * Obtiene la lista completa de usuarios y la muestra en la tabla.
+     * Actualiza el contador y las estadísticas.
+     */
     private void cargarUsuarios() {
         try {
             List<Usuario> usuarios = usuarioServicio.obtenerTodos();
@@ -287,7 +360,7 @@ public class UsuariosController implements Initializable {
             actualizarContador();
             actualizarEstadisticas();
             
-            System.out.println("✓ Usuarios cargados: " + usuarios.size());
+            System.out.println("Usuarios cargados: " + usuarios.size());
             
         } catch (Exception e) {
             System.err.println("Error al cargar usuarios: " + e.getMessage());
@@ -296,11 +369,26 @@ public class UsuariosController implements Initializable {
         }
     }
     
+    /**
+     * Actualiza el contador de usuarios mostrado en la interfaz.
+     * 
+     * Muestra el número total de usuarios que coinciden con los filtros aplicados.
+     */
     private void actualizarContador() {
         int total = listaFiltrada != null ? listaFiltrada.size() : 0;
         lblContador.setText(total + (total == 1 ? " usuario" : " usuarios"));
     }
     
+    /**
+     * Actualiza el panel de estadísticas de usuarios.
+     * 
+     * Muestra:
+     * - Total de usuarios
+     * - Usuarios activos
+     * - Administradores
+     * - Dueños
+     * - Cajeros
+     */
     private void actualizarEstadisticas() {
         try {
             UsuarioServicio.EstadisticasUsuarios stats = usuarioServicio.obtenerEstadisticas();
@@ -318,6 +406,12 @@ public class UsuariosController implements Initializable {
 
     // ========== ACCIONES ==========
     
+    /**
+     * Maneja el evento de crear un nuevo usuario.
+     * 
+     * Abre un diálogo modal para ingresar los datos del nuevo usuario.
+     * Si se guarda exitosamente, recarga la lista de usuarios.
+     */
     @FXML
     private void handleNuevoUsuario() {
         System.out.println("Abriendo diálogo de nuevo usuario...");
@@ -349,6 +443,14 @@ public class UsuariosController implements Initializable {
         }
     }
     
+    /**
+     * Maneja el evento de editar un usuario.
+     * 
+     * Abre un diálogo modal con los datos del usuario para editar.
+     * Si se guarda exitosamente, recarga la lista de usuarios.
+     * 
+     * @param usuario El usuario a editar
+     */
     private void handleEditarUsuario(Usuario usuario) {
         System.out.println("Editando usuario: " + usuario.getUsername());
         
@@ -379,6 +481,14 @@ public class UsuariosController implements Initializable {
         }
     }
     
+    /**
+     * Maneja el evento de cambiar el estado de un usuario.
+     * 
+     * Alterna entre activo e inactivo después de confirmación.
+     * Impide desactivar usuarios críticos del sistema.
+     * 
+     * @param usuario El usuario cuyo estado se cambiará
+     */
     private void handleToggleEstado(Usuario usuario) {
         String accion = usuario.isActivo() ? "desactivar" : "activar";
         
@@ -413,6 +523,14 @@ public class UsuariosController implements Initializable {
         }
     }
     
+    /**
+     * Maneja el evento de eliminar un usuario.
+     * 
+     * Solicita confirmación antes de proceder con la eliminación.
+     * Impide eliminar usuarios críticos del sistema.
+     * 
+     * @param usuario El usuario a eliminar
+     */
     private void handleEliminarUsuario(Usuario usuario) {
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacion.setTitle("Confirmar Eliminación");
@@ -450,6 +568,9 @@ public class UsuariosController implements Initializable {
         }
     }
     
+    /**
+     * Limpia todos los filtros aplicados y muestra la lista completa.
+     */
     @FXML
     private void handleLimpiarFiltros() {
         txtBuscar.clear();
@@ -460,6 +581,12 @@ public class UsuariosController implements Initializable {
 
     // ========== UTILIDADES ==========
     
+    /**
+     * Muestra un diálogo de éxito.
+     * 
+     * @param titulo El título del diálogo
+     * @param mensaje El mensaje de éxito
+     */
     private void mostrarExito(String titulo, String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(titulo);
@@ -468,6 +595,13 @@ public class UsuariosController implements Initializable {
         alert.showAndWait();
     }
     
+    /**
+     * Muestra un diálogo de error.
+     * 
+     * @param titulo El título del diálogo
+     * @param header El encabezado del diálogo
+     * @param contenido El contenido del mensaje de error
+     */
     private void mostrarError(String titulo, String header, String contenido) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(titulo);
@@ -476,6 +610,13 @@ public class UsuariosController implements Initializable {
         alert.showAndWait();
     }
     
+    /**
+     * Muestra un diálogo de advertencia.
+     * 
+     * @param titulo El título del diálogo
+     * @param header El encabezado del diálogo
+     * @param contenido El contenido del mensaje de advertencia
+     */
     private void mostrarAdvertencia(String titulo, String header, String contenido) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle(titulo);

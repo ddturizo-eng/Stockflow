@@ -14,8 +14,6 @@
 <?import javafx.scene.layout.Region?>
 
 <VBox prefHeight="650" prefWidth="520" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.stockflow.DialogoUsuarioController">
-    
-    <!-- HEADER PREMIUM -->
     <VBox style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;">
         <padding>
             <Insets top="24" right="28" bottom="24" left="28"/>
@@ -26,39 +24,29 @@
             <Label fx:id="lblSubtitulo" style="-fx-font-size: 13; -fx-text-fill: #64748b;" text="Complete los datos requeridos del nuevo usuario" />
         </VBox>
     </VBox>
-    
-    <!-- FORMULARIO -->
     <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-border-style: none;" VBox.vgrow="ALWAYS">
         <VBox spacing="18">
             <padding>
                 <Insets top="24" right="28" bottom="24" left="28"/>
             </padding>
-            
-            <!-- Nombre de Usuario -->
             <VBox spacing="8">
                 <Label style="-fx-font-weight: bold; -fx-font-size: 12; -fx-text-fill: #1e293b;" text="Nombre de Usuario" />
                 <TextField fx:id="txtUsername" promptText="Ej: danieltur" 
                            style="-fx-padding: 12 14; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-border-width: 1.5; -fx-background-color: #f8fafc; -fx-font-size: 12;" />
                 <Label fx:id="lblErrorUsername" style="-fx-font-size: 11; -fx-text-fill: #dc2626;" visible="false" />
             </VBox>
-            
-            <!-- Nombre Completo -->
             <VBox spacing="8">
                 <Label style="-fx-font-weight: bold; -fx-font-size: 12; -fx-text-fill: #1e293b;" text="Nombre Completo" />
                 <TextField fx:id="txtNombreCompleto" promptText="Ej: Daniel Turizo" 
                            style="-fx-padding: 12 14; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-border-width: 1.5; -fx-background-color: #f8fafc; -fx-font-size: 12;" />
                 <Label fx:id="lblErrorNombre" style="-fx-font-size: 11; -fx-text-fill: #dc2626;" visible="false" />
             </VBox>
-            
-            <!-- Email -->
             <VBox spacing="8">
                 <Label style="-fx-font-weight: bold; -fx-font-size: 12; -fx-text-fill: #1e293b;" text="Email" />
                 <TextField fx:id="txtEmail" promptText="Ej: daniel@stockflow.com" 
                            style="-fx-padding: 12 14; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-border-width: 1.5; -fx-background-color: #f8fafc; -fx-font-size: 12;" />
                 <Label fx:id="lblErrorEmail" style="-fx-font-size: 11; -fx-text-fill: #dc2626;" visible="false" />
             </VBox>
-            
-            <!-- Rol -->
             <VBox spacing="8">
                 <Label style="-fx-font-weight: bold; -fx-font-size: 12; -fx-text-fill: #1e293b;" text="Rol" />
                 <ComboBox fx:id="cmbRol" prefWidth="440" 
@@ -71,11 +59,7 @@
                     <Label style="-fx-font-size: 10; -fx-text-fill: #64748b;" text="Cajero - Acceso limitado a ventas, productos y clientes" />
                 </VBox>
             </VBox>
-            
-            <!-- Separador Visual -->
             <Separator style="-fx-padding: 0; -fx-border-color: #e2e8f0;" />
-            
-            <!-- Contraseña (solo en modo creación) -->
             <VBox fx:id="vboxPassword" spacing="8">
                 <Label style="-fx-font-weight: bold; -fx-font-size: 12; -fx-text-fill: #1e293b;" text="Contraseña" />
                 <HBox alignment="CENTER_LEFT" spacing="0">
@@ -94,22 +78,16 @@
                 </HBox>
                 <Label fx:id="lblErrorPassword" style="-fx-font-size: 11; -fx-text-fill: #dc2626;" visible="false" />
             </VBox>
-            
-            <!-- Confirmar Contraseña (solo en modo creación) -->
             <VBox fx:id="vboxConfirmarPassword" spacing="8">
                 <Label style="-fx-font-weight: bold; -fx-font-size: 12; -fx-text-fill: #1e293b;" text="Confirmar Contraseña" />
                 <PasswordField fx:id="txtConfirmarPassword" promptText="Repita la contraseña" 
                                style="-fx-padding: 12 14; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-border-width: 1.5; -fx-background-color: #f8fafc; -fx-font-size: 12;" />
                 <Label fx:id="lblErrorConfirmar" style="-fx-font-size: 11; -fx-text-fill: #dc2626;" visible="false" />
             </VBox>
-            
-            <!-- Checkbox para cambiar contraseña en modo edición -->
             <CheckBox fx:id="chkCambiarPassword" style="-fx-font-size: 12; -fx-text-fill: #475569; -fx-padding: 0; -fx-font-weight: bold;" text="Cambiar contraseña" visible="false" />
             
         </VBox>
     </ScrollPane>
-    
-    <!-- BOTONES -->
     <VBox style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-width: 1 0 0 0;">
         <HBox alignment="CENTER_RIGHT" spacing="12">
             <padding>

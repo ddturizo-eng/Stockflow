@@ -1,3 +1,8 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+
 package com.mycompany.stockflow.utils;
 
 import com.mycompany.stockflow.Modelo.Usuario;
@@ -7,23 +12,59 @@ import java.time.LocalDateTime;
 import java.time.Duration;
 
 /**
- * Gestión de sesión de usuario (Singleton)
- * Maneja el usuario actual y control de acceso
+ * Gestion de sesion de usuario mediante patron Singleton.
  * 
- * @version 2.0
+ * <p>Esta clase centraliza toda la informacion y control de la sesion activa del usuario,
+ * proporcionando funcionalidades para:</p>
+ * <ul>
+ *   <li>Iniciar y cerrar sesion de usuario</li>
+ *   <li>Verificar permisos y roles</li>
+ *   <li>Controlar tiempo de sesion e inactividad</li>
+ *   <li>Gestionar el acceso a funcionalidades segun el rol</li>
+ * </ul>
+ * 
+ * <p>El patron Singleton asegura que solo existe una instancia de la sesion
+ * en toda la aplicacion, accesible globalmente.</p>
+ * 
+ * <p>Ejemplo de uso:</p>
+ * <pre>
+ * SesionUsuario sesion = SesionUsuario.getInstancia();
+ * sesion.iniciarSesion(usuario);
+ * 
+ * if (sesion.esAdmin()) {
+ *     // Permitir acceso a funcionalidades de administrador
+ * }
+ * 
+ * sesion.cerrarSesion();
+ * </pre>
+ * 
+ * @author StockFlow Team
+ * @version 1.0
+ * @since 1.0
  */
 public class SesionUsuario {
 
-    private static SesionUsuario instancia; // Singleton
+    /** Instancia unica del Singleton */
+    private static SesionUsuario instancia;
+    
+    /** Usuario actualmente autenticado */
     private Usuario usuarioActual;
+    
+    /** Momento en que se inicio la sesion */
     private LocalDateTime horaLogin;
+    
+    /** Momento de la ultima actividad del usuario */
     private LocalDateTime ultimaActividad;
 
-    // Constructor privado para Singleton
+    /**
+     * Constructor privado para implementar el patron Singleton.
+     */
     private SesionUsuario() { }
 
     /**
-     * Obtiene la instancia única (Singleton)
+     * Obtiene la instancia unica de SesionUsuario (Singleton).
+     * 
+     * @return la instancia unica de SesionUsuario
      */
     public static SesionUsuario getInstancia() {
         if (instancia == null) {
@@ -32,10 +73,11 @@ public class SesionUsuario {
         return instancia;
     }
 
-    // ========== GESTIÓN DE SESIÓN ==========
-
     /**
-     * Inicia sesión con el usuario dado
+     * Inicia una nueva sesion con el usuario especificado.
+     * Registra la hora de login y establece la ultima actividad.
+     * 
+     * @param usuario el usuario que inicia sesion
      */
     public void iniciarSesion(Usuario usuario) {
         this.usuarioActual = usuario;
@@ -44,7 +86,7 @@ public class SesionUsuario {
     }
 
     /**
-     * Cierra la sesión actual
+     * Cierra la sesion actual, limpiando todos los datos del usuario.
      */
     public void cerrarSesion() {
         this.usuarioActual = null;
@@ -53,74 +95,90 @@ public class SesionUsuario {
     }
 
     /**
-     * Verifica si hay sesión activa
+     * Verifica si existe una sesion activa.
+     * 
+     * @return true si hay un usuario autenticado, false en caso contrario
      */
     public boolean haySesionActiva() {
         return usuarioActual != null;
     }
 
     /**
-     * Actualiza la última actividad
+     * Actualiza el timestamp de la ultima actividad del usuario.
+     * Debe ser llamado en cada interaccion significativa del usuario.
      */
     public void actualizarUltimaActividad() {
         this.ultimaActividad = LocalDateTime.now();
     }
 
-    // ========== OBTENER DATOS DEL USUARIO ==========
-
     /**
-     * Obtiene el usuario actual
+     * Obtiene el usuario actualmente autenticado.
+     * 
+     * @return el usuario actual, o null si no hay sesion activa
      */
     public Usuario getUsuarioActual() {
         return usuarioActual;
     }
 
     /**
-     * Obtiene el rol del usuario actual
+     * Obtiene el rol del usuario actual.
+     * 
+     * @return el rol del usuario, o null si no hay sesion activa
      */
     public Rol getRolActual() {
         return (usuarioActual != null) ? usuarioActual.getRol() : null;
     }
 
     /**
-     * Obtiene el nombre del usuario actual
+     * Obtiene el nombre completo del usuario actual.
+     * 
+     * @return el nombre del usuario, o "Invitado" si no hay sesion activa
      */
     public String getNombreUsuario() {
         return (usuarioActual != null) ? usuarioActual.getNombreCompleto() : "Invitado";
     }
 
     /**
-     * Obtiene el username del usuario actual
+     * Obtiene el username del usuario actual.
+     * 
+     * @return el username, o null si no hay sesion activa
      */
     public String getUsername() {
         return (usuarioActual != null) ? usuarioActual.getUsername() : null;
     }
 
-    // ========== VERIFICACIÓN DE PERMISOS ==========
-
     /**
-     * Verifica si el usuario actual es Admin
+     * Verifica si el usuario actual tiene rol de Administrador.
+     * 
+     * @return true si es ADMIN, false en caso contrario
      */
     public boolean esAdmin() {
         return usuarioActual != null && usuarioActual.getRol() == Rol.ADMIN;
     }
 
     /**
-     * Verifica si el usuario actual es Dueño
+     * Verifica si el usuario actual tiene rol de Dueño.
+     * 
+     * @return true si es DUEÑO, false en caso contrario
      */
     public boolean esDueño() {
         return usuarioActual != null && usuarioActual.getRol() == Rol.DUEÑO;
     }
 
     /**
-     * Verifica si el usuario actual es Cajero
+     * Verifica si el usuario actual tiene rol de Cajero.
+     * 
+     * @return true si es CAJERO, false en caso contrario
      */
     public boolean esCajero() {
         return usuarioActual != null && usuarioActual.getRol() == Rol.CAJERO;
     }
 
     /**
-     * Verifica si puede gestionar usuarios (solo Admin)
+     * Verifica si el usuario puede gestionar usuarios (crear, editar, eliminar).
+     * Esta funcionalidad suele estar reservada para Administradores.
+     * 
+     * @return true si tiene permisos para gestionar usuarios
      */
     public boolean puedeGestionarUsuarios() {
         return usuarioActual != null && 
@@ -128,7 +186,9 @@ public class SesionUsuario {
     }
 
     /**
-     * Verifica si puede ver estadísticas
+     * Verifica si el usuario puede acceder a estadisticas y reportes.
+     * 
+     * @return true si tiene permisos para ver estadisticas
      */
     public boolean puedeVerEstadisticas() {
         return usuarioActual != null && 
@@ -136,7 +196,9 @@ public class SesionUsuario {
     }
 
     /**
-     * Verifica si puede ver inteligencia de negocio
+     * Verifica si el usuario puede acceder a inteligencia de negocio y analisis con IA.
+     * 
+     * @return true si tiene permisos para inteligencia de negocio
      */
     public boolean puedeVerInteligenciaNegocio() {
         return usuarioActual != null && 
@@ -144,17 +206,25 @@ public class SesionUsuario {
     }
 
     /**
-     * Lanza excepción si no es Admin
+     * Verifica que el usuario actual sea Administrador, lanzando excepcion si no lo es.
+     * Util para proteger operaciones criticas que requieren permisos administrativos.
+     * 
+     * @throws AccesoDenegadoExcepcion si el usuario no es Administrador
      */
     public void verificarEsAdmin() throws AccesoDenegadoExcepcion {
         if (!esAdmin()) {
             throw new AccesoDenegadoExcepcion(
-                "Esta operación requiere permisos de Administrador");
+                "Esta operacion requiere permisos de Administrador");
         }
     }
 
     /**
-     * Lanza excepción si no tiene el permiso especificado
+     * Verifica un permiso especifico, lanzando excepcion si no se cumple.
+     * Metodo generico para validar cualquier tipo de permiso.
+     * 
+     * @param tienePermiso resultado de la verificacion del permiso
+     * @param mensaje mensaje de error si el permiso es denegado
+     * @throws AccesoDenegadoExcepcion si no tiene el permiso requerido
      */
     public void verificarPermiso(boolean tienePermiso, String mensaje) 
             throws AccesoDenegadoExcepcion {
@@ -163,24 +233,28 @@ public class SesionUsuario {
         }
     }
 
-    // ========== INFORMACIÓN DE SESIÓN ==========
-
     /**
-     * Obtiene la hora de login
+     * Obtiene el momento en que se inicio la sesion.
+     * 
+     * @return LocalDateTime del login, o null si no hay sesion
      */
     public LocalDateTime getHoraLogin() {
         return horaLogin;
     }
 
     /**
-     * Obtiene la última actividad
+     * Obtiene el momento de la ultima actividad registrada.
+     * 
+     * @return LocalDateTime de ultima actividad, o null si no hay sesion
      */
     public LocalDateTime getUltimaActividad() {
         return ultimaActividad;
     }
 
     /**
-     * Obtiene el tiempo de sesión en minutos
+     * Calcula el tiempo total de la sesion en minutos.
+     * 
+     * @return duracion de la sesion en minutos, o 0 si no hay sesion
      */
     public long getTiempoSesionMinutos() {
         if (horaLogin == null) return 0;
@@ -188,7 +262,10 @@ public class SesionUsuario {
     }
 
     /**
-     * Verifica si la sesión ha expirado (30 minutos de inactividad)
+     * Verifica si la sesion ha expirado por inactividad.
+     * Se considera expirada si han pasado mas de 30 minutos sin actividad.
+     * 
+     * @return true si la sesion ha expirado, false en caso contrario
      */
     public boolean sesionExpirada() {
         if (ultimaActividad == null) return false;
@@ -198,17 +275,19 @@ public class SesionUsuario {
         return minutosInactivo > 30;
     }
 
-    // ========== MÉTODOS ESTÁTICOS DE CONVENIENCIA ==========
-
     /**
-     * Método estático para obtener el usuario actual directamente
+     * Metodo estatico de conveniencia para obtener el usuario actual directamente.
+     * 
+     * @return el usuario actual, o null si no hay sesion
      */
     public static Usuario getUsuario() {
         return getInstancia().getUsuarioActual();
     }
 
     /**
-     * Método estático para verificar si hay sesión activa
+     * Metodo estatico de conveniencia para verificar si hay usuario autenticado.
+     * 
+     * @return true si hay sesion activa
      */
     public static boolean hayUsuarioLogueado() {
         return getInstancia().haySesionActiva();

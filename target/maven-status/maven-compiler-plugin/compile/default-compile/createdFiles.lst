@@ -21,7 +21,6 @@ com\mycompany\stockflow\Modelo\Producto.class
 com\mycompany\stockflow\UsuariosController.class
 module-info.class
 com\mycompany\stockflow\Logica\RecomendacionServicio.class
-com\mycompany\stockflow\utils\CrearPrimerAdmin.class
 com\mycompany\stockflow\Modelo\Entidad.class
 com\mycompany\stockflow\utils\SesionUsuario.class
 com\mycompany\stockflow\Persistencia\VentaRepositorio.class

@@ -102,7 +102,7 @@ public class GeneradorPDFComprobante {
         }
         
         document.close();
-        System.out.println("✅ Comprobante PDF generado: " + rutaDestino);
+        System.out.println(" Comprobante PDF generado: " + rutaDestino);
     }
     
     /**
@@ -175,7 +175,7 @@ public class GeneradorPDFComprobante {
                 leftCell.add(logo);
             }
         } catch (Exception e) {
-            System.out.println("⚠️ No se pudo cargar el logo: " + e.getMessage());
+            System.out.println(" No se pudo cargar el logo: " + e.getMessage());
         }
         
         Paragraph nombreEmpresa = new Paragraph(NOMBRE_EMPRESA)
@@ -451,8 +451,7 @@ public class GeneradorPDFComprobante {
             .setMarginTop(10);
         document.add(notaLegal);
     }
-    
-    // ==================== MÉTODOS PARA FORMATO TICKET ====================
+ 
     
     private static void agregarEncabezadoTicket(Document document, Factura factura) throws Exception {
         // Logo centrado (más pequeño)
@@ -656,55 +655,50 @@ public class GeneradorPDFComprobante {
             .setItalic()
             .setTextAlignment(TextAlignment.CENTER);
         document.add(notaLegal);
+        }
+
+    /**
+     * Genera comprobante en formato Ticket como byte array (para enviar por email)
+     */
+    public static byte[] generarComprobanteTicketBytes(Factura factura) throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        PdfWriter writer = new PdfWriter(baos);
+        PdfDocument pdf = new PdfDocument(writer);
+
+        // Tamaño ticket 80mm
+        PageSize pageSize = new PageSize(226.77f, 841.89f);
+        pdf.setDefaultPageSize(pageSize);
+
+        Document document = new Document(pdf);
+        document.setMargins(10, 10, 10, 10);
+
+        // Reutilizar el método existente para construir el ticket
+        construirComprobanteTicket(document, factura);
+
+        document.close();
+
+        return baos.toByteArray();
     }
-    
-// AGREGAR ESTOS IMPORTS AL INICIO DE GeneradorPDFComprobante.java
 
+    /**
+     * Genera comprobante en formato A4 como byte array (para enviar por email)
+     */
+    public static byte[] generarComprobanteA4Bytes(Factura factura) throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-// AGREGAR ESTOS DOS METODOS ESTATICOS A LA CLASE GeneradorPDFComprobante
+        PdfWriter writer = new PdfWriter(baos);
+        PdfDocument pdf = new PdfDocument(writer);
 
-/**
- * Genera comprobante en formato Ticket como byte array (para enviar por email)
- */
-public static byte[] generarComprobanteTicketBytes(Factura factura) throws Exception {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    
-    PdfWriter writer = new PdfWriter(baos);
-    PdfDocument pdf = new PdfDocument(writer);
-    
-    // Tamaño ticket 80mm
-    PageSize pageSize = new PageSize(226.77f, 841.89f);
-    pdf.setDefaultPageSize(pageSize);
-    
-    Document document = new Document(pdf);
-    document.setMargins(10, 10, 10, 10);
-    
-    // Reutilizar el método existente para construir el ticket
-    construirComprobanteTicket(document, factura);
-    
-    document.close();
-    
-    return baos.toByteArray();
-}
+        pdf.setDefaultPageSize(PageSize.A4);
 
-/**
- * Genera comprobante en formato A4 como byte array (para enviar por email)
- */
-public static byte[] generarComprobanteA4Bytes(Factura factura) throws Exception {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    
-    PdfWriter writer = new PdfWriter(baos);
-    PdfDocument pdf = new PdfDocument(writer);
-    
-    pdf.setDefaultPageSize(PageSize.A4);
-    
-    Document document = new Document(pdf);
-    document.setMargins(40, 40, 40, 40);
-    
-    // Reutilizar el método existente para construir el A4
-    construirComprobanteA4(document, factura);
-    
-    document.close();
-    
-    return baos.toByteArray();
-}}
+        Document document = new Document(pdf);
+        document.setMargins(40, 40, 40, 40);
+
+        // Reutilizar el método existente para construir el A4
+        construirComprobanteA4(document, factura);
+
+        document.close();
+
+        return baos.toByteArray();
+    }}

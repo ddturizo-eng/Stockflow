@@ -14,7 +14,6 @@
    <children>
       <VBox layoutX="20.0" layoutY="20.0" spacing="15.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
          <children>
-            <!-- HEADER -->
             <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: linear-gradient(to right, #336F8A, #549DBF); -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 8, 0, 0, 2);">
                <padding>
                   <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
@@ -46,17 +45,15 @@
                   </Button>
                </children>
             </HBox>
-            
-            <!-- MAIN CONTENT -->
             <HBox spacing="15.0" VBox.vgrow="ALWAYS">
                <children>
-                  <!-- CHAT AREA -->
+                 
                   <VBox spacing="10.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);" HBox.hgrow="ALWAYS">
                      <padding>
                         <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                      </padding>
                      <children>
-                        <!-- Mensajes -->
+                       
                         <ScrollPane fx:id="scrollPane" fitToWidth="true" hbarPolicy="NEVER" style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;" VBox.vgrow="ALWAYS">
                            <content>
                               <VBox fx:id="mensajesContainer" spacing="10.0" style="-fx-background-color: transparent;">
@@ -66,8 +63,7 @@
                               </VBox>
                            </content>
                         </ScrollPane>
-                        
-                        <!-- Input Area -->
+                      
                         <HBox alignment="CENTER" spacing="10.0">
                            <children>
                               <TextField fx:id="inputTextField" prefHeight="40.0" promptText="Escribe tu pregunta aquí..." style="-fx-background-radius: 20; -fx-border-color: #E0E6ED; -fx-border-radius: 20; -fx-border-width: 1.5; -fx-padding: 10 15;" HBox.hgrow="ALWAYS">
@@ -84,8 +80,6 @@
                         </HBox>
                      </children>
                   </VBox>
-                  
-                  <!-- SUGERENCIAS SIDEBAR -->
                   <VBox fx:id="sugerenciasBox" prefWidth="280.0" spacing="10.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);">
                      <padding>
                         <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />

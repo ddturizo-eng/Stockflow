@@ -18,13 +18,11 @@
    <children>
       <VBox layoutX="20.0" layoutY="20.0" spacing="20.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
          <children>
-            <!-- HEADER -->
             <VBox spacing="15.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);">
                <padding>
                   <Insets bottom="20.0" left="25.0" right="25.0" top="20.0" />
                </padding>
                <children>
-                  <!-- Título y botones superiores -->
                   <HBox alignment="CENTER_LEFT" spacing="15.0">
                      <children>
                         <Label text="Catálogo de Productos" textFill="#1e3c72">
@@ -38,8 +36,6 @@
                               <Font size="13.0" />
                            </font>
                         </Label>
-                        
-                        <!-- BOTÓN DEL CHATBOT - NUEVO -->
                         <Button mnemonicParsing="false" onAction="#abrirChatBot" style="-fx-background-color: #549DBF; -fx-background-radius: 8; -fx-cursor: hand;" text=" Asistente" textFill="WHITE">
                            <font>
                               <Font name="System Bold" size="13.0" />
@@ -53,8 +49,6 @@
                         </Button>
                      </children>
                   </HBox>
-                  
-                  <!-- Barra de búsqueda -->
                   <HBox alignment="CENTER_LEFT" spacing="15.0">
                      <children>
                         <VBox prefWidth="994.0" spacing="5.0" HBox.hgrow="ALWAYS">
@@ -78,14 +72,10 @@
                         </Button>
                      </children>
                   </HBox>
-                  
-                  <!-- Filtros de categorías -->
                   <HBox fx:id="contenedorFiltros" alignment="CENTER_LEFT" spacing="10.0" style="-fx-padding: 10 0 0 0;">
                   </HBox>
                </children>
             </VBox>
-            
-            <!-- GRID DE PRODUCTOS (como tienda) -->
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER" style="-fx-background: transparent; -fx-background-color: transparent;" VBox.vgrow="ALWAYS">
                <content>
                   <FlowPane fx:id="gridProductos" hgap="20.0" prefWrapLength="1000.0" style="-fx-background-color: transparent; -fx-padding: 10;" vgap="20.0">
@@ -95,8 +85,6 @@
             </ScrollPane>
          </children>
       </VBox>
-      
-      <!-- BOTÓN FLOTANTE DEL CHATBOT (alternativa) -->
       
       <Button mnemonicParsing="false" onAction="#abrirChatBot" style="-fx-background-color: #549DBF; -fx-background-radius: 50%; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 4);" textFill="WHITE" AnchorPane.bottomAnchor="30.0" AnchorPane.rightAnchor="30.0">
          <font>

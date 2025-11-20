@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * Utiliza la biblioteca Webcam Capture de Sarxos.
  * 
  * @author StockFlow Team
- * @version 2.0
+ * @version 1.0
  * @since 1.0
  */
 public class CamaraServicio {

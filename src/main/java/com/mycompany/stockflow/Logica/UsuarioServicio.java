@@ -16,7 +16,7 @@ import java.util.Optional;
  * Servicio para gestión de usuarios con validaciones y reglas de negocio
  * 
  * @author StockFlow Team
- * @version 2.0
+ * @version 1.0
  */
 public class UsuarioServicio {
     
@@ -25,8 +25,6 @@ public class UsuarioServicio {
     public UsuarioServicio() {
         this.repositorio = new UsuarioRepositorio();
     }
-    
-    // ========== CREACIÓN DE USUARIOS ==========
     
     /**
      * Crea un nuevo usuario con validaciones completas
@@ -78,8 +76,7 @@ public class UsuarioServicio {
         
         return crearUsuario(username, password, nombreCompleto, email, Rol.ADMIN);
     }
-    
-    // ========== ACTUALIZACIÓN ==========
+   
     
     /**
      * Actualiza los datos de un usuario (excepto password)
@@ -162,7 +159,6 @@ public class UsuarioServicio {
         return cambiarPassword(usuarioId, nuevaPassword);
     }
     
-    // ========== ACTIVACIÓN/DESACTIVACIÓN ==========
     
     /**
      * Activa un usuario
@@ -224,7 +220,7 @@ public class UsuarioServicio {
         }
     }
     
-    // ========== ELIMINACIÓN ==========
+  
     
     /**
      * Elimina un usuario permanentemente con validaciones
@@ -249,7 +245,6 @@ public class UsuarioServicio {
         return repositorio.eliminar(usuarioId);
     }
     
-    // ========== CONSULTAS ==========
     
     /**
      * Obtiene todos los usuarios
@@ -303,16 +298,12 @@ public class UsuarioServicio {
         return repositorio.contarUsuarios();
     }
     
-    // ========== AUTENTICACIÓN ==========
-    
     /**
      * Autentica un usuario
      */
     public Usuario autenticar(String username, String password) {
         return repositorio.autenticar(username, password);
     }
-    
-    // ========== VALIDACIONES PRIVADAS ==========
     
     private void validarDatosUsuario(String username, String password, 
                                     String nombreCompleto, String email) {
@@ -342,27 +333,27 @@ public class UsuarioServicio {
             throw new IllegalArgumentException("El formato del email es inválido");
         }
     }
-    /**
- * Obtiene un usuario por su nombre de usuario (username)
- * 
- * @param username El nombre de usuario a buscar
- * @return El usuario encontrado o null si no existe
- */
-public Usuario obtenerPorUsername(String username) {
-    if (username == null || username.trim().isEmpty()) {
-        return null;
+        /**
+     * Obtiene un usuario por su nombre de usuario (username)
+     * 
+     * @param username El nombre de usuario a buscar
+     * @return El usuario encontrado o null si no existe
+     */
+    public Usuario obtenerPorUsername(String username) {
+        if (username == null || username.trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            Optional<Usuario> usuarioOpt = repositorio.obtenerPorId(username);
+            return usuarioOpt.orElse(null);
+        } catch (Exception e) {
+            System.err.println("Error al obtener usuario por username: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
     }
-    
-    try {
-        Optional<Usuario> usuarioOpt = repositorio.obtenerPorId(username);
-        return usuarioOpt.orElse(null);
-    } catch (Exception e) {
-        System.err.println("Error al obtener usuario por username: " + e.getMessage());
-        e.printStackTrace();
-        return null;
-    }
-}
-    // ========== ESTADÍSTICAS ==========
+
     
     /**
      * Obtiene estadísticas del sistema de usuarios

@@ -2,26 +2,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-
-/**
- * Controlador principal para el módulo de Inteligencia de Negocios.
- * 
- * <p>Esta clase gestiona la visualización y análisis de datos empresariales mediante
- * gráficas estadísticas, análisis con IA y generación de recomendaciones automáticas.</p>
- * 
- * <p>Funcionalidades principales:</p>
- * <ul>
- *   <li>Generación de gráficas de tendencias de ventas, productos más vendidos e inventario crítico</li>
- *   <li>Análisis mediante IA (análisis completo, ventas e inventario)</li>
- *   <li>Generación automática de recomendaciones de negocio</li>
- *   <li>Exportación de reportes en formato PDF y texto</li>
- *   <li>Persistencia de análisis generados</li>
- * </ul>
- * 
- * @author StockFlow Team
- * @version 1-0
- * @since 2025
- */
 package com.mycompany.stockflow;
 
 import com.mycompany.stockflow.Logica.*;
@@ -42,6 +22,25 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import javafx.geometry.Insets;
+/**
+ * Controlador principal para el módulo de Inteligencia de Negocios.
+ * 
+ * <p>Esta clase gestiona la visualización y análisis de datos empresariales mediante
+ * gráficas estadísticas, análisis con IA y generación de recomendaciones automáticas.</p>
+ * 
+ * <p>Funcionalidades principales:</p>
+ * <ul>
+ *   <li>Generación de gráficas de tendencias de ventas, productos más vendidos e inventario crítico</li>
+ *   <li>Análisis mediante IA (análisis completo, ventas e inventario)</li>
+ *   <li>Generación automática de recomendaciones de negocio</li>
+ *   <li>Exportación de reportes en formato PDF y texto</li>
+ *   <li>Persistencia de análisis generados</li>
+ * </ul>
+ * 
+ * @author StockFlow Team
+ * @version 1-0
+ * @since 2025
+ */
 
 
 public class InteligenciaNegocioController {

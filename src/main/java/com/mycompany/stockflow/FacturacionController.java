@@ -2,24 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/javafx/FXMLController.java to edit this template
  */
-/**
- * Controlador para la gestión de facturación y consulta de comprobantes.
- * 
- * Este controlador gestiona la interfaz de facturación, permitiendo:
- * - Listar y filtrar facturas por número, cliente o estado
- * - Ver el detalle completo de cada factura
- * - Exportar comprobantes a PDF en formatos A4 y Ticket
- * - Enviar comprobantes por email a los clientes
- * - Anular facturas
- * - Visualizar estadísticas de facturación
- * 
- * La clase utiliza una tabla interactiva con búsqueda en tiempo real
- * y muestra estadísticas de comprobantes pagados, anulados y promedios.
- * 
- * @author Equipo StockFlow
- * @version 1.0
- * @since 1.0
- */
+
 package com.mycompany.stockflow;
 
 import com.mycompany.stockflow.Modelo.Factura;
@@ -44,6 +27,24 @@ import java.util.stream.Collectors;
 import com.mycompany.stockflow.utils.EmailServicio;
 import com.mycompany.stockflow.excepciones.EmailException;
 import javafx.application.Platform;
+/**
+ * Controlador para la gestión de facturación y consulta de comprobantes.
+ * 
+ *  Este controlador gestiona la interfaz de facturación, permitiendo:
+ * - Listar y filtrar facturas por número, cliente o estado
+ * - Ver el detalle completo de cada factura
+ * - Exportar comprobantes a PDF en formatos A4 y Ticket
+ * - Enviar comprobantes por email a los clientes
+ * - Anular facturas
+ * - Visualizar estadísticas de facturación
+ * 
+ * La clase utiliza una tabla interactiva con búsqueda en tiempo real
+ * y muestra estadísticas de comprobantes pagados, anulados y promedios.
+ * 
+ * @author Equipo StockFlow
+ * @version 1.0
+ * @since 1.0
+ */
 
 public class FacturacionController {
 

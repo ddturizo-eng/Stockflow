@@ -14,7 +14,14 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
+/**
+ * Cliente para consumir la API de DeepSeek con configuración personalizada.
+ * Permite enviar prompts, recibir respuestas y manejar excepciones propias del sistema.
+ *
+ * @author Stockflow Team
+ * @version 1.0
+ * @since 2025 
+ **/
 
 public class DeepSeekAPIClient {
 

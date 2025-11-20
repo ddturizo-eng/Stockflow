@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter;
  * Utilidad para gestionar imágenes de productos.
  * 
  * @author StockFlow Team
- * @version 2.0
+ * @version 1.0
  * @since 1.0
  */
 public class ImagenProductoUtil {

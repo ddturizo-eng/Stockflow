@@ -9,8 +9,15 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * Gestiona la configuracion SMTP para el envio de correos electronicos.
- * Soporta multiples proveedores: Gmail, Outlook, servidores institucionales.
+ * Gestiona la configuración SMTP para el envío de correos electrónicos.
+ * Soporta múltiples proveedores: Gmail, Outlook, servidores institucionales.
+ *
+ * Proporciona métodos para cargar y configurar datos desde archivo de propiedades (.properties),
+ * así como ajustes programáticos para distintos proveedores de email.
+ *
+ * @author Stockflow Team
+ * @version 1.0
+ * @since 2025
  */
 public class ConfiguracionEmail {
     

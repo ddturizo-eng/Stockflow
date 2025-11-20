@@ -39,6 +39,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Controlador JavaFX para la gestion de ventas en el sistema StockFlow.
+ * Permite crear ventas, seleccionar clientes, agregar productos, calcular totales,
+ * aplicar descuentos, generar facturas y enviar comprobantes por email.
+ * 
+ * @author Equipo StockFlow/StockFlow Team
+ * @version 1.0
+ * @since 2025
+ */
 public class VentaController {
 
     @FXML private TextField txtCodigoVenta;
@@ -111,6 +120,10 @@ public class VentaController {
     private double totalPagar = 0.0;
     private int contadorVentas = 1;
 
+    /**
+     * Constructor del controlador de ventas.
+     * Inicializa los servicios necesarios y las listas observables.
+     */
     public VentaController() {
         this.clienteServicio = new ClienteServicio();
         this.ventaServicio = new VentaServicio();
@@ -121,6 +134,10 @@ public class VentaController {
         this.listaCompletaProductos = FXCollections.observableArrayList();
     }
 
+    /**
+     * Metodo de inicializacion del controlador.
+     * Configura las tablas, combos, eventos y carga los datos iniciales.
+     */
     @FXML
     public void initialize() {
         LocalDateTime fechaActual = LocalDateTime.now();
@@ -141,6 +158,9 @@ public class VentaController {
         actualizarLabelsResumen();
     }
 
+    /**
+     * Carga todos los clientes desde la base de datos y actualiza la tabla.
+     */
     private void cargarTodosLosClientes() {
         try {
             List<Cliente> clientes = clienteServicio.listarClientes();
@@ -156,6 +176,9 @@ public class VentaController {
         }
     }
     
+    /**
+     * Carga todos los productos con stock disponible desde la base de datos.
+     */
     private void cargarTodosLosProductos() {
         try {
             List<Producto> productos = productoServicio.listarProductos();
@@ -179,6 +202,9 @@ public class VentaController {
         }
     }
 
+    /**
+     * Configura los listeners para la busqueda en tiempo real de clientes y productos.
+     */
     private void configurarBusquedaEnTiempoReal() {
         clientesFiltrados = new FilteredList<>(listaCompletaClientes, p -> true);
         tablaClientes.setItems(clientesFiltrados);
@@ -199,6 +225,12 @@ public class VentaController {
         }
     }
     
+    /**
+     * Filtra la lista de clientes segun el criterio de busqueda.
+     * Busca en cedula, nombre, telefono y email.
+     * 
+     * @param criterio Texto a buscar en los campos del cliente
+     */
     private void filtrarClientes(String criterio) {
         if (criterio == null || criterio.trim().isEmpty()) {
             clientesFiltrados.setPredicate(cliente -> true);
@@ -224,6 +256,12 @@ public class VentaController {
         }
     }
     
+    /**
+     * Filtra la lista de productos segun el criterio de busqueda.
+     * Busca en codigo, nombre y categoria.
+     * 
+     * @param criterio Texto a buscar en los campos del producto
+     */
     private void filtrarProductos(String criterio) {
         if (criterio == null || criterio.trim().isEmpty()) {
             productosFiltrados.setPredicate(producto -> true);
@@ -248,6 +286,9 @@ public class VentaController {
         }
     }
 
+    /**
+     * Recarga la lista completa de clientes desde la base de datos.
+     */
     @FXML
     private void refrescarClientes() {
         txtBuscarCliente.clear();
@@ -255,6 +296,9 @@ public class VentaController {
         mostrarInformacion("Lista de clientes actualizada");
     }
     
+    /**
+     * Recarga la lista completa de productos desde la base de datos.
+     */
     @FXML
     private void refrescarProductos() {
         txtBuscarProducto.clear();
@@ -262,6 +306,10 @@ public class VentaController {
         mostrarInformacion("Lista de productos actualizada");
     }
 
+    /**
+     * Configura las columnas y el comportamiento de la tabla de clientes.
+     * Incluye boton de seleccion en cada fila.
+     */
     private void configurarTablaClientes() {
         if (tablaClientes == null) return;
         
@@ -305,6 +353,10 @@ public class VentaController {
         });
     }
     
+    /**
+     * Configura las columnas y el comportamiento de la tabla de productos.
+     * Incluye formato de moneda y colores segun el nivel de stock.
+     */
     private void configurarTablaProductos() {
         if (tablaProductos == null) return;
         
@@ -354,7 +406,7 @@ public class VentaController {
         });
         
         colProductoAgregar.setCellFactory(param -> new TableCell<>() {
-            private final Button btnAgregar = new Button("+ Agregar");
+            private final Button btnAgregar = new Button("Agregar");
             
             {
                 btnAgregar.setStyle(
@@ -379,6 +431,10 @@ public class VentaController {
         });
     }
 
+    /**
+     * Configura las columnas de la tabla de detalle de venta.
+     * Aplica formato de moneda a precios, descuentos y subtotales.
+     */
     private void configurarTablaDetalleVenta() {
         if (tblDetalleVenta == null) return;
         
@@ -429,6 +485,11 @@ public class VentaController {
         tblDetalleVenta.setItems(detalleVentaItems);
     }
 
+    /**
+     * Selecciona un cliente para la venta actual.
+     * 
+     * @param cliente Cliente a seleccionar
+     */
     private void seleccionarCliente(Cliente cliente) {
         if (cliente == null) return;
         
@@ -441,6 +502,9 @@ public class VentaController {
         mostrarInformacion("Cliente seleccionado: " + cliente.getNombre());
     }
     
+    /**
+     * Abre el formulario de gestion de clientes en una ventana modal.
+     */
     @FXML
     private void mostrarFormularioCliente() {
         try {
@@ -463,6 +527,12 @@ public class VentaController {
         }
     }
 
+    /**
+     * Agrega un producto al detalle de venta desde la tabla de productos.
+     * Valida cantidad y descuento antes de agregar.
+     * 
+     * @param producto Producto a agregar
+     */
     private void agregarProductoDesdeTabla(Producto producto) {
         if (producto == null) return;
         
@@ -505,6 +575,15 @@ public class VentaController {
         txtDescuento.setText("0");
     }
 
+    /**
+     * Agrega un producto al detalle de venta.
+     * Si el producto ya existe, actualiza la cantidad y descuento.
+     * Verifica stock disponible antes de agregar.
+     * 
+     * @param producto Producto a agregar
+     * @param cantidad Cantidad a agregar
+     * @param descuento Descuento a aplicar en pesos
+     */
     private void agregarProducto(Producto producto, int cantidad, double descuento) {
         if (producto == null || cantidad <= 0) {
             mostrarError("Producto o cantidad invalidos");
@@ -560,6 +639,10 @@ public class VentaController {
         );
     }
 
+    /**
+     * Elimina el producto seleccionado del detalle de venta.
+     * Solicita confirmacion antes de eliminar.
+     */
     @FXML
     public void eliminarProductoSeleccionado() {
         DetalleVentaItem itemSeleccionado = tblDetalleVenta.getSelectionModel().getSelectedItem();
@@ -587,12 +670,18 @@ public class VentaController {
         }
     }
 
+    /**
+     * Renumera los items del detalle de venta despues de eliminar uno.
+     */
     private void renumerarItems() {
         for (int i = 0; i < detalleVentaItems.size(); i++) {
             detalleVentaItems.get(i).setNumero(i + 1);
         }
     }
 
+    /**
+     * Calcula los totales de la venta incluyendo subtotal, descuentos, IVA y total final.
+     */
     private void calcularTotales() {
         subtotalNeto = 0.0;
         descuentoGlobalTotal = 0.0;
@@ -618,6 +707,9 @@ public class VentaController {
         calcularCambio();
     }
 
+    /**
+     * Actualiza los labels del resumen de venta con los valores calculados.
+     */
     private void actualizarLabelsResumen() {
         if (lblSubtotal != null) {
             lblSubtotal.setText(formatoMoneda.format(subtotalNeto));
@@ -641,6 +733,10 @@ public class VentaController {
         }
     }
 
+    /**
+     * Calcula el cambio a devolver al cliente segun el monto recibido.
+     * Si el monto es insuficiente, muestra cuanto falta.
+     */
     private void calcularCambio() {
         if (txtMontoRecibido == null || txtCambio == null) return;
         
@@ -666,6 +762,9 @@ public class VentaController {
         }
     }
 
+    /**
+     * Genera un codigo unico para la venta basado en el numero de ventas existentes.
+     */
     private void generarCodigoVenta() {
         try {
             List<Venta> ventas = ventaServicio.listarVentas();
@@ -678,6 +777,10 @@ public class VentaController {
         txtCodigoVenta.setText(codigo);
     }
 
+    /**
+     * Configura los ComboBox de la interfaz.
+     * Configura metodos de pago y listeners para IVA.
+     */
     private void configurarComboBoxes() {
         if (cmbMetodoPago != null) {
             cmbMetodoPago.setItems(FXCollections.observableArrayList(
@@ -713,6 +816,9 @@ public class VentaController {
         }
     }
 
+    /**
+     * Configura los eventos de la interfaz como listeners y acciones de botones.
+     */
     private void configurarEventos() {
         if (txtMontoRecibido != null) {
             txtMontoRecibido.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -759,6 +865,11 @@ public class VentaController {
         }
     }
 
+    /**
+     * Guarda la venta en la base de datos, genera la factura y opcionalmente
+     * envia el comprobante por email al cliente.
+     * Valida todos los datos antes de procesar la venta.
+     */
     @FXML
     private void guardarVenta() {
         if (!validarVenta()) {
@@ -809,21 +920,14 @@ public class VentaController {
             );
             
             String mensaje = construirMensajeVentaExitosa(factura, metodoPago, cambio);
-                mostrarExito(mensaje);
+            mostrarExito(mensaje);
 
-                // Guardar referencias antes de limpiar el formulario
-                final Cliente clienteParaEmail = clienteSeleccionado;
-                final Factura facturaParaEmail = factura;
+            final Cliente clienteParaEmail = clienteSeleccionado;
+            final Factura facturaParaEmail = factura;
 
-                // Limpiar ANTES de preguntar por el email
-                limpiarFormulario();
-                cargarTodosLosProductos();
+            limpiarFormulario();
+            cargarTodosLosProductos();
 
-                // Preguntar si desea enviar comprobante por email
-                if (clienteParaEmail.getEmail() != null && !clienteParaEmail.getEmail().trim().isEmpty()) {
-                    preguntarEnviarComprobante(facturaParaEmail, clienteParaEmail);
-                }
-                            // Preguntar si desea enviar comprobante por email
             if (clienteParaEmail.getEmail() != null && !clienteParaEmail.getEmail().trim().isEmpty()) {
                 preguntarEnviarComprobante(facturaParaEmail, clienteParaEmail);
             }
@@ -835,85 +939,101 @@ public class VentaController {
     }
 
     /**
-     * Pregunta al usuario si desea enviar el comprobante por email
+     * Pregunta al usuario si desea enviar el comprobante de venta por email.
+     * 
+     * @param factura Factura generada
+     * @param cliente Cliente que recibira el email
      */
-   private void preguntarEnviarComprobante(Factura factura, Cliente cliente) {
-    Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-    confirmacion.setTitle("Enviar Comprobante");
-    confirmacion.setHeaderText("Desea enviar el comprobante por email?");
-    confirmacion.setContentText(
-        String.format(
-            "Cliente: %s\n" +
-            "Email: %s\n" +
-            "Comprobante: %s",
-            cliente.getNombre(),
-            cliente.getEmail(),
-            factura.getNumeroComprobante()
-        )
-    );
-    
-    ButtonType btnEnviar = new ButtonType("Enviar");
-    ButtonType btnNoEnviar = new ButtonType("No enviar", ButtonBar.ButtonData.CANCEL_CLOSE);
-    
-    confirmacion.getButtonTypes().setAll(btnEnviar, btnNoEnviar);
-    
-    confirmacion.showAndWait().ifPresent(response -> {
-        if (response == btnEnviar) {
-            enviarEmailEnSegundoPlano(factura, cliente);
-        }
-    });
-}
+    private void preguntarEnviarComprobante(Factura factura, Cliente cliente) {
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Enviar Comprobante");
+        confirmacion.setHeaderText("Desea enviar el comprobante por email?");
+        confirmacion.setContentText(
+            String.format(
+                "Cliente: %s\n" +
+                "Email: %s\n" +
+                "Comprobante: %s",
+                cliente.getNombre(),
+                cliente.getEmail(),
+                factura.getNumeroComprobante()
+            )
+        );
+        
+        ButtonType btnEnviar = new ButtonType("Enviar");
+        ButtonType btnNoEnviar = new ButtonType("No enviar", ButtonBar.ButtonData.CANCEL_CLOSE);
+        
+        confirmacion.getButtonTypes().setAll(btnEnviar, btnNoEnviar);
+        
+        confirmacion.showAndWait().ifPresent(response -> {
+            if (response == btnEnviar) {
+                enviarEmailEnSegundoPlano(factura, cliente);
+            }
+        });
+    }
 
     /**
-     * Envia el email en segundo plano para no bloquear la UI
+     * Envia el comprobante por email en un hilo separado para no bloquear la interfaz.
+     * Muestra progreso y resultado de la operacion.
+     * 
+     * @param factura Factura a enviar
+     * @param cliente Cliente destinatario
      */
     private void enviarEmailEnSegundoPlano(Factura factura, Cliente cliente) {
-    Alert progress = new Alert(Alert.AlertType.INFORMATION);
-    progress.setTitle("Enviando Email");
-    progress.setHeaderText("Generando y enviando comprobante...");
-    progress.setContentText("Por favor espere");
-    progress.show();
-    
-    new Thread(() -> {
-        try {
-            byte[] pdfBytes = GeneradorPDFComprobante.generarComprobanteTicketBytes(factura);
-            
-            EmailServicio emailServicio = new EmailServicio();
-            emailServicio.enviarComprobanteCliente(
-                cliente.getEmail(),
-                cliente.getNombre(),
-                factura.getNumeroComprobante(),
-                pdfBytes
-            );
-            
-            Platform.runLater(() -> {
-                progress.close();
-                mostrarInformacion(
-                    String.format(
-                        "Comprobante enviado exitosamente a:\n%s",
-                        cliente.getEmail()
-                    )
+        Alert progress = new Alert(Alert.AlertType.INFORMATION);
+        progress.setTitle("Enviando Email");
+        progress.setHeaderText("Generando y enviando comprobante...");
+        progress.setContentText("Por favor espere");
+        progress.show();
+        
+        new Thread(() -> {
+            try {
+                byte[] pdfBytes = GeneradorPDFComprobante.generarComprobanteTicketBytes(factura);
+                
+                EmailServicio emailServicio = new EmailServicio();
+                emailServicio.enviarComprobanteCliente(
+                    cliente.getEmail(),
+                    cliente.getNombre(),
+                    factura.getNumeroComprobante(),
+                    pdfBytes
                 );
-            });
-            
-        } catch (EmailException e) {
-            Platform.runLater(() -> {
-                progress.close();
-                mostrarAdvertencia(
-                    "No se pudo enviar el comprobante por email:\n" + e.getMessage()
-                );
-            });
-        } catch (Exception e) {
-            Platform.runLater(() -> {
-                progress.close();
-                mostrarError(
-                    "Error al generar o enviar el comprobante:\n" + e.getMessage()
-                );
-            });
-            e.printStackTrace();
-        }
-    }).start();
-}
+                
+                Platform.runLater(() -> {
+                    progress.close();
+                    mostrarInformacion(
+                        String.format(
+                            "Comprobante enviado exitosamente a:\n%s",
+                            cliente.getEmail()
+                        )
+                    );
+                });
+                
+            } catch (EmailException e) {
+                Platform.runLater(() -> {
+                    progress.close();
+                    mostrarAdvertencia(
+                        "No se pudo enviar el comprobante por email:\n" + e.getMessage()
+                    );
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    progress.close();
+                    mostrarError(
+                        "Error al generar o enviar el comprobante:\n" + e.getMessage()
+                    );
+                });
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    /**
+     * Construye el mensaje de confirmacion de venta exitosa con todos los detalles.
+     * 
+     * @param factura Factura generada
+     * @param metodoPago Metodo de pago utilizado
+     * @param cambio Cambio a devolver
+     * @return Mensaje formateado con los detalles de la venta
+     */
     private String construirMensajeVentaExitosa(Factura factura, String metodoPago, double cambio) {
         StringBuilder mensaje = new StringBuilder();
         mensaje.append("VENTA GUARDADA EXITOSAMENTE\n\n");
@@ -934,6 +1054,11 @@ public class VentaController {
         return mensaje.toString();
     }
 
+    /**
+     * Valida que todos los datos necesarios para procesar la venta esten completos y sean correctos.
+     * 
+     * @return true si la venta es valida, false en caso contrario
+     */
     private boolean validarVenta() {
         if (clienteSeleccionado == null) {
             mostrarAdvertencia("Debe seleccionar un cliente antes de guardar la venta");
@@ -996,6 +1121,10 @@ public class VentaController {
         return true;
     }
 
+    /**
+     * Cancela la venta actual despues de solicitar confirmacion al usuario.
+     * Limpia todos los datos del formulario.
+     */
     @FXML
     private void cancelarVenta() {
         if (detalleVentaItems.isEmpty() && clienteSeleccionado == null) {
@@ -1026,6 +1155,10 @@ public class VentaController {
         });
     }
 
+    /**
+     * Limpia todos los campos del formulario y restablece los valores por defecto.
+     * Genera un nuevo codigo de venta y actualiza la fecha.
+     */
     private void limpiarFormulario() {
         detalleVentaItems.clear();
         
@@ -1066,6 +1199,11 @@ public class VentaController {
         txtFecha.setText(fechaActual.format(formatter));
     }
 
+    /**
+     * Muestra un dialogo de error con el mensaje especificado.
+     * 
+     * @param mensaje Mensaje de error a mostrar
+     */
     private void mostrarError(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");
@@ -1074,6 +1212,11 @@ public class VentaController {
         alert.showAndWait();
     }
 
+    /**
+     * Muestra un dialogo de advertencia con el mensaje especificado.
+     * 
+     * @param mensaje Mensaje de advertencia a mostrar
+     */
     private void mostrarAdvertencia(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Advertencia");
@@ -1082,6 +1225,11 @@ public class VentaController {
         alert.showAndWait();
     }
 
+    /**
+     * Muestra un dialogo de informacion con el mensaje especificado.
+     * 
+     * @param mensaje Mensaje informativo a mostrar
+     */
     private void mostrarInformacion(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Informacion");
@@ -1090,6 +1238,11 @@ public class VentaController {
         alert.showAndWait();
     }
     
+    /**
+     * Muestra un dialogo de exito con formato especial.
+     * 
+     * @param mensaje Mensaje de exito a mostrar
+     */
     private void mostrarExito(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Exito");
@@ -1106,20 +1259,44 @@ public class VentaController {
         alert.showAndWait();
     }
 
+    /**
+     * Establece el codigo de venta en el campo correspondiente.
+     * 
+     * @param codigo Codigo de venta a establecer
+     */
     public void setCodigoVenta(String codigo) {
         if (txtCodigoVenta != null) {
             txtCodigoVenta.setText(codigo);
         }
     }
     
+    /**
+     * Obtiene el cliente actualmente seleccionado para la venta.
+     * 
+     * @return Cliente seleccionado o null si no hay ninguno
+     */
     public Cliente getClienteSeleccionado() {
         return clienteSeleccionado;
     }
     
+    /**
+     * Establece el cliente seleccionado para la venta actual.
+     * 
+     * @param cliente Cliente a seleccionar
+     */
     public void setClienteSeleccionado(Cliente cliente) {
         seleccionarCliente(cliente);
     }
 
+    /**
+     * Clase interna que representa un item en el detalle de venta.
+     * Encapsula la informacion de un producto agregado a la venta con su cantidad,
+     * precio, descuento y subtotal.
+     * 
+     * @author Equipo StockFlow/StockFlow Team
+     * @version 1.0
+     * @since 2025
+     */
     public static class DetalleVentaItem {
         private SimpleIntegerProperty numero;
         private final Producto producto;
@@ -1129,6 +1306,16 @@ public class VentaController {
         private SimpleDoubleProperty descuento;
         private SimpleDoubleProperty subtotal;
 
+        /**
+         * Constructor de DetalleVentaItem.
+         * 
+         * @param numero Numero de linea en el detalle
+         * @param producto Producto asociado
+         * @param cantidad Cantidad del producto
+         * @param precioUnitario Precio unitario del producto
+         * @param descuento Descuento aplicado en pesos
+         * @param subtotal Subtotal de la linea
+         */
         public DetalleVentaItem(int numero, Producto producto, int cantidad, 
                                 double precioUnitario, double descuento, double subtotal) {
             this.numero = new SimpleIntegerProperty(numero);
@@ -1140,27 +1327,123 @@ public class VentaController {
             this.subtotal = new SimpleDoubleProperty(subtotal);
         }
 
+        /**
+         * Obtiene el numero de linea.
+         * 
+         * @return Numero de linea
+         */
         public int getNumero() { return numero.get(); }
+        
+        /**
+         * Establece el numero de linea.
+         * 
+         * @param num Nuevo numero de linea
+         */
         public void setNumero(int num) { numero.set(num); }
+        
+        /**
+         * Obtiene la propiedad numero para binding JavaFX.
+         * 
+         * @return Propiedad numero
+         */
         public SimpleIntegerProperty numeroProperty() { return numero; }
         
+        /**
+         * Obtiene el producto asociado.
+         * 
+         * @return Producto
+         */
         public Producto getProducto() { return producto; }
+        
+        /**
+         * Obtiene el nombre del producto.
+         * 
+         * @return Nombre del producto
+         */
         public String getNombreProducto() { return nombreProducto.get(); }
+        
+        /**
+         * Obtiene la propiedad nombreProducto para binding JavaFX.
+         * 
+         * @return Propiedad nombreProducto
+         */
         public SimpleStringProperty nombreProductoProperty() { return nombreProducto; }
         
+        /**
+         * Obtiene la cantidad del producto.
+         * 
+         * @return Cantidad
+         */
         public int getCantidad() { return cantidad.get(); }
+        
+        /**
+         * Establece la cantidad del producto.
+         * 
+         * @param cant Nueva cantidad
+         */
         public void setCantidad(int cant) { cantidad.set(cant); }
+        
+        /**
+         * Obtiene la propiedad cantidad para binding JavaFX.
+         * 
+         * @return Propiedad cantidad
+         */
         public SimpleIntegerProperty cantidadProperty() { return cantidad; }
         
+        /**
+         * Obtiene el precio unitario del producto.
+         * 
+         * @return Precio unitario
+         */
         public double getPrecioUnitario() { return precioUnitario.get(); }
+        
+        /**
+         * Obtiene la propiedad precioUnitario para binding JavaFX.
+         * 
+         * @return Propiedad precioUnitario
+         */
         public SimpleDoubleProperty precioUnitarioProperty() { return precioUnitario; }
         
+        /**
+         * Obtiene el descuento aplicado.
+         * 
+         * @return Descuento en pesos
+         */
         public double getDescuento() { return descuento.get(); }
+        
+        /**
+         * Establece el descuento aplicado.
+         * 
+         * @param desc Nuevo descuento en pesos
+         */
         public void setDescuento(double desc) { descuento.set(desc); }
+        
+        /**
+         * Obtiene la propiedad descuento para binding JavaFX.
+         * 
+         * @return Propiedad descuento
+         */
         public SimpleDoubleProperty descuentoProperty() { return descuento; }
         
+        /**
+         * Obtiene el subtotal de la linea.
+         * 
+         * @return Subtotal
+         */
         public double getSubtotal() { return subtotal.get(); }
+        
+        /**
+         * Establece el subtotal de la linea.
+         * 
+         * @param sub Nuevo subtotal
+         */
         public void setSubtotal(double sub) { subtotal.set(sub); }
+        
+        /**
+         * Obtiene la propiedad subtotal para binding JavaFX.
+         * 
+         * @return Propiedad subtotal
+         */
         public SimpleDoubleProperty subtotalProperty() { return subtotal; }
     }
 }
