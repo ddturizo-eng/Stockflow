@@ -451,7 +451,37 @@
         public void aumentarStock(int cantidad) {
             this.stock += cantidad;
         }
+        
+        /** Ruta de la imagen del producto */
+        private String rutaImagen;
 
+
+        /**
+         * Obtiene la ruta de la imagen del producto.
+         * 
+         * @return la ruta del archivo de imagen o null si no tiene imagen
+         */
+        public String getRutaImagen() {
+            return rutaImagen;
+        }
+
+        /**
+         * Establece la ruta de la imagen del producto.
+         * 
+         * @param rutaImagen la ruta del archivo de imagen
+         */
+        public void setRutaImagen(String rutaImagen) {
+            this.rutaImagen = rutaImagen;
+        }
+
+        /**
+         * Verifica si el producto tiene una imagen asociada.
+         * 
+         * @return true si el producto tiene imagen
+         */
+        public boolean tieneImagen() {
+            return rutaImagen != null && !rutaImagen.isEmpty();
+        }
         /**
          * Devuelve una representación en cadena del producto.
          * 

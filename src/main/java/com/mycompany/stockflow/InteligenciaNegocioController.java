@@ -1,3 +1,27 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+
+/**
+ * Controlador principal para el módulo de Inteligencia de Negocios.
+ * 
+ * <p>Esta clase gestiona la visualización y análisis de datos empresariales mediante
+ * gráficas estadísticas, análisis con IA y generación de recomendaciones automáticas.</p>
+ * 
+ * <p>Funcionalidades principales:</p>
+ * <ul>
+ *   <li>Generación de gráficas de tendencias de ventas, productos más vendidos e inventario crítico</li>
+ *   <li>Análisis mediante IA (análisis completo, ventas e inventario)</li>
+ *   <li>Generación automática de recomendaciones de negocio</li>
+ *   <li>Exportación de reportes en formato PDF y texto</li>
+ *   <li>Persistencia de análisis generados</li>
+ * </ul>
+ * 
+ * @author StockFlow Team
+ * @version 1-0
+ * @since 2025
+ */
 package com.mycompany.stockflow;
 
 import com.mycompany.stockflow.Logica.*;
@@ -17,14 +41,12 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import javafx.geometry.Insets;
 
-/**
- * Controlador para Inteligencia de Negocios
- * Gestiona análisis estadísticos, gráficas y recomendaciones con IA
- */
+
 public class InteligenciaNegocioController {
     
-    // COMPONENTES FXML
+    private static final int MAX_CARACTERES_NOMBRE = 15;
     
     @FXML private Label lblEstadoConexion;
     @FXML private Label lblFechaAnalisis;
@@ -48,16 +70,11 @@ public class InteligenciaNegocioController {
     @FXML private Button btnGuardarMetricas;
     @FXML private Button btnCopiarAnalisis;
     @FXML private Button btnExportarPDF;
-    
-    // Gráficas
     @FXML private LineChart<String, Number> chartTendenciaVentas1;
     @FXML private BarChart<String, Number> chartTop5Productos1;
     @FXML private StackedBarChart<String, Number> chartMargenGanancia;
     @FXML private BarChart<String, Number> chartTop5Productos2;
-    
     @FXML private ToggleGroup tipoAnalisisGroup;
-    
-    // SERVICIOS
     
     private InteligenciaNegocioServicio inteligenciaServicio;
     private AnaliticaAvanzadaServicio analiticaServicio;
@@ -67,19 +84,27 @@ public class InteligenciaNegocioController {
     private ClienteServicio clienteServicio;
     private DatosGraficaServicio graficaServicio;
     private com.mycompany.stockflow.utils.GeneradorPDF generadorPDF;
-    
-    // PERSISTENCIA
     private AnalisisRepositorio analisisRepositorio;
-    
-    // DATOS Y ESTADO
     
     private ObservableList<Recomendacion> recomendaciones;
     private AnalisisEstadistico ultimoAnalisis;
     private StackPane overlayProgreso;
     private boolean analisisEnProgreso = false;
     
-    // INICIALIZACIÓN
-    
+    /**
+     * Inicializa el controlador y todos sus componentes.
+     * Este método se ejecuta automáticamente después de que se cargue el archivo FXML.
+     * 
+     * <p>Realiza las siguientes operaciones:</p>
+     * <ul>
+     *   <li>Inicializa servicios de negocio</li>
+     *   <li>Configura tablas, comboboxes y gráficas</li>
+     *   <li>Crea overlay de progreso</li>
+     *   <li>Verifica configuración de IA</li>
+     *   <li>Carga datos iniciales de gráficas</li>
+     *   <li>Restaura último análisis guardado</li>
+     * </ul>
+     */
     @FXML
     public void initialize() {
         inicializarServicios();
@@ -90,8 +115,19 @@ public class InteligenciaNegocioController {
         verificarConfiguracion();
         cargarDatosGraficasIniciales();
         restaurarAnalisisGuardado();
+        
+        tabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
+            if (newTab != null && newTab.getText().contains("Dashboard")) {
+                Platform.runLater(() -> {
+                    recolorearTodasLasGraficas();
+                });
+            }
+        });
     }
     
+    /**
+     * Inicializa todos los servicios de negocio necesarios para el funcionamiento del controlador.
+     */
     private void inicializarServicios() {
         inteligenciaServicio = new InteligenciaNegocioServicio();
         analiticaServicio = new AnaliticaAvanzadaServicio();
@@ -106,48 +142,9 @@ public class InteligenciaNegocioController {
     }
     
     /**
-     * Restaura el último análisis guardado al abrir la vista
+     * Configura las columnas y comportamiento de la tabla de recomendaciones.
+     * Establece los cell value factories y el comportamiento de doble clic.
      */
-    private void restaurarAnalisisGuardado() {
-        if (analisisRepositorio.tieneAnalisisActual()) {
-            ResultadoAnalisisIA analisisGuardado = analisisRepositorio.obtenerAnalisisActual();
-            
-            if (analisisGuardado != null) {
-                ultimoAnalisis = convertirAAnalisisEstadistico(analisisGuardado);
-                
-                Platform.runLater(() -> {
-                    if (txtAnalisisIA != null) {
-                        // Limpiar el texto antes de mostrarlo
-                        String textoOriginal = analisisGuardado.getAnalisisTexto();
-                        txtAnalisisIA.setText(formatearAnalisisIA(textoOriginal));
-                    }
-                    
-                    if (txtMetricas != null) {
-                        actualizarMetricas(ultimoAnalisis);
-                    }
-                    
-                    if (lblFechaAnalisis != null) {
-                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-                        lblFechaAnalisis.setText("Último análisis: " + 
-                            analisisGuardado.getFechaGeneracion().format(formatter));
-                    }
-                    
-                    System.out.println("Análisis restaurado: " + analisisGuardado.getTipoAnalisis());
-                });
-            }
-        }
-    }
-    
-    /**
-     * Convierte ResultadoAnalisisIA a AnalisisEstadistico para compatibilidad
-     */
-    private AnalisisEstadistico convertirAAnalisisEstadistico(ResultadoAnalisisIA resultado) {
-        AnalisisEstadistico analisis = new AnalisisEstadistico(resultado.getTipoAnalisis());
-        analisis.setResumenIA(resultado.getAnalisisTexto());
-        analisis.setMetricas(resultado.getMetricas());
-        return analisis;
-    }
-    
     private void configurarTablas() {
         colTipo.setCellValueFactory(cellData -> 
             new SimpleStringProperty(cellData.getValue().getTipo()));
@@ -173,6 +170,9 @@ public class InteligenciaNegocioController {
         });
     }
     
+    /**
+     * Configura los valores disponibles en los ComboBox de periodo.
+     */
     private void configurarComboBoxes() {
         if (cbPeriodo != null) {
             cbPeriodo.setItems(FXCollections.observableArrayList(
@@ -183,16 +183,33 @@ public class InteligenciaNegocioController {
         }
     }
     
-    // OVERLAY DE PROGRESO
+    /**
+     * Verifica si la API de IA está configurada correctamente.
+     * Actualiza el indicador visual de estado de conexión.
+     */
+    private void verificarConfiguracion() {
+        if (inteligenciaServicio.verificarConfiguracion()) {
+            lblEstadoConexion.setText("Online");
+            lblEstadoConexion.setStyle("-fx-text-fill: #10B981; -fx-font-weight: bold;");
+        } else {
+            lblEstadoConexion.setText("No Configurado");
+            lblEstadoConexion.setStyle("-fx-text-fill: #EF4444; -fx-font-weight: bold;");
+            
+            Platform.runLater(() -> {
+                mostrarAlerta("Configuración Requerida", 
+                    "Debes configurar la API Key de DeepSeek para usar la IA.", 
+                    Alert.AlertType.WARNING);
+            });
+        }
+    }
     
     /**
-     * Crea un overlay modal centrado que cubre toda la pantalla durante el análisis
+     * Crea el overlay de progreso modal que se muestra durante análisis prolongados.
+     * El overlay incluye un spinner animado y mensajes informativos.
      */
     private void crearOverlayProgreso() {
         overlayProgreso = new StackPane();
-        overlayProgreso.setStyle(
-            "-fx-background-color: rgba(0, 0, 0, 0.7);"
-        );
+        overlayProgreso.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7);");
         overlayProgreso.setAlignment(Pos.CENTER);
         overlayProgreso.setVisible(false);
         overlayProgreso.setManaged(false);
@@ -231,7 +248,9 @@ public class InteligenciaNegocioController {
     }
     
     /**
-     * Muestra u oculta el overlay de progreso correctamente centrado
+     * Muestra u oculta el overlay de progreso modal.
+     * 
+     * @param mostrar true para mostrar el overlay, false para ocultarlo
      */
     private void mostrarOverlayProgreso(boolean mostrar) {
         if (overlayProgreso == null) return;
@@ -241,7 +260,6 @@ public class InteligenciaNegocioController {
                 if (mostrar && !analisisEnProgreso) {
                     analisisEnProgreso = true;
                     
-                    // Buscar el BorderPane root desde el TabPane
                     javafx.scene.Node current = tabPane;
                     BorderPane borderPaneRoot = null;
                     
@@ -254,34 +272,24 @@ public class InteligenciaNegocioController {
                     }
                     
                     if (borderPaneRoot != null) {
-                        // Crear un StackPane temporal como contenedor
                         StackPane overlayContainer = new StackPane();
                         overlayContainer.setAlignment(Pos.CENTER);
-                        
-                        // Copiar el contenido actual del center
                         javafx.scene.Node centerContent = borderPaneRoot.getCenter();
-                        
-                        // Agregar el overlay al container
                         overlayContainer.getChildren().addAll(centerContent, overlayProgreso);
                         
-                        // Configurar el overlay
                         overlayProgreso.prefWidthProperty().bind(overlayContainer.widthProperty());
                         overlayProgreso.prefHeightProperty().bind(overlayContainer.heightProperty());
                         overlayProgreso.setVisible(true);
                         overlayProgreso.setManaged(true);
                         
-                        // Reemplazar el center con el container
                         borderPaneRoot.setCenter(overlayContainer);
-                        
                     } else {
-                        // Fallback: mostrar solo el progress indicator
                         mostrarProgreso(true);
                     }
                     
                 } else if (!mostrar && analisisEnProgreso) {
                     analisisEnProgreso = false;
                     
-                    // Buscar el BorderPane root
                     javafx.scene.Node current = tabPane;
                     BorderPane borderPaneRoot = null;
                     
@@ -295,9 +303,7 @@ public class InteligenciaNegocioController {
                     
                     if (borderPaneRoot != null && borderPaneRoot.getCenter() instanceof StackPane) {
                         StackPane container = (StackPane) borderPaneRoot.getCenter();
-                        
                         if (container.getChildren().size() > 1) {
-                            // Restaurar el contenido original
                             javafx.scene.Node originalContent = container.getChildren().get(0);
                             borderPaneRoot.setCenter(originalContent);
                         }
@@ -314,8 +320,9 @@ public class InteligenciaNegocioController {
         });
     }
     
-    // CONFIGURACIÓN DE GRÁFICAS
-    
+    /**
+     * Configura todas las gráficas del dashboard con estilos y comportamientos profesionales.
+     */
     private void configurarGraficas() {
         configurarGrafica(chartTendenciaVentas1);
         configurarGrafica(chartTop5Productos1);
@@ -324,6 +331,11 @@ public class InteligenciaNegocioController {
         aplicarEstilosProfesionales();
     }
     
+    /**
+     * Configura una gráfica individual con animaciones y ejes formateados.
+     * 
+     * @param chart la gráfica a configurar
+     */
     private void configurarGrafica(Chart chart) {
         if (chart == null) return;
         chart.setAnimated(true);
@@ -334,6 +346,12 @@ public class InteligenciaNegocioController {
         }
     }
     
+    /**
+     * Configura los ejes X e Y de una gráfica XY.
+     * Establece rotación de etiquetas, colores y fuentes.
+     * 
+     * @param chart la gráfica XY cuyos ejes se van a configurar
+     */
     private void configurarEjes(XYChart<?, ?> chart) {
         if (chart.getXAxis() instanceof CategoryAxis) {
             CategoryAxis xAxis = (CategoryAxis) chart.getXAxis();
@@ -350,39 +368,38 @@ public class InteligenciaNegocioController {
         }
     }
     
+    /**
+     * Aplica estilos CSS profesionales a todas las gráficas del dashboard.
+     */
     private void aplicarEstilosProfesionales() {
         String estiloCSS = 
             ".chart-series-line { " +
-            "    -fx-stroke: #3B82F6; " +
             "    -fx-stroke-width: 3px; " +
             "} " +
             ".chart-line-symbol { " +
-            "    -fx-background-color: #3B82F6, white; " +
             "    -fx-background-insets: 0, 2; " +
             "    -fx-background-radius: 5px; " +
             "    -fx-padding: 5px; " +
-            "} " +
-            ".default-color0.chart-bar { " +
-            "    -fx-bar-fill: linear-gradient(to bottom, #60A5FA 0%, #3B82F6 100%); " +
-            "} " +
-            ".default-color1.chart-bar { " +
-            "    -fx-bar-fill: linear-gradient(to bottom, #34D399 0%, #10B981 100%); " +
-            "}";
+            "} ";
         
-        aplicarEstiloAGrafica(chartTendenciaVentas1, estiloCSS);
-        aplicarEstiloAGrafica(chartTop5Productos1, estiloCSS);
-        aplicarEstiloAGrafica(chartTop5Productos2, estiloCSS);
-        aplicarEstiloAGrafica(chartMargenGanancia, estiloCSS);
-    }
-    
-    private void aplicarEstiloAGrafica(Chart chart, String estilo) {
-        if (chart != null) {
-            chart.setStyle(estilo);
+        if (chartTendenciaVentas1 != null) {
+            chartTendenciaVentas1.setStyle(estiloCSS);
+        }
+        if (chartTop5Productos1 != null) {
+            chartTop5Productos1.setStyle(estiloCSS);
+        }
+        if (chartTop5Productos2 != null) {
+            chartTop5Productos2.setStyle(estiloCSS);
+        }
+        if (chartMargenGanancia != null) {
+            chartMargenGanancia.setStyle(estiloCSS);
         }
     }
     
-    // CARGA DE DATOS EN GRÁFICAS
-    
+    /**
+     * Carga los datos iniciales en todas las gráficas del dashboard.
+     * Este método se ejecuta al inicializar el controlador.
+     */
     private void cargarDatosGraficasIniciales() {
         try {
             if (chartTendenciaVentas1 != null) cargarGraficaTendenciaVentas();
@@ -394,6 +411,10 @@ public class InteligenciaNegocioController {
         }
     }
     
+    /**
+     * Carga la gráfica de tendencia de ventas con datos de los últimos 30 días.
+     * Aplica colores personalizados a las series de datos.
+     */
     private void cargarGraficaTendenciaVentas() {
         try {
             java.time.LocalDate fin = java.time.LocalDate.now();
@@ -412,12 +433,19 @@ public class InteligenciaNegocioController {
                 }
                 
                 chartTendenciaVentas1.getData().add(serie);
+                
+                final String color = serieVentas.getColor();
+                aplicarColorASerie(serie, color);
             }
         } catch (Exception e) {
             System.err.println("Error en tendencia de ventas: " + e.getMessage());
         }
     }
     
+    /**
+     * Carga la gráfica de productos más vendidos (top 10).
+     * Los nombres de productos largos se truncan para mejorar la visualización.
+     */
     private void cargarGraficaTopProductos() {
         try {
             DatosGrafica datos = graficaServicio.generarGraficaTopProductos(10);
@@ -429,16 +457,30 @@ public class InteligenciaNegocioController {
                 chartSerie.setName(serie.getNombre());
                 
                 for (PuntoGrafica punto : serie.getValores()) {
-                    chartSerie.getData().add(new XYChart.Data<>(punto.getEtiqueta(), punto.getValor()));
+                    String nombreTruncado = truncarNombre(punto.getEtiqueta(), MAX_CARACTERES_NOMBRE);
+                    chartSerie.getData().add(new XYChart.Data<>(nombreTruncado, punto.getValor()));
                 }
                 
                 chartTop5Productos1.getData().add(chartSerie);
+                
+                final List<PuntoGrafica> puntos = serie.getValores();
+                aplicarColoresABarras(chartSerie, puntos);
             }
         } catch (Exception e) {
             System.err.println("Error en top productos: " + e.getMessage());
         }
     }
     
+    /**
+     * Carga la gráfica de inventario crítico mostrando productos con stock bajo.
+     * Aplica código de colores según el nivel de criticidad:
+     * <ul>
+     *   <li>Rojo: stock agotado</li>
+     *   <li>Naranja: stock por debajo de la mitad del mínimo</li>
+     *   <li>Amarillo: stock bajo</li>
+     *   <li>Verde: sin alertas</li>
+     * </ul>
+     */
     private void cargarGraficaInventarioCritico() {
         try {
             var productos = productoServicio.listarProductos();
@@ -447,30 +489,49 @@ public class InteligenciaNegocioController {
             XYChart.Series<String, Number> serie = new XYChart.Series<>();
             serie.setName("Stock Crítico");
             
+            List<String> colores = new ArrayList<>();
+            
             productos.stream()
                 .filter(Producto::tieneStockBajo)
                 .sorted((p1, p2) -> Integer.compare(p1.getStock(), p2.getStock()))
                 .limit(10)
                 .forEach(p -> {
-                    String nombre = p.getNombre().length() > 15 ? 
-                        p.getNombre().substring(0, 15) + "..." : p.getNombre();
+                    String nombre = truncarNombre(p.getNombre(), MAX_CARACTERES_NOMBRE);
                     serie.getData().add(new XYChart.Data<>(nombre, p.getStock()));
+                    
+                    if (p.getStock() == 0) {
+                        colores.add("#D0021B");
+                    } else if (p.getStock() <= p.getStockMinimo() / 2) {
+                        colores.add("#F5A623");
+                    } else {
+                        colores.add("#FFCC00");
+                    }
                 });
             
             if (serie.getData().isEmpty()) {
                 serie.getData().add(new XYChart.Data<>("Sin alertas", 0));
+                colores.add("#10B981");
             }
             
             chartTop5Productos2.getData().add(serie);
+            aplicarColoresABarrasDirecto(serie, colores);
+            
         } catch (Exception e) {
             System.err.println("Error en inventario crítico: " + e.getMessage());
         }
     }
     
+    /**
+     * Carga la gráfica de margen de ganancia comparando costos vs ganancias.
+     * Muestra los 10 productos con mayor utilidad en formato de barras apiladas.
+     * Incluye una leyenda personalizada con los colores correctos.
+     */
     private void cargarGraficaMargenGananciaReal() {
         try {
             var productos = productoServicio.listarProductos();
             chartMargenGanancia.getData().clear();
+            
+            chartMargenGanancia.setLegendVisible(false);
             
             XYChart.Series<String, Number> serieCostos = new XYChart.Series<>();
             serieCostos.setName("Costos");
@@ -488,8 +549,7 @@ public class InteligenciaNegocioController {
                 .collect(Collectors.toList());
             
             for (Producto p : topProductos) {
-                String nombre = p.getNombre().length() > 12 ? 
-                    p.getNombre().substring(0, 12) + "..." : p.getNombre();
+                String nombre = truncarNombre(p.getNombre(), 12);
                 
                 double costoTotal = p.getInversionTotal();
                 double gananciaTotal = p.getUtilidadTotal();
@@ -505,29 +565,267 @@ public class InteligenciaNegocioController {
             
             chartMargenGanancia.getData().addAll(serieCostos, serieGanancias);
             
+            aplicarColorASerieBarras(serieCostos, "#5960E3");
+            aplicarColorASerieBarras(serieGanancias, "#70E359");
+            
+            crearLeyendaPersonalizada(chartMargenGanancia);
+            
         } catch (Exception e) {
             System.err.println("Error en margen de ganancia: " + e.getMessage());
         }
     }
     
-    private void verificarConfiguracion() {
-        if (inteligenciaServicio.verificarConfiguracion()) {
-            lblEstadoConexion.setText("● Sistema Listo");
-            lblEstadoConexion.setStyle("-fx-text-fill: #10B981; -fx-font-weight: bold;");
-        } else {
-            lblEstadoConexion.setText("● No Configurado");
-            lblEstadoConexion.setStyle("-fx-text-fill: #EF4444; -fx-font-weight: bold;");
+    /**
+     * Trunca un nombre largo agregando puntos suspensivos.
+     * 
+     * @param nombre el nombre original a truncar
+     * @param maxCaracteres el número máximo de caracteres permitidos
+     * @return el nombre truncado con "..." si excede el límite, o el nombre original si no
+     */
+    private String truncarNombre(String nombre, int maxCaracteres) {
+        if (nombre == null) return "";
+        if (nombre.length() <= maxCaracteres) return nombre;
+        return nombre.substring(0, maxCaracteres) + "...";
+    }
+
+    /**
+     * Crea una leyenda personalizada para la gráfica de margen de ganancia.
+     * La leyenda muestra cuadros de colores con las etiquetas "Costos" y "Ganancias".
+     * 
+     * @param chart la gráfica a la que se añadirá la leyenda
+     */
+    private void crearLeyendaPersonalizada(StackedBarChart<String, Number> chart) {
+        Platform.runLater(() -> {
+            try {
+                chart.setLegendVisible(false);
+
+                HBox leyendaPersonalizada = new HBox(20);
+                leyendaPersonalizada.setAlignment(Pos.CENTER);
+                leyendaPersonalizada.setPadding(new Insets(10));
+
+                HBox itemCostos = crearItemLeyenda("Costos", "#5960E3");
+                HBox itemGanancias = crearItemLeyenda("Ganancias", "#70E359");
+
+                leyendaPersonalizada.getChildren().addAll(itemCostos, itemGanancias);
+
+                if (chart.getParent() instanceof VBox) {
+                    VBox parent = (VBox) chart.getParent();
+                    parent.getChildren().add(leyendaPersonalizada);
+                }
+
+            } catch (Exception e) {
+                System.err.println("Error creando leyenda: " + e.getMessage());
+            }
+        });
+    }
+
+    /**
+     * Crea un item individual para la leyenda personalizada.
+     * 
+     * @param texto el texto del item de leyenda
+     * @param color el color hexadecimal del símbolo
+     * @return un HBox conteniendo el símbolo de color y la etiqueta
+     */
+    private HBox crearItemLeyenda(String texto, String color) {
+        HBox item = new HBox(8);
+        item.setAlignment(Pos.CENTER_LEFT);
+
+        javafx.scene.shape.Rectangle simbolo = new javafx.scene.shape.Rectangle(15, 15);
+        simbolo.setFill(javafx.scene.paint.Color.web(color));
+
+        Label label = new Label(texto);
+        label.setStyle("-fx-font-size: 12px;");
+
+        item.getChildren().addAll(simbolo, label);
+
+        return item;
+    }
+    
+    /**
+     * Aplica un color específico a una serie de línea en una gráfica.
+     * El color se aplica tanto a la línea como a los símbolos de datos.
+     * 
+     * @param serie la serie de datos a colorear
+     * @param color el color hexadecimal a aplicar
+     */
+    private void aplicarColorASerie(XYChart.Series<String, Number> serie, String color) {
+        Platform.runLater(() -> {
+            javafx.scene.Node nodoSerie = serie.getNode();
+            if (nodoSerie != null) {
+                nodoSerie.setStyle("-fx-stroke: " + color + "; -fx-stroke-width: 3px;");
+            }
             
+            for (XYChart.Data<String, Number> data : serie.getData()) {
+                javafx.scene.Node nodo = data.getNode();
+                if (nodo != null) {
+                    nodo.setStyle("-fx-background-color: " + color + ", white; " +
+                                 "-fx-background-insets: 0, 2; " +
+                                 "-fx-background-radius: 5px; " +
+                                 "-fx-padding: 5px;");
+                }
+            }
+        });
+    }
+    
+    /**
+     * Aplica colores individuales a cada barra basándose en los puntos de datos.
+     * 
+     * @param serie la serie de barras a colorear
+     * @param puntos la lista de puntos que contienen información de color
+     */
+    private void aplicarColoresABarras(XYChart.Series<String, Number> serie, List<PuntoGrafica> puntos) {
+        Platform.runLater(() -> {
+            for (int i = 0; i < serie.getData().size() && i < puntos.size(); i++) {
+                XYChart.Data<String, Number> data = serie.getData().get(i);
+                String color = puntos.get(i).getColor();
+                
+                if (color != null && data.getNode() != null) {
+                    javafx.scene.Node nodo = data.getNode();
+                    nodo.setStyle("-fx-bar-fill: " + color + "; -fx-background-color: " + color + ";");
+                }
+            }
+        });
+    }
+    
+    /**
+     * Aplica colores directos a las barras de una serie desde una lista de colores.
+     * 
+     * @param serie la serie de barras a colorear
+     * @param colores lista de colores hexadecimales a aplicar
+     */
+    private void aplicarColoresABarrasDirecto(XYChart.Series<String, Number> serie, List<String> colores) {
+        Platform.runLater(() -> {
+            for (int i = 0; i < serie.getData().size() && i < colores.size(); i++) {
+                XYChart.Data<String, Number> data = serie.getData().get(i);
+                String color = colores.get(i);
+                
+                if (data.getNode() != null) {
+                    javafx.scene.Node nodo = data.getNode();
+                    nodo.setStyle("-fx-bar-fill: " + color + "; -fx-background-color: " + color + ";");
+                }
+            }
+        });
+    }
+    
+    /**
+     * Aplica un color uniforme a todas las barras de una serie.
+     * 
+     * @param serie la serie de barras a colorear
+     * @param color el color hexadecimal a aplicar
+     */
+    private void aplicarColorASerieBarras(XYChart.Series<String, Number> serie, String color) {
+        Platform.runLater(() -> {
+            for (XYChart.Data<String, Number> data : serie.getData()) {
+                if (data.getNode() != null) {
+                    javafx.scene.Node nodo = data.getNode();
+                    nodo.setStyle("-fx-bar-fill: " + color + "; -fx-background-color: " + color + ";");
+                }
+            }
+        });
+    }
+    
+    /**
+     * Reaplica los colores a todas las gráficas del dashboard.
+     * Útil cuando se cambia de pestaña y los colores se pierden por el renderizado.
+     */
+    private void recolorearTodasLasGraficas() {
+        try {
             Platform.runLater(() -> {
-                mostrarAlerta("Configuración Requerida", 
-                    "Debes configurar la API Key de DeepSeek para usar la IA.", 
-                    Alert.AlertType.WARNING);
+                try {
+                    Thread.sleep(100);
+                    
+                    if (chartTendenciaVentas1 != null && !chartTendenciaVentas1.getData().isEmpty()) {
+                        for (XYChart.Series<String, Number> serie : chartTendenciaVentas1.getData()) {
+                            aplicarColorASerie(serie, "#3B82F6");
+                        }
+                    }
+                    
+                    if (chartTop5Productos1 != null && !chartTop5Productos1.getData().isEmpty()) {
+                        cargarGraficaTopProductos();
+                    }
+                    
+                    if (chartTop5Productos2 != null && !chartTop5Productos2.getData().isEmpty()) {
+                        cargarGraficaInventarioCritico();
+                    }
+                    
+                    if (chartMargenGanancia != null && !chartMargenGanancia.getData().isEmpty()) {
+                        cargarGraficaMargenGananciaReal();
+                    }
+                    
+                } catch (Exception e) {
+                    System.err.println("Error recoloreando: " + e.getMessage());
+                }
             });
+        } catch (Exception e) {
+            System.err.println("Error en recoloreo: " + e.getMessage());
         }
     }
     
-    // HANDLERS DE EVENTOS
+    /**
+     * Restaura el último análisis guardado en el repositorio.
+     * Si existe un análisis previo, lo carga y muestra en la interfaz.
+     */
+    private void restaurarAnalisisGuardado() {
+        if (analisisRepositorio.tieneAnalisisActual()) {
+            ResultadoAnalisisIA analisisGuardado = analisisRepositorio.obtenerAnalisisActual();
+            
+            if (analisisGuardado != null) {
+                ultimoAnalisis = convertirAAnalisisEstadistico(analisisGuardado);
+                
+                Platform.runLater(() -> {
+                    if (txtAnalisisIA != null) {
+                        String textoOriginal = analisisGuardado.getAnalisisTexto();
+                        txtAnalisisIA.setText(formatearAnalisisIA(textoOriginal));
+                    }
+                    
+                    if (txtMetricas != null) {
+                        actualizarMetricas(ultimoAnalisis);
+                    }
+                    
+                    if (lblFechaAnalisis != null) {
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+                        lblFechaAnalisis.setText("Último análisis: " + 
+                            analisisGuardado.getFechaGeneracion().format(formatter));
+                    }
+                    
+                    System.out.println("Análisis restaurado: " + analisisGuardado.getTipoAnalisis());
+                });
+            }
+        }
+    }
     
+    /**
+     * Convierte un ResultadoAnalisisIA a AnalisisEstadistico.
+     * 
+     * @param resultado el resultado de análisis IA a convertir
+     * @return un objeto AnalisisEstadistico equivalente
+     */
+    private AnalisisEstadistico convertirAAnalisisEstadistico(ResultadoAnalisisIA resultado) {
+        AnalisisEstadistico analisis = new AnalisisEstadistico(resultado.getTipoAnalisis());
+        analisis.setResumenIA(resultado.getAnalisisTexto());
+        analisis.setMetricas(resultado.getMetricas());
+        return analisis;
+    }
+    
+    /**
+     * Convierte un AnalisisEstadistico a ResultadoAnalisisIA.
+     * 
+     * @param analisis el análisis estadístico a convertir
+     * @return un objeto ResultadoAnalisisIA equivalente
+     */
+    private ResultadoAnalisisIA convertirAResultadoAnalisisIA(AnalisisEstadistico analisis) {
+        ResultadoAnalisisIA resultado = new ResultadoAnalisisIA();
+        resultado.setTipoAnalisis(analisis.getTipoAnalisis());
+        resultado.setAnalisisTexto(analisis.getResumenIA());
+        resultado.setMetricas(analisis.getMetricas());
+        resultado.setFechaGeneracion(LocalDateTime.now());
+        return resultado;
+    }
+    
+    /**
+     * Maneja la acción de actualizar solo las gráficas sin ejecutar análisis IA.
+     * Cambia a la pestaña de dashboard y recarga todos los datos visuales.
+     */
     @FXML
     private void handleSoloGraficas() {
         if (tabPane != null) {
@@ -537,6 +835,10 @@ public class InteligenciaNegocioController {
         mostrarInfo("Gráficas Actualizadas", "Datos recargados exitosamente.");
     }
     
+    /**
+     * Maneja la generación de un análisis completo del negocio.
+     * Ejecuta un análisis integral considerando ventas, inventario y clientes.
+     */
     @FXML
     private void handleAnalisisCompleto() {
         if (analisisEnProgreso) {
@@ -551,6 +853,10 @@ public class InteligenciaNegocioController {
         }, "Completo");
     }
     
+    /**
+     * Maneja la generación de un análisis específico de ventas.
+     * Analiza tendencias, productos más vendidos y métricas de ventas.
+     */
     @FXML
     private void handleAnalisisVentas() {
         if (analisisEnProgreso) {
@@ -566,6 +872,10 @@ public class InteligenciaNegocioController {
         }, "Ventas");
     }
     
+    /**
+     * Maneja la generación de un análisis específico de inventario.
+     * Evalúa niveles de stock, productos críticos y rotación de inventario.
+     */
     @FXML
     private void handleAnalisisInventario() {
         if (analisisEnProgreso) {
@@ -580,6 +890,10 @@ public class InteligenciaNegocioController {
         }, "Inventario");
     }
     
+    /**
+     * Maneja la generación automática de recomendaciones de negocio.
+     * Crea sugerencias basadas en el contexto actual del negocio.
+     */
     @FXML
     private void handleGenerarRecomendaciones() {
         if (analisisEnProgreso) {
@@ -624,6 +938,10 @@ public class InteligenciaNegocioController {
         }).start();
     }
     
+    /**
+     * Maneja la visualización de detalles de una recomendación seleccionada.
+     * Muestra un diálogo modal con información completa de la recomendación.
+     */
     @FXML
     private void handleVerDetallesRecomendacion() {
         Recomendacion seleccionada = tableRecomendaciones.getSelectionModel().getSelectedItem();
@@ -636,6 +954,10 @@ public class InteligenciaNegocioController {
         mostrarDetallesRecomendacion(seleccionada);
     }
     
+    /**
+     * Maneja el marcado de una recomendación como aplicada.
+     * Solicita confirmación antes de cambiar el estado.
+     */
     @FXML
     private void handleMarcarAplicada() {
         Recomendacion seleccionada = tableRecomendaciones.getSelectionModel().getSelectedItem();
@@ -664,6 +986,10 @@ public class InteligenciaNegocioController {
         });
     }
     
+    /**
+     * Maneja la eliminación de todas las recomendaciones marcadas como aplicadas.
+     * Solicita confirmación antes de eliminar.
+     */
     @FXML
     private void handleLimpiarAplicadas() {
         long count = recomendaciones.stream().filter(Recomendacion::isAplicada).count();
@@ -685,6 +1011,10 @@ public class InteligenciaNegocioController {
         });
     }
     
+    /**
+     * Maneja la limpieza y recarga de la vista.
+     * Restaura el último análisis guardado y recarga las gráficas.
+     */
     @FXML
     private void handleLimpiar() {
         if (analisisRepositorio.tieneAnalisisActual()) {
@@ -695,6 +1025,9 @@ public class InteligenciaNegocioController {
         mostrarInfo("Vista Actualizada", "Gráficas recargadas");
     }
     
+    /**
+     * Maneja la copia de métricas al portapapeles del sistema.
+     */
     @FXML
     private void handleCopiarMetricas() {
         if (txtMetricas == null || txtMetricas.getText().isEmpty()) {
@@ -714,6 +1047,10 @@ public class InteligenciaNegocioController {
         }
     }
     
+    /**
+     * Maneja el guardado de métricas en un archivo de texto.
+     * Abre un diálogo de selección de archivo.
+     */
     @FXML
     private void handleGuardarMetricas() {
         if (txtMetricas == null || txtMetricas.getText().isEmpty()) {
@@ -741,6 +1078,9 @@ public class InteligenciaNegocioController {
         }
     }
     
+    /**
+     * Maneja la copia del análisis IA al portapapeles del sistema.
+     */
     @FXML
     private void handleCopiarAnalisis() {
         if (txtAnalisisIA == null || txtAnalisisIA.getText().isEmpty()) {
@@ -760,6 +1100,10 @@ public class InteligenciaNegocioController {
         }
     }
     
+    /**
+     * Maneja la exportación directa del análisis a formato PDF.
+     * Abre un diálogo de selección de archivo.
+     */
     @FXML
     private void handleExportarPDFDirecto() {
         if (ultimoAnalisis == null) {
@@ -785,7 +1129,11 @@ public class InteligenciaNegocioController {
             mostrarError("Error", "Error al seleccionar archivo: " + e.getMessage());
         }
     }
-    
+
+    /**
+     * Maneja la exportación del análisis a archivo de texto o PDF.
+     * Permite elegir entre ambos formatos mediante el diálogo de guardado.
+     */
     @FXML
     private void handleExportar() {
         if (ultimoAnalisis == null && recomendaciones.isEmpty()) {
@@ -811,10 +1159,8 @@ public class InteligenciaNegocioController {
                 String ruta = archivo.getAbsolutePath();
                 
                 if (ruta.endsWith(".pdf")) {
-                    // Exportar como PDF
                     handleExportarPDF(ruta);
                 } else {
-                    // Exportar como TXT
                     java.nio.file.Files.write(archivo.toPath(), contenido.getBytes());
                     mostrarInfo("Éxito", "Análisis exportado:\n" + archivo.getAbsolutePath());
                 }
@@ -825,74 +1171,137 @@ public class InteligenciaNegocioController {
             e.printStackTrace();
         }
     }
-    
+
     /**
-     * Exporta el análisis como PDF con gráficas
+     * Exporta el análisis completo a formato PDF de forma asíncrona.
+     * Captura snapshots de las gráficas en el hilo de JavaFX antes de generar el PDF.
+     * 
+     * @param rutaArchivo la ruta donde se guardará el archivo PDF
      */
     private void handleExportarPDF(String rutaArchivo) {
         mostrarOverlayProgreso(true);
-        
-        new Thread(() -> {
-            try {
-                final String tipoAnalisis = ultimoAnalisis != null ? 
-                    ultimoAnalisis.getTipoAnalisis() : "Análisis General";
-                
-                final String analisisTexto = txtAnalisisIA != null ? 
-                    txtAnalisisIA.getText() : "";
-                
-                final String metricas = txtMetricas != null ? 
-                    txtMetricas.getText() : "";
-                
-                // Recolectar gráficas visibles (compatible con Java 11)
-                final List<Chart> graficas = new java.util.ArrayList<>();
-                if (chartTendenciaVentas1 != null && chartTendenciaVentas1.isVisible()) {
-                    graficas.add(chartTendenciaVentas1);
+
+        try {
+            final String tipoAnalisis = ultimoAnalisis != null ? 
+                ultimoAnalisis.getTipoAnalisis() : "Análisis General";
+
+            final String analisisTexto = txtAnalisisIA != null ? 
+                txtAnalisisIA.getText() : "";
+
+            final String metricas = txtMetricas != null ? 
+                txtMetricas.getText() : "";
+
+            final List<byte[]> graficasBytes = new ArrayList<>();
+            final List<String> nombresGraficas = new ArrayList<>();
+
+            if (chartTendenciaVentas1 != null && chartTendenciaVentas1.isVisible()) {
+                try {
+                    graficasBytes.add(convertirChartABytes(chartTendenciaVentas1));
+                    nombresGraficas.add(chartTendenciaVentas1.getTitle());
+                } catch (Exception e) {
+                    System.err.println("Error capturando gráfica 1: " + e.getMessage());
                 }
-                if (chartTop5Productos1 != null && chartTop5Productos1.isVisible()) {
-                    graficas.add(chartTop5Productos1);
+            }
+
+            if (chartTop5Productos1 != null && chartTop5Productos1.isVisible()) {
+                try {
+                    graficasBytes.add(convertirChartABytes(chartTop5Productos1));
+                    nombresGraficas.add(chartTop5Productos1.getTitle());
+                } catch (Exception e) {
+                    System.err.println("Error capturando gráfica 2: " + e.getMessage());
                 }
-                if (chartMargenGanancia != null && chartMargenGanancia.isVisible()) {
-                    graficas.add(chartMargenGanancia);
+            }
+
+            if (chartMargenGanancia != null && chartMargenGanancia.isVisible()) {
+                try {
+                    graficasBytes.add(convertirChartABytes(chartMargenGanancia));
+                    nombresGraficas.add(chartMargenGanancia.getTitle());
+                } catch (Exception e) {
+                    System.err.println("Error capturando gráfica 3: " + e.getMessage());
                 }
-                if (chartTop5Productos2 != null && chartTop5Productos2.isVisible()) {
-                    graficas.add(chartTop5Productos2);
+            }
+
+            if (chartTop5Productos2 != null && chartTop5Productos2.isVisible()) {
+                try {
+                    graficasBytes.add(convertirChartABytes(chartTop5Productos2));
+                    nombresGraficas.add(chartTop5Productos2.getTitle());
+                } catch (Exception e) {
+                    System.err.println("Error capturando gráfica 4: " + e.getMessage());
                 }
-                
-                // Generar PDF en hilo de JavaFX (necesario para capturar gráficas)
-                Platform.runLater(() -> {
-                    try {
-                        generadorPDF.generarReporteCompleto(
-                            rutaArchivo,
-                            tipoAnalisis,
-                            analisisTexto,
-                            metricas,
-                            graficas
-                        );
-                        
+            }
+
+            new Thread(() -> {
+                try {
+                    generadorPDF.generarReporteCompletoConBytes(
+                        rutaArchivo,
+                        tipoAnalisis,
+                        analisisTexto,
+                        metricas,
+                        graficasBytes,
+                        nombresGraficas
+                    );
+
+                    Platform.runLater(() -> {
                         mostrarOverlayProgreso(false);
                         mostrarInfo("PDF Generado", 
                             "Reporte exportado exitosamente:\n" + rutaArchivo);
-                        
-                    } catch (Exception e) {
+                    });
+
+                } catch (Exception e) {
+                    Platform.runLater(() -> {
                         mostrarOverlayProgreso(false);
                         mostrarError("Error al generar PDF", e.getMessage());
-                        e.printStackTrace();
-                    }
-                });
-                
-            } catch (Exception e) {
-                Platform.runLater(() -> {
-                    mostrarOverlayProgreso(false);
-                    mostrarError("Error", "Error al preparar PDF: " + e.getMessage());
-                });
-            }
-        }).start();
+                    });
+                    e.printStackTrace();
+                }
+            }).start();
+
+        } catch (Exception e) {
+            mostrarOverlayProgreso(false);
+            mostrarError("Error", "Error al preparar PDF: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Convierte una gráfica de JavaFX a bytes de imagen PNG.
+     * Este método debe ejecutarse en el hilo de JavaFX.
+     * 
+     * @param chart la gráfica a convertir
+     * @return array de bytes representando la imagen PNG
+     * @throws Exception si ocurre un error durante la conversión
+     */
+    private byte[] convertirChartABytes(javafx.scene.chart.Chart chart) throws Exception {
+        javafx.scene.SnapshotParameters params = new javafx.scene.SnapshotParameters();
+        javafx.scene.image.WritableImage snapshot = chart.snapshot(params, null);
+        java.awt.image.BufferedImage bufferedImage = 
+            javafx.embed.swing.SwingFXUtils.fromFXImage(snapshot, null);
+
+        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        javax.imageio.ImageIO.write(bufferedImage, "png", baos);
+        return baos.toByteArray();
     }
     
-    // MÉTODOS AUXILIARES
+    /**
+     * Actualiza todas las gráficas del dashboard con los datos más recientes.
+     * Este método es público para que otros controladores puedan invocarlo.
+     */
+    public void actualizarTodasLasGraficas() {
+        Platform.runLater(() -> {
+            try {
+                cargarDatosGraficasIniciales();
+                System.out.println("Gráficas actualizadas correctamente");
+            } catch (Exception e) {
+                System.err.println("Error actualizando gráficas: " + e.getMessage());
+            }
+        });
+    }
     
     /**
-     * Ejecuta análisis con overlay visual centrado
+     * Ejecuta una tarea de análisis de forma asíncrona mostrando el overlay de progreso.
+     * 
+     * @param task la tarea de análisis a ejecutar
+     * @param tipoAnalisis el tipo de análisis que se está ejecutando
      */
     private void ejecutarAnalisisConOverlay(AnalisisTask task, String tipoAnalisis) {
         mostrarOverlayProgreso(true);
@@ -905,7 +1314,6 @@ public class InteligenciaNegocioController {
             try {
                 AnalisisEstadistico analisis = task.ejecutar();
                 
-                // Guardar en repositorio
                 ResultadoAnalisisIA resultadoParaGuardar = convertirAResultadoAnalisisIA(analisis);
                 analisisRepositorio.guardar(resultadoParaGuardar);
                 
@@ -913,8 +1321,6 @@ public class InteligenciaNegocioController {
                     ultimoAnalisis = analisis;
                     
                     if (txtAnalisisIA != null) {
-                        // Limpiar el texto antes de mostrarlo
-                        String textoLimpio = limpiarMarkdown(analisis.getResumenIA());
                         txtAnalisisIA.setText(formatearAnalisisIA(analisis.getResumenIA()));
                     }
                     
@@ -953,17 +1359,10 @@ public class InteligenciaNegocioController {
     }
     
     /**
-     * Convierte AnalisisEstadistico a ResultadoAnalisisIA para guardar
+     * Crea un contexto de negocio con todos los datos necesarios para el análisis.
+     * 
+     * @return objeto ContextoNegocio con productos, ventas, clientes y periodo
      */
-    private ResultadoAnalisisIA convertirAResultadoAnalisisIA(AnalisisEstadistico analisis) {
-        ResultadoAnalisisIA resultado = new ResultadoAnalisisIA();
-        resultado.setTipoAnalisis(analisis.getTipoAnalisis());
-        resultado.setAnalisisTexto(analisis.getResumenIA());
-        resultado.setMetricas(analisis.getMetricas());
-        resultado.setFechaGeneracion(LocalDateTime.now());
-        return resultado;
-    }
-    
     private ContextoNegocio crearContextoNegocio() {
         ContextoNegocio contexto = new ContextoNegocio();
         
@@ -979,6 +1378,11 @@ public class InteligenciaNegocioController {
         return contexto;
     }
     
+    /**
+     * Muestra un diálogo modal con los detalles completos de una recomendación.
+     * 
+     * @param rec la recomendación cuyos detalles se mostrarán
+     */
     private void mostrarDetallesRecomendacion(Recomendacion rec) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Detalles de Recomendación");
@@ -1008,6 +1412,13 @@ public class InteligenciaNegocioController {
         alert.showAndWait();
     }
     
+    /**
+     * Formatea el texto de análisis IA para visualización en la interfaz.
+     * Limpia el formato Markdown y aplica estilos de texto plano estructurados.
+     * 
+     * @param analisisTexto el texto del análisis en formato Markdown
+     * @return el texto formateado para visualización
+     */
     private String formatearAnalisisIA(String analisisTexto) {
         if (analisisTexto == null || analisisTexto.isEmpty()) {
             return "No se pudo generar el análisis.";
@@ -1017,7 +1428,6 @@ public class InteligenciaNegocioController {
         formateado.append("ANÁLISIS DE INTELIGENCIA ARTIFICIAL\n");
         formateado.append("=".repeat(60)).append("\n\n");
         
-        // Limpiar y formatear el texto Markdown
         String textoLimpio = limpiarMarkdown(analisisTexto);
         formateado.append(textoLimpio);
         
@@ -1031,7 +1441,11 @@ public class InteligenciaNegocioController {
     }
     
     /**
-     * Limpia el formato Markdown y convierte a texto plano legible
+     * Limpia el formato Markdown de un texto convirtiéndolo a texto plano estructurado.
+     * Remueve negritas, cursivas, encabezados y símbolos especiales.
+     * 
+     * @param texto el texto con formato Markdown
+     * @return el texto limpio sin formato Markdown
      */
     private String limpiarMarkdown(String texto) {
         if (texto == null || texto.isEmpty()) {
@@ -1044,12 +1458,10 @@ public class InteligenciaNegocioController {
         for (String linea : lineas) {
             String lineaLimpia = linea;
             
-            // Eliminar asteriscos de negrita/cursiva
-            lineaLimpia = lineaLimpia.replaceAll("\\*\\*\\*(.+?)\\*\\*\\*", "$1"); // ***texto***
-            lineaLimpia = lineaLimpia.replaceAll("\\*\\*(.+?)\\*\\*", "$1");       // **texto**
-            lineaLimpia = lineaLimpia.replaceAll("\\*(.+?)\\*", "$1");             // *texto*
+            lineaLimpia = lineaLimpia.replaceAll("\\*\\*\\*(.+?)\\*\\*\\*", "$1");
+            lineaLimpia = lineaLimpia.replaceAll("\\*\\*(.+?)\\*\\*", "$1");
+            lineaLimpia = lineaLimpia.replaceAll("\\*(.+?)\\*", "$1");
             
-            // Convertir encabezados Markdown a texto con formato
             if (lineaLimpia.startsWith("####")) {
                 lineaLimpia = "    " + lineaLimpia.replaceFirst("####\\s*", "").toUpperCase();
             } else if (lineaLimpia.startsWith("###")) {
@@ -1060,13 +1472,11 @@ public class InteligenciaNegocioController {
                 lineaLimpia = "\n" + lineaLimpia.replaceFirst("#\\s*", "").toUpperCase() + "\n" + "=".repeat(50);
             }
             
-            // Limpiar guiones de listas pero mantener la estructura
             if (lineaLimpia.trim().startsWith("-")) {
                 lineaLimpia = lineaLimpia.replaceFirst("-\\s*", "  • ");
             }
             
-            // Eliminar emojis de encabezados críticos
-            lineaLimpia = lineaLimpia.replaceAll("🔴|⚠️|✅|📊|💡|🎯", "");
+            lineaLimpia = lineaLimpia.replaceAll("[🔴⚠️✅📊💡🎯]", "");
             
             resultado.append(lineaLimpia).append("\n");
         }
@@ -1074,6 +1484,11 @@ public class InteligenciaNegocioController {
         return resultado.toString().trim();
     }
     
+    /**
+     * Actualiza el área de texto de métricas con los datos del análisis.
+     * 
+     * @param analisis el análisis estadístico con las métricas a mostrar
+     */
     private void actualizarMetricas(AnalisisEstadistico analisis) {
         if (txtMetricas == null) return;
         
@@ -1095,6 +1510,13 @@ public class InteligenciaNegocioController {
         txtMetricas.setText(metricas.toString());
     }
     
+    /**
+     * Formatea un valor numérico para visualización.
+     * Los valores Double se formatean como moneda.
+     * 
+     * @param valor el valor a formatear
+     * @return la representación en String del valor formateado
+     */
     private String formatearValor(Object valor) {
         if (valor instanceof Double) {
             return String.format("$%.2f", (Double) valor);
@@ -1102,6 +1524,9 @@ public class InteligenciaNegocioController {
         return String.valueOf(valor);
     }
     
+    /**
+     * Actualiza la etiqueta de fecha del último análisis con la fecha y hora actuales.
+     */
     private void actualizarFechaAnalisis() {
         if (lblFechaAnalisis != null) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
@@ -1109,6 +1534,12 @@ public class InteligenciaNegocioController {
         }
     }
     
+    /**
+     * Genera un reporte de texto completo para exportación.
+     * Incluye análisis IA y recomendaciones si están disponibles.
+     * 
+     * @return el contenido del reporte en formato texto
+     */
     private String generarReporteExportacion() {
         StringBuilder reporte = new StringBuilder();
         reporte.append("════════════════════════════════════════════════════════════════\n");
@@ -1139,6 +1570,11 @@ public class InteligenciaNegocioController {
         return reporte.toString();
     }
     
+    /**
+     * Muestra u oculta el indicador de progreso simple.
+     * 
+     * @param visible true para mostrar, false para ocultar
+     */
     private void mostrarProgreso(boolean visible) {
         if (progressIndicator != null) {
             progressIndicator.setVisible(visible);
@@ -1146,6 +1582,13 @@ public class InteligenciaNegocioController {
         }
     }
     
+    /**
+     * Muestra un diálogo de alerta genérico.
+     * 
+     * @param titulo el título del diálogo
+     * @param mensaje el mensaje a mostrar
+     * @param tipo el tipo de alerta
+     */
     private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
         Alert alert = new Alert(tipo);
         alert.setTitle(titulo);
@@ -1154,20 +1597,48 @@ public class InteligenciaNegocioController {
         alert.showAndWait();
     }
     
+    /**
+     * Muestra un diálogo de error.
+     * 
+     * @param titulo el título del diálogo
+     * @param mensaje el mensaje de error
+     */
     private void mostrarError(String titulo, String mensaje) {
         mostrarAlerta(titulo, mensaje, Alert.AlertType.ERROR);
     }
     
+    /**
+     * Muestra un diálogo informativo.
+     * 
+     * @param titulo el título del diálogo
+     * @param mensaje el mensaje informativo
+     */
     private void mostrarInfo(String titulo, String mensaje) {
         mostrarAlerta(titulo, mensaje, Alert.AlertType.INFORMATION);
     }
     
+    /**
+     * Muestra un diálogo de advertencia.
+     * 
+     * @param titulo el título del diálogo
+     * @param mensaje el mensaje de advertencia
+     */
     private void mostrarAdvertencia(String titulo, String mensaje) {
         mostrarAlerta(titulo, mensaje, Alert.AlertType.WARNING);
     }
     
+    /**
+     * Interface funcional para tareas de análisis asíncronas.
+     * Permite ejecutar diferentes tipos de análisis con la misma estructura.
+     */
     @FunctionalInterface
     private interface AnalisisTask {
+        /**
+         * Ejecuta la tarea de análisis.
+         * 
+         * @return el resultado del análisis estadístico
+         * @throws Exception si ocurre un error durante el análisis
+         */
         AnalisisEstadistico ejecutar() throws Exception;
     }
 }

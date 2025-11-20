@@ -1,25 +1,29 @@
 package com.mycompany.stockflow;
 
 import javafx.animation.*;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.event.ActionEvent;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import com.mycompany.stockflow.Modelo.Producto;
 import com.mycompany.stockflow.Logica.ProductoServicio;
+import com.mycompany.stockflow.utils.ImagenProductoUtil;
 
 import java.io.IOException;
 import java.net.URL;
@@ -28,17 +32,13 @@ import java.util.stream.Collectors;
 
 public class Productos_invitadoController implements Initializable {
     
-    @FXML private TableView<Producto> tablaProductos;
-    @FXML private TableColumn<Producto, String> colCodigo;
-    @FXML private TableColumn<Producto, String> colNombre;
-    @FXML private TableColumn<Producto, String> colCategoria;
-    @FXML private TableColumn<Producto, Number> colPrecioVenta;
-    @FXML private TableColumn<Producto, Number> colStock;
     @FXML private TextField txtBuscar;
     @FXML private Label lblTotalProductos;
     @FXML private Button btnBuscar;
     @FXML private Button btnVolver;
-    @FXML private HBox contenedorFiltros; // Contenedor donde se agregarán los botones dinámicos
+    @FXML private HBox contenedorFiltros;
+    @FXML private FlowPane gridProductos;
+    @FXML private Button btnabrirChatBot;
     
     private ProductoServicio productoServicio;
     private ObservableList<Producto> listaProductos;
@@ -51,91 +51,11 @@ public class Productos_invitadoController implements Initializable {
         productoServicio = new ProductoServicio();
         listaProductos = FXCollections.observableArrayList();
         
-        configurarColumnas();
         cargarProductos();
         cargarCategoriasdinamicas();
         configurarBusqueda();
         configurarAnimaciones();
         actualizarContador();
-    }
-
-    private void configurarColumnas() {
-        // Configurar las columnas usando PropertyValueFactory
-        colCodigo.setCellValueFactory(cellData -> 
-            new SimpleStringProperty(cellData.getValue().getCodigo()));
-        
-        colNombre.setCellValueFactory(cellData -> 
-            new SimpleStringProperty(cellData.getValue().getNombre()));
-        
-        colCategoria.setCellValueFactory(cellData -> 
-            new SimpleStringProperty(cellData.getValue().getCategoria()));
-        
-        // Columna de Precio con formato moderno
-        colPrecioVenta.setCellValueFactory(cellData -> 
-            new SimpleDoubleProperty(cellData.getValue().getPrecioVenta()));
-        
-        colPrecioVenta.setCellFactory(col -> new TableCell<Producto, Number>() {
-            @Override
-            protected void updateItem(Number precio, boolean empty) {
-                super.updateItem(precio, empty);
-                if (empty || precio == null) {
-                    setText(null);
-                    setStyle("");
-                } else {
-                    setText(String.format("$%,.2f", precio.doubleValue()));
-                    setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold; -fx-font-size: 13px;");
-                }
-            }
-        });
-        
-        // Columna de Stock con badges modernos
-        colStock.setCellValueFactory(cellData -> 
-            new SimpleIntegerProperty(cellData.getValue().getStock()));
-        
-        colStock.setCellFactory(col -> new TableCell<Producto, Number>() {
-            @Override
-            protected void updateItem(Number stock, boolean empty) {
-                super.updateItem(stock, empty);
-                if (empty || stock == null) {
-                    setText(null);
-                    setStyle("");
-                    setGraphic(null);
-                } else {
-                    Producto producto = getTableView().getItems().get(getIndex());
-                    int stockValue = stock.intValue();
-                    int stockMinimo = producto.getStockMinimo();
-                    
-                    // Crear badge con estilo
-                    Label badge = new Label();
-                    badge.setStyle("-fx-background-radius: 15; -fx-padding: 5 12 5 12; -fx-font-weight: bold; -fx-font-size: 11px;");
-                    
-                    if (stockValue == 0) {
-                        badge.setText("AGOTADO");
-                        badge.setStyle(badge.getStyle() + "-fx-background-color: #ffe6e6; -fx-text-fill: #e74c3c;");
-                    } else if (stockValue <= stockMinimo) {
-                        // Stock bajo: está en o por debajo del mínimo
-                        badge.setText("Bajo Stock (" + stockValue + " unidades)");
-                        badge.setStyle(badge.getStyle() + "-fx-background-color: #ffe6e6; -fx-text-fill: #e74c3c;");
-                    } else if (stockValue <= stockMinimo * 2) {
-                        // Stock limitado: está entre el mínimo y el doble del mínimo
-                        badge.setText("Stock Limitado (" + stockValue + " unidades)");
-                        badge.setStyle(badge.getStyle() + "-fx-background-color: #fff3cd; -fx-text-fill: #f39c12;");
-                    } else {
-                        badge.setText("Disponible (" + stockValue + " unidades)");
-                        badge.setStyle(badge.getStyle() + "-fx-background-color: #d4edda; -fx-text-fill: #27ae60;");
-                    }
-                    
-                    setText(null);
-                    setGraphic(badge);
-                    setStyle("-fx-alignment: CENTER;");
-                }
-            }
-        });
-        
-        // Estilo para las celdas
-        colCodigo.setStyle("-fx-font-weight: bold; -fx-text-fill: #2c3e50;");
-        colNombre.setStyle("-fx-text-fill: #34495e; -fx-font-size: 13px;");
-        colCategoria.setStyle("-fx-text-fill: #7f8c8d;");
     }
 
     private void cargarProductos() {
@@ -145,10 +65,10 @@ public class Productos_invitadoController implements Initializable {
             listaProductos.addAll(productos);
             
             filtrado = new FilteredList<>(listaProductos, p -> true);
-            tablaProductos.setItems(filtrado);
             
+            mostrarProductosEnGrid();
             actualizarContador();
-            animarEntradaTabla();
+            animarEntradaGrid();
             
             if (productos.isEmpty()) {
                 mostrarAlerta("Catálogo vacío", 
@@ -164,8 +84,250 @@ public class Productos_invitadoController implements Initializable {
                 Alert.AlertType.ERROR);
             
             filtrado = new FilteredList<>(listaProductos, p -> true);
-            tablaProductos.setItems(filtrado);
         }
+    }
+
+    /**
+     * Muestra los productos en formato de grid (cards de tienda)
+     */
+    private void mostrarProductosEnGrid() {
+        gridProductos.getChildren().clear();
+        
+        for (Producto producto : filtrado) {
+            VBox card = crearTarjetaProducto(producto);
+            gridProductos.getChildren().add(card);
+        }
+    }
+
+    /**
+     * Crea una tarjeta visual para cada producto (estilo e-commerce)
+     */
+    private VBox crearTarjetaProducto(Producto producto) {
+        VBox card = new VBox(12);
+        card.setAlignment(Pos.TOP_CENTER);
+        card.setPrefWidth(240);
+        card.setMaxWidth(240);
+        card.setStyle("-fx-background-color: white; -fx-background-radius: 12; " +
+                     "-fx-border-color: #E0E6ED; -fx-border-radius: 12; -fx-border-width: 1.5; " +
+                     "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2); " +
+                     "-fx-cursor: hand;");
+        card.setPadding(new Insets(15));
+        
+        // Contenedor de imagen
+        VBox contenedorImagen = new VBox();
+        contenedorImagen.setAlignment(Pos.CENTER);
+        contenedorImagen.setPrefHeight(200);
+        contenedorImagen.setMaxHeight(200);
+        contenedorImagen.setStyle("-fx-background-color: #F5F7FA; -fx-background-radius: 8;");
+        
+        ImageView imageView = new ImageView();
+        imageView.setFitWidth(180);
+        imageView.setFitHeight(180);
+        imageView.setPreserveRatio(true);
+        
+        // Cargar imagen del producto
+        Image imagen;
+        if (producto.tieneImagen()) {
+            imagen = ImagenProductoUtil.cargarImagen(producto.getRutaImagen());
+            if (imagen == null) {
+                imagen = ImagenProductoUtil.obtenerImagenPorDefecto();
+            }
+        } else {
+            imagen = ImagenProductoUtil.obtenerImagenPorDefecto();
+        }
+        
+        if (imagen != null) {
+            imageView.setImage(imagen);
+        }
+        
+        contenedorImagen.getChildren().add(imageView);
+        
+        // Badge de descuento/oferta (opcional - basado en margen)
+        if (producto.tieneMargenBajo()) {
+            Label badgeOferta = new Label("¡OFERTA!");
+            badgeOferta.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; " +
+                               "-fx-background-radius: 15; -fx-padding: 4 12; -fx-font-size: 10px; " +
+                               "-fx-font-weight: bold;");
+            VBox.setMargin(badgeOferta, new Insets(-10, 0, 0, 10));
+            contenedorImagen.getChildren().add(0, badgeOferta);
+        }
+        
+        // Nombre del producto
+        Label lblNombre = new Label(producto.getNombre());
+        lblNombre.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; " +
+                          "-fx-text-alignment: center;");
+        lblNombre.setWrapText(true);
+        lblNombre.setMaxWidth(220);
+        lblNombre.setAlignment(Pos.CENTER);
+        
+        // Código del producto
+        Label lblCodigo = new Label("Código: " + producto.getCodigo());
+        lblCodigo.setStyle("-fx-font-size: 11px; -fx-text-fill: #7f8c8d;");
+        
+        // Categoría
+        Label lblCategoria = new Label(producto.getCategoria());
+        lblCategoria.setStyle("-fx-background-color: #EFF6FF; -fx-text-fill: #2a5298; " +
+                            "-fx-background-radius: 12; -fx-padding: 4 10; -fx-font-size: 10px; " +
+                            "-fx-font-weight: bold;");
+        
+        // Precio
+        Label lblPrecio = new Label(String.format("$%,.2f", producto.getPrecioVenta()));
+        lblPrecio.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #27ae60;");
+        
+        // Stock badge
+        Label lblStock = new Label();
+        int stock = producto.getStock();
+        int stockMinimo = producto.getStockMinimo();
+        
+        if (stock == 0) {
+            lblStock.setText("AGOTADO");
+            lblStock.setStyle("-fx-background-color: #ffe6e6; -fx-text-fill: #e74c3c; " +
+                            "-fx-background-radius: 12; -fx-padding: 6 12; -fx-font-size: 11px; " +
+                            "-fx-font-weight: bold;");
+        } else if (stock <= stockMinimo) {
+            lblStock.setText("ÚLTIMAS UNIDADES (" + stock + ")");
+            lblStock.setStyle("-fx-background-color: #ffe6e6; -fx-text-fill: #e74c3c; " +
+                            "-fx-background-radius: 12; -fx-padding: 6 12; -fx-font-size: 11px; " +
+                            "-fx-font-weight: bold;");
+        } else if (stock <= stockMinimo * 2) {
+            lblStock.setText("POCAS UNIDADES (" + stock + ")");
+            lblStock.setStyle("-fx-background-color: #fff3cd; -fx-text-fill: #f39c12; " +
+                            "-fx-background-radius: 12; -fx-padding: 6 12; -fx-font-size: 11px; " +
+                            "-fx-font-weight: bold;");
+        } else {
+            lblStock.setText("DISPONIBLE (" + stock + " unidades)");
+            lblStock.setStyle("-fx-background-color: #d4edda; -fx-text-fill: #27ae60; " +
+                            "-fx-background-radius: 12; -fx-padding: 6 12; -fx-font-size: 11px; " +
+                            "-fx-font-weight: bold;");
+        }
+        
+        // Separador
+        javafx.scene.control.Separator separador = new javafx.scene.control.Separator();
+        separador.setStyle("-fx-background-color: #E0E6ED;");
+        
+        // Botón de ver detalles
+        Button btnVerDetalles = new Button("Ver Detalles");
+        btnVerDetalles.setStyle("-fx-background-color: #2a5298; -fx-text-fill: white; " +
+                               "-fx-background-radius: 8; -fx-cursor: hand; -fx-font-weight: bold; " +
+                               "-fx-padding: 10 20; -fx-font-size: 12px;");
+        btnVerDetalles.setMaxWidth(Double.MAX_VALUE);
+        btnVerDetalles.setOnAction(e -> mostrarDetallesProducto(producto));
+        
+        // Efecto hover en el botón
+        btnVerDetalles.setOnMouseEntered(e -> {
+            btnVerDetalles.setStyle("-fx-background-color: #1e3a72; -fx-text-fill: white; " +
+                                   "-fx-background-radius: 8; -fx-cursor: hand; -fx-font-weight: bold; " +
+                                   "-fx-padding: 10 20; -fx-font-size: 12px;");
+        });
+        btnVerDetalles.setOnMouseExited(e -> {
+            btnVerDetalles.setStyle("-fx-background-color: #2a5298; -fx-text-fill: white; " +
+                                   "-fx-background-radius: 8; -fx-cursor: hand; -fx-font-weight: bold; " +
+                                   "-fx-padding: 10 20; -fx-font-size: 12px;");
+        });
+        
+        // Efecto hover en la tarjeta completa
+        card.setOnMouseEntered(e -> {
+            card.setStyle("-fx-background-color: white; -fx-background-radius: 12; " +
+                         "-fx-border-color: #2a5298; -fx-border-radius: 12; -fx-border-width: 2; " +
+                         "-fx-effect: dropshadow(gaussian, rgba(42,82,152,0.3), 12, 0, 0, 4); " +
+                         "-fx-cursor: hand;");
+            ScaleTransition scale = new ScaleTransition(Duration.millis(150), card);
+            scale.setToX(1.03);
+            scale.setToY(1.03);
+            scale.play();
+        });
+        
+        card.setOnMouseExited(e -> {
+            card.setStyle("-fx-background-color: white; -fx-background-radius: 12; " +
+                         "-fx-border-color: #E0E6ED; -fx-border-radius: 12; -fx-border-width: 1.5; " +
+                         "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2); " +
+                         "-fx-cursor: hand;");
+            ScaleTransition scale = new ScaleTransition(Duration.millis(150), card);
+            scale.setToX(1.0);
+            scale.setToY(1.0);
+            scale.play();
+        });
+        
+        // Agregar todos los elementos a la tarjeta
+        card.getChildren().addAll(
+            contenedorImagen,
+            lblNombre,
+            lblCodigo,
+            lblCategoria,
+            lblPrecio,
+            lblStock,
+            separador,
+            btnVerDetalles
+        );
+        
+        return card;
+    }
+
+    /**
+     * Muestra un diálogo con los detalles completos del producto
+     */
+    private void mostrarDetallesProducto(Producto producto) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Detalles del Producto");
+        alert.setHeaderText(producto.getNombre());
+        
+        // Crear contenido personalizado
+        VBox contenido = new VBox(10);
+        contenido.setPadding(new Insets(10));
+        
+        // Imagen del producto
+        ImageView imageView = new ImageView();
+        imageView.setFitWidth(200);
+        imageView.setFitHeight(200);
+        imageView.setPreserveRatio(true);
+        
+        Image imagen;
+        if (producto.tieneImagen()) {
+            imagen = ImagenProductoUtil.cargarImagen(producto.getRutaImagen());
+            if (imagen == null) {
+                imagen = ImagenProductoUtil.obtenerImagenPorDefecto();
+            }
+        } else {
+            imagen = ImagenProductoUtil.obtenerImagenPorDefecto();
+        }
+        
+        if (imagen != null) {
+            imageView.setImage(imagen);
+        }
+        
+        VBox contenedorImagen = new VBox(imageView);
+        contenedorImagen.setAlignment(Pos.CENTER);
+        contenedorImagen.setStyle("-fx-background-color: #F5F7FA; -fx-background-radius: 8; -fx-padding: 10;");
+        
+        // Información del producto
+        String detalles = String.format(
+            "Código: %s\n\n" +
+            "Categoría: %s\n\n" +
+            "Precio de Venta: $%,.2f\n\n" +
+            "Stock Disponible: %d unidades\n" +
+            "Stock Mínimo: %d unidades\n\n" +
+            "%s",
+            producto.getCodigo(),
+            producto.getCategoria(),
+            producto.getPrecioVenta(),
+            producto.getStock(),
+            producto.getStockMinimo(),
+            producto.getDescripcion() != null && !producto.getDescripcion().isEmpty() 
+                ? "Descripción:\n" + producto.getDescripcion() 
+                : "Sin descripción disponible"
+        );
+        
+        Label lblDetalles = new Label(detalles);
+        lblDetalles.setWrapText(true);
+        lblDetalles.setStyle("-fx-font-size: 13px; -fx-text-fill: #34495e;");
+        
+        contenido.getChildren().addAll(contenedorImagen, lblDetalles);
+        
+        alert.getDialogPane().setContent(contenido);
+        alert.getDialogPane().setMinWidth(500);
+        alert.getDialogPane().setStyle("-fx-background-color: white;");
+        
+        alert.showAndWait();
     }
 
     private void cargarCategoriasdinamicas() {
@@ -174,29 +336,24 @@ public class Productos_invitadoController implements Initializable {
             return;
         }
         
-        // Limpiar botones existentes
         contenedorFiltros.getChildren().clear();
         botonesCategorias.clear();
         
-        // Agregar label "Categorías:"
         Label lblCategorias = new Label("Categorías:");
         lblCategorias.setStyle("-fx-text-fill: #34495e; -fx-font-weight: bold; -fx-font-size: 13px;");
         contenedorFiltros.getChildren().add(lblCategorias);
         
-        // Botón "Todas las Categorías"
         Button btnTodas = crearBotonCategoria("Todas las Categorías", true);
         btnTodas.setOnAction(e -> filtrarPorCategoria("TODAS", btnTodas));
         contenedorFiltros.getChildren().add(btnTodas);
         botonesCategorias.add(btnTodas);
         
-        // Obtener categorías únicas de los productos
         Set<String> categoriasUnicas = listaProductos.stream()
             .map(Producto::getCategoria)
             .filter(Objects::nonNull)
             .filter(cat -> !cat.trim().isEmpty())
-            .collect(Collectors.toCollection(TreeSet::new)); // TreeSet para ordenar alfabéticamente
+            .collect(Collectors.toCollection(TreeSet::new));
         
-        // Crear un botón por cada categoría
         for (String categoria : categoriasUnicas) {
             Button btnCategoria = crearBotonCategoria(categoria, false);
             btnCategoria.setOnAction(e -> filtrarPorCategoria(categoria, btnCategoria));
@@ -204,17 +361,9 @@ public class Productos_invitadoController implements Initializable {
             botonesCategorias.add(btnCategoria);
         }
         
-        // Agregar espaciador y botón de filtros al final
         javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
         javafx.scene.layout.HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
         contenedorFiltros.getChildren().add(spacer);
-        
-        Button btnFiltros = new Button("️");
-        btnFiltros.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: #6B7C93; " +
-                           "-fx-border-color: #E0E6ED; -fx-border-radius: 8; -fx-border-width: 1.5; " +
-                           "-fx-padding: 8 15 8 15; -fx-font-size: 14px;");
-        agregarEfectoHover(btnFiltros);
-        contenedorFiltros.getChildren().add(btnFiltros);
     }
 
     private Button crearBotonCategoria(String texto, boolean activo) {
@@ -249,7 +398,6 @@ public class Productos_invitadoController implements Initializable {
         filtrado.setPredicate(producto -> {
             String textoBusqueda = txtBuscar.getText();
             
-            // Filtro de búsqueda
             boolean cumpleBusqueda = true;
             if (textoBusqueda != null && !textoBusqueda.isEmpty()) {
                 String filtro = textoBusqueda.toLowerCase().trim();
@@ -259,7 +407,6 @@ public class Productos_invitadoController implements Initializable {
                         producto.getCategoria().toLowerCase().contains(filtro));
             }
             
-            // Filtro de categoría
             boolean cumpleCategoria = true;
             if (!categoriaActual.equals("TODAS")) {
                 cumpleCategoria = producto.getCategoria() != null && 
@@ -269,6 +416,7 @@ public class Productos_invitadoController implements Initializable {
             return cumpleBusqueda && cumpleCategoria;
         });
         
+        mostrarProductosEnGrid();
         actualizarContador();
         animarActualizacion();
     }
@@ -277,7 +425,6 @@ public class Productos_invitadoController implements Initializable {
         int total = filtrado != null ? filtrado.size() : listaProductos.size();
         lblTotalProductos.setText("Total: " + total + " producto" + (total != 1 ? "s" : ""));
         
-        // Animación del contador
         ScaleTransition scale = new ScaleTransition(Duration.millis(200), lblTotalProductos);
         scale.setFromX(1.0);
         scale.setFromY(1.0);
@@ -289,24 +436,19 @@ public class Productos_invitadoController implements Initializable {
     }
 
     private void actualizarEstiloBotones(Button botonActivo) {
-        // Estilo inactivo para todos
         String estiloInactivo = "-fx-background-color: white; -fx-background-radius: 20; -fx-cursor: hand; " +
                                "-fx-text-fill: #6B7C93; -fx-border-color: #E0E6ED; -fx-border-radius: 20; " +
                                "-fx-border-width: 1.5; -fx-padding: 8 20 8 20; -fx-font-size: 12px;";
         
-        // Estilo activo
         String estiloActivo = "-fx-background-color: #2a5298; -fx-background-radius: 20; -fx-cursor: hand; " +
                              "-fx-text-fill: white; -fx-padding: 8 20 8 20; -fx-font-size: 12px;";
         
-        // Aplicar estilo inactivo a todos los botones de categoría
         for (Button boton : botonesCategorias) {
             boton.setStyle(estiloInactivo);
         }
         
-        // Aplicar estilo activo al botón seleccionado
         botonActivo.setStyle(estiloActivo);
         
-        // Animación del botón
         ScaleTransition scale = new ScaleTransition(Duration.millis(150), botonActivo);
         scale.setFromX(0.95);
         scale.setFromY(0.95);
@@ -331,17 +473,14 @@ public class Productos_invitadoController implements Initializable {
                 "No se encontraron productos que coincidan con: \"" + texto + "\"", 
                 Alert.AlertType.INFORMATION);
         } else if (filtrado != null) {
-            // Animar feedback de búsqueda exitosa
             animarPulso(btnBuscar);
         }
     }
 
     private void configurarAnimaciones() {
-        // Hover effects para botones principales
         agregarEfectoHover(btnBuscar);
         agregarEfectoHover(btnVolver);
         
-        // Animación del campo de búsqueda
         txtBuscar.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
             if (isNowFocused) {
                 ScaleTransition scale = new ScaleTransition(Duration.millis(200), txtBuscar.getParent());
@@ -373,16 +512,16 @@ public class Productos_invitadoController implements Initializable {
         });
     }
 
-    private void animarEntradaTabla() {
-        tablaProductos.setOpacity(0);
-        FadeTransition fade = new FadeTransition(Duration.millis(400), tablaProductos);
+    private void animarEntradaGrid() {
+        gridProductos.setOpacity(0);
+        FadeTransition fade = new FadeTransition(Duration.millis(400), gridProductos);
         fade.setFromValue(0);
         fade.setToValue(1);
         fade.play();
     }
 
     private void animarActualizacion() {
-        FadeTransition fade = new FadeTransition(Duration.millis(200), tablaProductos);
+        FadeTransition fade = new FadeTransition(Duration.millis(200), gridProductos);
         fade.setFromValue(0.7);
         fade.setToValue(1.0);
         fade.play();
@@ -413,7 +552,6 @@ public class Productos_invitadoController implements Initializable {
             stage.setResizable(true);
             stage.setMaximized(true);
             
-            // Configurar F11 para pantalla completa (compatible con Bienvenida)
             scene.setOnKeyPressed(keyEvent -> {
                 if (keyEvent.getCode() == KeyCode.F11) {
                     stage.setFullScreen(!stage.isFullScreen());
@@ -422,7 +560,6 @@ public class Productos_invitadoController implements Initializable {
             
             stage.setFullScreenExitHint("Presiona F11 o ESC para salir de pantalla completa");
             
-            // Animación de entrada
             root.setOpacity(0);
             FadeTransition fadeIn = new FadeTransition(Duration.millis(300), root);
             fadeIn.setFromValue(0);
@@ -444,10 +581,48 @@ public class Productos_invitadoController implements Initializable {
         alerta.setHeaderText(null);
         alerta.setContentText(mensaje);
         
-        // Estilo personalizado para alertas
         DialogPane dialogPane = alerta.getDialogPane();
         dialogPane.setStyle("-fx-background-color: white; -fx-border-color: #E0E6ED; -fx-border-width: 1;");
         
         alerta.showAndWait();
+    }
+    // AGREGAR ESTE MÉTODO AL FINAL DE LA CLASE Productos_invitadoController
+/**
+     * Abre una ventana del chatbot de asistencia al cliente
+     */
+// TAMBIÉN AGREGAR ESTA IMPORT AL INICIO DEL ARCHIVO:
+// import javafx.scene.Scene;
+    
+
+
+// ====== CÓDIGO COMPLETO DEL MÉTODO PARA COPIAR ======
+
+// Agregar después del método volverInicio y antes del método mostrarAlerta:
+
+    /**
+     * Abre una ventana del chatbot de asistencia al cliente
+     */
+    @FXML
+    private void abrirChatBot(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("ChatBotInvitado.fxml"));
+            Parent root = loader.load();
+            
+            Stage chatStage = new Stage();
+            chatStage.setTitle("Asistente Virtual - StockFlow");
+            chatStage.setScene(new Scene(root, 800, 650));
+            chatStage.setResizable(true);
+            chatStage.setMinWidth(600);
+            chatStage.setMinHeight(500);
+            
+            chatStage.show();
+            
+        } catch (IOException e) {
+            System.err.println("Error al abrir chatbot: " + e.getMessage());
+            e.printStackTrace();
+            mostrarAlerta("Error", 
+                "No se pudo abrir el asistente virtual", 
+                Alert.AlertType.ERROR);
+        }
     }
 }

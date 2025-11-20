@@ -10,6 +10,7 @@
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -103,7 +104,7 @@
       <!-- Formulario Modal (Oculto por defecto) -->
       <VBox fx:id="formularioContainer" alignment="CENTER" prefHeight="575.0" prefWidth="938.0" style="-fx-background-color: rgba(0, 0, 0, 0.5);" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <VBox prefHeight="520.0" prefWidth="600.0" spacing="20.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 15, 0, 0, 5);">
+            <VBox prefHeight="600.0" prefWidth="700.0" spacing="20.0" style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 15, 0, 0, 5);">
                <padding>
                   <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
                </padding>
@@ -127,143 +128,195 @@
                   
                   <Separator />
                   
-                  <!-- Campos del Formulario -->
-                  <GridPane hgap="15.0" vgap="15.0">
-                     <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                     </columnConstraints>
-                     <rowConstraints>
-                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                     </rowConstraints>
+                  <!-- Contenedor principal con dos columnas -->
+                  <HBox spacing="25.0" VBox.vgrow="ALWAYS">
                      <children>
-                        <!-- Código con botón generar -->
-                        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <!-- Columna Izquierda: Imagen -->
+                        <VBox alignment="TOP_CENTER" prefWidth="200.0" spacing="12.0">
                            <children>
-                              <Label text="Código *" textFill="#1e3c72">
+                              <Label text="Imagen del Producto" textFill="#1e3c72">
                                  <font>
                                     <Font name="System Bold" size="12.0" />
                                  </font>
                               </Label>
-                              <HBox spacing="8.0">
+                              
+                              <!-- Vista previa de la imagen -->
+                              <VBox alignment="CENTER" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #F5F7FA; -fx-background-radius: 10; -fx-border-color: #E0E6ED; -fx-border-radius: 10; -fx-border-width: 2;">
                                  <children>
-                                    <TextField fx:id="txtCodigo" promptText="Ej: PROD001" style="-fx-background-radius: 8; -fx-border-color: #E0E6ED; -fx-border-radius: 8; -fx-border-width: 1.5;" HBox.hgrow="ALWAYS" />
-                                    <Button mnemonicParsing="false" onAction="#generarCodigo" prefHeight="35.0" prefWidth="40.0" style="-fx-background-color: #3498db; -fx-background-radius: 8; -fx-cursor: hand;" text="⚡" textFill="WHITE">
+                                    <ImageView fx:id="imgVistaPrevia" fitHeight="180.0" fitWidth="180.0" pickOnBounds="true" preserveRatio="true">
+                                    </ImageView>
+                                 </children>
+                              </VBox>
+                              
+                              <!-- Botones de imagen -->
+                              <VBox spacing="8.0">
+                                 <children>
+                                    <Button fx:id="btnSeleccionarImagen" maxWidth="Infinity" mnemonicParsing="false" onAction="#seleccionarImagen" prefHeight="35.0" style="-fx-background-color: #3498db; -fx-background-radius: 8; -fx-cursor: hand;" text="Seleccionar Imagen" textFill="WHITE">
                                        <font>
-                                          <Font size="14.0" />
+                                          <Font name="System Bold" size="11.0" />
                                        </font>
-                                       <tooltip>
-                                          <Tooltip text="Generar código automático" />
-                                       </tooltip>
+                                    </Button>
+                                    
+                                    <Button fx:id="btnTomarFoto" maxWidth="Infinity" mnemonicParsing="false" onAction="#tomarFoto" prefHeight="35.0" style="-fx-background-color: #27C2F5; -fx-background-radius: 8; -fx-cursor: hand;" text=" Tomar Foto" textFill="WHITE">
+                                       <font>
+                                          <Font name="System Bold" size="11.0" />
+                                       </font>
+                                    </Button>
+                                    
+                                    <Button fx:id="btnEliminarImagen" maxWidth="Infinity" mnemonicParsing="false" onAction="#eliminarImagenPrevia" prefHeight="35.0" style="-fx-background-color: #F52727; -fx-background-radius: 8; -fx-cursor: hand;" text="️ Eliminar Imagen" textFill="WHITE">
+                                       <font>
+                                          <Font name="System Bold" size="11.0" />
+                                       </font>
+                                    </Button>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </VBox>
+                        
+                        <!-- Columna Derecha: Formulario -->
+                        <VBox spacing="15.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <!-- Campos del Formulario -->
+                              <GridPane hgap="15.0" vgap="15.0">
+                                 <columnConstraints>
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                                 </columnConstraints>
+                                 <rowConstraints>
+                                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                 </rowConstraints>
+                                 <children>
+                                    <!-- Código con botón generar -->
+                                    <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                       <children>
+                                          <Label text="Código *" textFill="#1e3c72">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                          </Label>
+                                          <HBox spacing="8.0">
+                                             <children>
+                                                <TextField fx:id="txtCodigo" promptText="Ej: PROD001" style="-fx-background-radius: 8; -fx-border-color: #E0E6ED; -fx-border-radius: 8; -fx-border-width: 1.5;" HBox.hgrow="ALWAYS" />
+                                                <Button mnemonicParsing="false" onAction="#generarCodigo" prefHeight="35.0" prefWidth="40.0" style="-fx-background-color: #3498db; -fx-background-radius: 8; -fx-cursor: hand;" text="⚡" textFill="WHITE">
+                                                   <font>
+                                                      <Font size="14.0" />
+                                                   </font>
+                                                   <tooltip>
+                                                      <Tooltip text="Generar código automático" />
+                                                   </tooltip>
+                                                </Button>
+                                             </children>
+                                          </HBox>
+                                       </children>
+                                    </VBox>
+                                    
+                                    <!-- Nombre -->
+                                    <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                       <children>
+                                          <Label text="Nombre *" textFill="#1e3c72">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                          </Label>
+                                          <TextField fx:id="txtNombre" promptText="Nombre del producto" style="-fx-background-radius: 8; -fx-border-color: #E0E6ED; -fx-border-radius: 8; -fx-border-width: 1.5;" />
+                                       </children>
+                                    </VBox>
+                                    
+                                    <!-- Categoría -->
+                                    <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                       <children>
+                                          <Label text="Categoría *" textFill="#1e3c72">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                          </Label>
+                                          <ComboBox fx:id="cbCategoria" prefWidth="200.0" promptText="Seleccionar categoría" style="-fx-background-radius: 8; -fx-border-color: #E0E6ED; -fx-border-radius: 8;" />
+                                       </children>
+                                    </VBox>
+                                    
+                                    <!-- Precio de Compra -->
+                                    <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                       <children>
+                                          <Label text="Precio de Compra *" textFill="#1e3c72">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                          </Label>
+                                          <TextField fx:id="txtPrecioCompra" promptText="0.00" style="-fx-background-radius: 8; -fx-border-color: #E0E6ED; -fx-border-radius: 8; -fx-border-width: 1.5;" />
+                                       </children>
+                                    </VBox>
+                                    
+                                    <!-- Precio de Venta -->
+                                    <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                       <children>
+                                          <Label text="Precio de Venta *" textFill="#1e3c72">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                          </Label>
+                                          <TextField fx:id="txtPrecioVenta" promptText="0.00" style="-fx-background-radius: 8; -fx-border-color: #E0E6ED; -fx-border-radius: 8; -fx-border-width: 1.5;" />
+                                       </children>
+                                    </VBox>
+                                    
+                                    <!-- Stock -->
+                                    <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                       <children>
+                                          <Label text="Stock Actual *" textFill="#1e3c72">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                          </Label>
+                                          <TextField fx:id="txtStock" promptText="0" style="-fx-background-radius: 8; -fx-border-color: #E0E6ED; -fx-border-radius: 8; -fx-border-width: 1.5;" />
+                                       </children>
+                                    </VBox>
+                                    
+                                    <!-- Stock Mínimo -->
+                                    <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                                       <children>
+                                          <Label text="Stock Mínimo *" textFill="#1e3c72">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                          </Label>
+                                          <TextField fx:id="txtStockMinimo" promptText="0" style="-fx-background-radius: 8; -fx-border-color: #E0E6ED; -fx-border-radius: 8; -fx-border-width: 1.5;" />
+                                       </children>
+                                    </VBox>
+                                    
+                                    <!-- Descripción -->
+                                    <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="4">
+                                       <children>
+                                          <Label text="Descripción" textFill="#1e3c72">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                          </Label>
+                                          <TextArea fx:id="txtDescripcion" prefHeight="70.0" promptText="Descripción del producto (opcional)" style="-fx-background-radius: 8; -fx-border-color: #E0E6ED; -fx-border-radius: 8; -fx-border-width: 1.5;" wrapText="true" />
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </GridPane>
+                              
+                              <!-- Botones de Acción -->
+                              <HBox alignment="CENTER_RIGHT" spacing="15.0">
+                                 <children>
+                                    <Button mnemonicParsing="false" onAction="#cerrarFormulario" prefHeight="38.0" prefWidth="120.0" style="-fx-background-color: #E0E6ED; -fx-background-radius: 8; -fx-cursor: hand;" text="Cancelar" textFill="#6B7C93">
+                                       <font>
+                                          <Font name="System Bold" size="13.0" />
+                                       </font>
+                                    </Button>
+                                    <Button fx:id="btnGuardar" mnemonicParsing="false" onAction="#guardarProducto" prefHeight="38.0" prefWidth="120.0" style="-fx-background-color: #27ae60; -fx-background-radius: 8; -fx-cursor: hand;" text="Guardar" textFill="WHITE">
+                                       <font>
+                                          <Font name="System Bold" size="13.0" />
+                                       </font>
                                     </Button>
                                  </children>
                               </HBox>
                            </children>
                         </VBox>
-                        
-                        <!-- Nombre -->
-                        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                           <children>
-                              <Label text="Nombre *" textFill="#1e3c72">
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
-                              </Label>
-                              <TextField fx:id="txtNombre" promptText="Nombre del producto" style="-fx-background-radius: 8; -fx-border-color: #E0E6ED; -fx-border-radius: 8; -fx-border-width: 1.5;" />
-                           </children>
-                        </VBox>
-                        
-                        <!-- Categoría -->
-                        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                           <children>
-                              <Label text="Categoría *" textFill="#1e3c72">
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
-                              </Label>
-                              <ComboBox fx:id="cbCategoria" prefWidth="260.0" promptText="Seleccionar categoría" style="-fx-background-radius: 8; -fx-border-color: #E0E6ED; -fx-border-radius: 8;" />
-                           </children>
-                        </VBox>
-                        
-                        <!-- Precio de Compra -->
-                        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                           <children>
-                              <Label text="Precio de Compra *" textFill="#1e3c72">
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
-                              </Label>
-                              <TextField fx:id="txtPrecioCompra" promptText="0.00" style="-fx-background-radius: 8; -fx-border-color: #E0E6ED; -fx-border-radius: 8; -fx-border-width: 1.5;" />
-                           </children>
-                        </VBox>
-                        
-                        <!-- Precio de Venta -->
-                        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
-                           <children>
-                              <Label text="Precio de Venta *" textFill="#1e3c72">
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
-                              </Label>
-                              <TextField fx:id="txtPrecioVenta" promptText="0.00" style="-fx-background-radius: 8; -fx-border-color: #E0E6ED; -fx-border-radius: 8; -fx-border-width: 1.5;" />
-                           </children>
-                        </VBox>
-                        
-                        <!-- Stock -->
-                        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                           <children>
-                              <Label text="Stock Actual *" textFill="#1e3c72">
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
-                              </Label>
-                              <TextField fx:id="txtStock" promptText="0" style="-fx-background-radius: 8; -fx-border-color: #E0E6ED; -fx-border-radius: 8; -fx-border-width: 1.5;" />
-                           </children>
-                        </VBox>
-                        
-                        <!-- Stock Mínimo -->
-                        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
-                           <children>
-                              <Label text="Stock Mínimo *" textFill="#1e3c72">
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
-                              </Label>
-                              <TextField fx:id="txtStockMinimo" promptText="0" style="-fx-background-radius: 8; -fx-border-color: #E0E6ED; -fx-border-radius: 8; -fx-border-width: 1.5;" />
-                           </children>
-                        </VBox>
-                        
-                        <!-- Descripción -->
-                        <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="4">
-                           <children>
-                              <Label text="Descripción" textFill="#1e3c72">
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
-                              </Label>
-                              <TextArea fx:id="txtDescripcion" prefHeight="70.0" promptText="Descripción del producto (opcional)" style="-fx-background-radius: 8; -fx-border-color: #E0E6ED; -fx-border-radius: 8; -fx-border-width: 1.5;" wrapText="true" />
-                           </children>
-                        </VBox>
-                     </children>
-                  </GridPane>
-                  
-                  <!-- Botones de Acción -->
-                  <HBox alignment="CENTER_RIGHT" spacing="15.0">
-                     <children>
-                        <Button mnemonicParsing="false" onAction="#cerrarFormulario" prefHeight="38.0" prefWidth="120.0" style="-fx-background-color: #E0E6ED; -fx-background-radius: 8; -fx-cursor: hand;" text="Cancelar" textFill="#6B7C93">
-                           <font>
-                              <Font name="System Bold" size="13.0" />
-                           </font>
-                        </Button>
-                        <Button fx:id="btnGuardar" mnemonicParsing="false" onAction="#guardarProducto" prefHeight="38.0" prefWidth="120.0" style="-fx-background-color: #27ae60; -fx-background-radius: 8; -fx-cursor: hand;" text="Guardar" textFill="WHITE">
-                           <font>
-                              <Font name="System Bold" size="13.0" />
-                           </font>
-                        </Button>
                      </children>
                   </HBox>
                </children>

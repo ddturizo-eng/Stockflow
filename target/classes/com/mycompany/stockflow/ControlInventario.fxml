@@ -31,11 +31,6 @@
                <children>
                   <VBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
                      <children>
-                        <Label style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #1e3a5f;" text="Control de Inventario">
-                           <font>
-                              <Font name="System Bold" size="28.0" />
-                           </font>
-                        </Label>
                         <Label style="-fx-font-size: 13; -fx-text-fill: #64748b;" text="Gestiona movimientos, alertas y estadísticas de stock" />
                      </children>
                   </VBox>

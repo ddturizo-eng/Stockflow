@@ -173,19 +173,20 @@
                   </Button>
                   
                   <!-- Botón Usuarios -->
-                  <Button fx:id="btnUsuarios" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" onAction="#mostrarUsuarios" prefHeight="48.0" prefWidth="230.0" style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-cursor: hand; -fx-border-color: transparent; -fx-border-radius: 10;" text="Usuarios" textFill="#E3F2FD">
+                  <Button fx:id="btnUsuarios" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" onAction="#mostrarUsuarios" prefHeight="48.0" prefWidth="230.0" style="-fx-background-color: transparent; -fx-background-radius: 10; -fx-cursor: hand; -fx-border-color: transparent; -fx-border-radius: 10;" text="Gestion de usuarios" textFill="#E3F2FD">
                      <font>
                         <Font name="System Bold" size="13.0" />
                      </font>
-                     <graphic>
-                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@IMG/agregar-usuario.png" />
-                           </image></ImageView>
-                     </graphic>
                      <padding>
                         <Insets left="20.0" />
                      </padding>
+                     <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@IMG/agregar-usuario.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
                   </Button>
                </children>
             </VBox>
@@ -218,30 +219,41 @@
       <!-- Área de Contenido Principal -->
       <AnchorPane layoutX="260.0" layoutY="0.0" prefHeight="700.0" prefWidth="940.0" style="-fx-background-color: #F5F7FA;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="260.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <!-- Barra Superior -->
-            <HBox alignment="CENTER_LEFT" prefHeight="81.0" prefWidth="940.0" spacing="20.0" style="-fx-background-color: #FFFFFF; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-               <padding>
-                  <Insets left="35.0" right="35.0" />
-               </padding>
-               <children>
-                  <Label fx:id="lblTituloSeccion" prefHeight="30.0" prefWidth="254.0" text="Dashboard Principal" textFill="#1e3c72">
-                     <font>
-                        <Font name="System Bold" size="18.0" />
-                     </font>
-                  </Label>
-                  <VBox alignment="CENTER_RIGHT" spacing="3.0" />
-                  <Label fx:id="lblUsuario" prefHeight="16.0" prefWidth="99.0" text="Usuario: Admin" textFill="#2a5298">
-                     <font>
-                        <Font name="System Bold" size="11.0" />
-                     </font>
-                  </Label>
-                  <Label fx:id="lblFecha" prefHeight="18.0" prefWidth="109.0" text="10 de Octubre, 2025" textFill="#6B7C93">
-                     <font>
-                        <Font size="10.0" />
-                     </font>
-                  </Label>
-               </children>
-            </HBox>
+                    
+             
+             <HBox alignment="CENTER_LEFT" prefHeight="81.0" prefWidth="940.0" spacing="20.0" 
+              style="-fx-background-color: #FFFFFF; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);" 
+              AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+           <padding>
+              <Insets left="35.0" right="35.0" />
+           </padding>
+           <children>
+              <Label fx:id="lblTituloSeccion" prefHeight="30.0" prefWidth="254.0" text="Dashboard Principal" textFill="#1e3c72">
+                 <font>
+                    <Font name="System Bold" size="18.0" />
+                 </font>
+              </Label>
+
+              <!-- AGREGAR ESTE REGION PARA EMPUJAR EL CONTENIDO A LA DERECHA -->
+              <Region HBox.hgrow="ALWAYS" />
+
+              <!-- AHORA SÍ, EL VBOX CON USUARIO Y FECHA -->
+              <VBox alignment="CENTER_RIGHT" spacing="3.0">
+                 <children>
+                    <Label fx:id="lblUsuario" text="Usuario: Admin" textFill="#2a5298">
+                       <font>
+                          <Font name="System Bold" size="11.0" />
+                       </font>
+                    </Label>
+                    <Label fx:id="lblFecha" text="10 de Octubre, 2025" textFill="#6B7C93">
+                       <font>
+                          <Font size="10.0" />
+                       </font>
+                    </Label>
+                 </children>
+              </VBox>
+           </children>
+        </HBox>
             
             <!-- Contenedor Dinámico con ScrollPane -->
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER" pannable="true" prefHeight="620.0" prefWidth="940.0" style="-fx-background-color: transparent; -fx-background: transparent;" vbarPolicy="AS_NEEDED" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="81.0">
@@ -477,7 +489,24 @@
                   </AnchorPane>
                </content>
             </ScrollPane>
+            <!-- Botón Flotante del ChatBot (antes del cierre de AnchorPane de contenido) -->
+                <Button fx:id="btnChatBotFlotante" layoutX="850.0" layoutY="600.0" mnemonicParsing="false" onAction="#abrirChatBot" style="-fx-background-color: linear-gradient(to bottom right, #1e88e5, #1565c0);                                 -fx-background-radius: 50;                                 -fx-cursor: hand;                                 -fx-effect: dropshadow(gaussian, rgba(30, 136, 229, 0.5), 15, 0, 0, 5);" textFill="WHITE" AnchorPane.bottomAnchor="30.0" AnchorPane.rightAnchor="30.0">
+                   <font>
+                      <Font size="28.0" />
+                   </font>
+                   <padding>
+                      <Insets bottom="18.0" left="18.0" right="18.0" top="18.0" />
+                   </padding>
+               <graphic>
+                  <ImageView fitHeight="50.0" fitWidth="32.0" pickOnBounds="true">
+                     <image>
+                        <Image url="@IMG/chatbot.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+                </Button>
          </children>
+         
       </AnchorPane>
    </children>
 </AnchorPane>

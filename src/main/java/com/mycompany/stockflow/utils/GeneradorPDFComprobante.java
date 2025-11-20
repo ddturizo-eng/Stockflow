@@ -26,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
+import java.io.ByteArrayOutputStream;
 
 /**
  * Generador de comprobantes PDF profesionales para StockFlow
@@ -656,4 +657,54 @@ public class GeneradorPDFComprobante {
             .setTextAlignment(TextAlignment.CENTER);
         document.add(notaLegal);
     }
+    
+// AGREGAR ESTOS IMPORTS AL INICIO DE GeneradorPDFComprobante.java
+
+
+// AGREGAR ESTOS DOS METODOS ESTATICOS A LA CLASE GeneradorPDFComprobante
+
+/**
+ * Genera comprobante en formato Ticket como byte array (para enviar por email)
+ */
+public static byte[] generarComprobanteTicketBytes(Factura factura) throws Exception {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    
+    PdfWriter writer = new PdfWriter(baos);
+    PdfDocument pdf = new PdfDocument(writer);
+    
+    // Tamaño ticket 80mm
+    PageSize pageSize = new PageSize(226.77f, 841.89f);
+    pdf.setDefaultPageSize(pageSize);
+    
+    Document document = new Document(pdf);
+    document.setMargins(10, 10, 10, 10);
+    
+    // Reutilizar el método existente para construir el ticket
+    construirComprobanteTicket(document, factura);
+    
+    document.close();
+    
+    return baos.toByteArray();
 }
+
+/**
+ * Genera comprobante en formato A4 como byte array (para enviar por email)
+ */
+public static byte[] generarComprobanteA4Bytes(Factura factura) throws Exception {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    
+    PdfWriter writer = new PdfWriter(baos);
+    PdfDocument pdf = new PdfDocument(writer);
+    
+    pdf.setDefaultPageSize(PageSize.A4);
+    
+    Document document = new Document(pdf);
+    document.setMargins(40, 40, 40, 40);
+    
+    // Reutilizar el método existente para construir el A4
+    construirComprobanteA4(document, factura);
+    
+    document.close();
+    
+    return baos.toByteArray();
+}}

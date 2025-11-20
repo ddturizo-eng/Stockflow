@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package com.mycompany.stockflow;
 
 import com.mycompany.stockflow.Modelo.Cliente;
@@ -9,12 +13,16 @@ import com.mycompany.stockflow.Logica.ClienteServicio;
 import com.mycompany.stockflow.Logica.VentaServicio;
 import com.mycompany.stockflow.Logica.ProductoServicio;
 import com.mycompany.stockflow.Logica.FacturacionServicio;
+import com.mycompany.stockflow.utils.GeneradorPDFComprobante;
+import com.mycompany.stockflow.utils.EmailServicio;
+import com.mycompany.stockflow.excepciones.EmailException;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -22,6 +30,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.application.Platform;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -29,14 +38,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class VentaController {
 
     @FXML private TextField txtCodigoVenta;
     @FXML private TextField txtFecha;
     @FXML private TextField txtBuscarCliente;
-    @FXML private Button btnBuscarCliente;
+    @FXML private Button btnRefrescarClientes;
     @FXML private Button btnNuevoCliente;
     
     @FXML private TableView<Cliente> tablaClientes;
@@ -46,11 +54,12 @@ public class VentaController {
     @FXML private TableColumn<Cliente, String> colClienteEmail;
     @FXML private TableColumn<Cliente, Void> colClienteSeleccionar;
     @FXML private Label lblClienteSeleccionado;
+    @FXML private Label lblTotalClientes;
     
     @FXML private TextField txtBuscarProducto;
     @FXML private TextField txtCantidad;
     @FXML private TextField txtDescuento;
-    @FXML private Button btnBuscarProducto;
+    @FXML private Button btnRefrescarProductos;
     
     @FXML private TableView<Producto> tablaProductos;
     @FXML private TableColumn<Producto, String> colProductoCodigo;
@@ -59,15 +68,20 @@ public class VentaController {
     @FXML private TableColumn<Producto, Double> colProductoPrecio;
     @FXML private TableColumn<Producto, Integer> colProductoStock;
     @FXML private TableColumn<Producto, Void> colProductoAgregar;
+    @FXML private Label lblTotalProductos;
 
     @FXML private TableView<DetalleVentaItem> tblDetalleVenta;
     @FXML private TableColumn<DetalleVentaItem, Integer> colNumero;
     @FXML private TableColumn<DetalleVentaItem, String> colProducto;
     @FXML private TableColumn<DetalleVentaItem, Integer> colCantidad;
+    @FXML private TableColumn<DetalleVentaItem, Double> colPrecioUnitario;
     @FXML private TableColumn<DetalleVentaItem, Double> colDescuento;
     @FXML private TableColumn<DetalleVentaItem, Double> colSubtotal;
 
     @FXML private TextField txtIVA;
+    @FXML private Label lblSubtotal;
+    @FXML private Label lblDescuentoTotal;
+    @FXML private Label lblIVA;
     @FXML private Label lblTotalPagar;
     @FXML private ComboBox<String> cmbMetodoPago;
     @FXML private TextField txtMontoRecibido;
@@ -81,13 +95,18 @@ public class VentaController {
     private FacturacionServicio facturacionServicio;
     
     private ObservableList<DetalleVentaItem> detalleVentaItems;
-    private ObservableList<Cliente> clientesEncontrados;
-    private ObservableList<Producto> productosEncontrados;
+    private ObservableList<Cliente> listaCompletaClientes;
+    private ObservableList<Producto> listaCompletaProductos;
+    private FilteredList<Cliente> clientesFiltrados;
+    private FilteredList<Producto> productosFiltrados;
+    
     private DecimalFormat formatoMoneda = new DecimalFormat("'COP '#,##0");
+    private DecimalFormat formatoEntero = new DecimalFormat("#,##0");
+    
     private Cliente clienteSeleccionado = null;
     private double subtotalNeto = 0.0;
     private double descuentoGlobalTotal = 0.0;
-    private double porcentajeIVA = 0.16;
+    private double porcentajeIVA = 0.0;
     private double montoIVA = 0.0;
     private double totalPagar = 0.0;
     private int contadorVentas = 1;
@@ -98,14 +117,12 @@ public class VentaController {
         this.productoServicio = new ProductoServicio();
         this.facturacionServicio = new FacturacionServicio();
         this.detalleVentaItems = FXCollections.observableArrayList();
-        this.clientesEncontrados = FXCollections.observableArrayList();
-        this.productosEncontrados = FXCollections.observableArrayList();
+        this.listaCompletaClientes = FXCollections.observableArrayList();
+        this.listaCompletaProductos = FXCollections.observableArrayList();
     }
 
     @FXML
     public void initialize() {
-        System.out.println("VentaController inicializado");
-        
         LocalDateTime fechaActual = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         txtFecha.setText(fechaActual.format(formatter));
@@ -115,14 +132,139 @@ public class VentaController {
         configurarTablaProductos();
         configurarTablaDetalleVenta();
         configurarComboBoxes();
+        configurarBusquedaEnTiempoReal();
         configurarEventos();
+        
+        cargarTodosLosClientes();
+        cargarTodosLosProductos();
+        
         actualizarLabelsResumen();
+    }
+
+    private void cargarTodosLosClientes() {
+        try {
+            List<Cliente> clientes = clienteServicio.listarClientes();
+            listaCompletaClientes.clear();
+            listaCompletaClientes.addAll(clientes);
+            
+            if (lblTotalClientes != null) {
+                lblTotalClientes.setText(String.format("Total: %d clientes", clientes.size()));
+            }
+        } catch (Exception e) {
+            mostrarError("Error al cargar clientes: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    private void cargarTodosLosProductos() {
+        try {
+            List<Producto> productos = productoServicio.listarProductos();
+            
+            List<Producto> productosConStock = new ArrayList<>();
+            for (Producto p : productos) {
+                if (p.getStock() > 0) {
+                    productosConStock.add(p);
+                }
+            }
+            
+            listaCompletaProductos.clear();
+            listaCompletaProductos.addAll(productosConStock);
+            
+            if (lblTotalProductos != null) {
+                lblTotalProductos.setText(String.format("Total: %d productos disponibles", productosConStock.size()));
+            }
+        } catch (Exception e) {
+            mostrarError("Error al cargar productos: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void configurarBusquedaEnTiempoReal() {
+        clientesFiltrados = new FilteredList<>(listaCompletaClientes, p -> true);
+        tablaClientes.setItems(clientesFiltrados);
+        
+        if (txtBuscarCliente != null) {
+            txtBuscarCliente.textProperty().addListener((observable, oldValue, newValue) -> {
+                filtrarClientes(newValue);
+            });
+        }
+        
+        productosFiltrados = new FilteredList<>(listaCompletaProductos, p -> true);
+        tablaProductos.setItems(productosFiltrados);
+        
+        if (txtBuscarProducto != null) {
+            txtBuscarProducto.textProperty().addListener((observable, oldValue, newValue) -> {
+                filtrarProductos(newValue);
+            });
+        }
+    }
+    
+    private void filtrarClientes(String criterio) {
+        if (criterio == null || criterio.trim().isEmpty()) {
+            clientesFiltrados.setPredicate(cliente -> true);
+            if (lblTotalClientes != null) {
+                lblTotalClientes.setText(String.format("Total: %d clientes", listaCompletaClientes.size()));
+            }
+            return;
+        }
+        
+        String criterioBusqueda = criterio.toLowerCase().trim();
+        
+        clientesFiltrados.setPredicate(cliente -> {
+            if (cliente.getCedula().toLowerCase().contains(criterioBusqueda)) return true;
+            if (cliente.getNombre().toLowerCase().contains(criterioBusqueda)) return true;
+            if (cliente.getTelefono() != null && cliente.getTelefono().toLowerCase().contains(criterioBusqueda)) return true;
+            if (cliente.getEmail() != null && cliente.getEmail().toLowerCase().contains(criterioBusqueda)) return true;
+            return false;
+        });
+        
+        if (lblTotalClientes != null) {
+            lblTotalClientes.setText(String.format("Mostrando: %d de %d clientes", 
+                clientesFiltrados.size(), listaCompletaClientes.size()));
+        }
+    }
+    
+    private void filtrarProductos(String criterio) {
+        if (criterio == null || criterio.trim().isEmpty()) {
+            productosFiltrados.setPredicate(producto -> true);
+            if (lblTotalProductos != null) {
+                lblTotalProductos.setText(String.format("Total: %d productos disponibles", listaCompletaProductos.size()));
+            }
+            return;
+        }
+        
+        String criterioBusqueda = criterio.toLowerCase().trim();
+        
+        productosFiltrados.setPredicate(producto -> {
+            if (producto.getCodigo().toLowerCase().contains(criterioBusqueda)) return true;
+            if (producto.getNombre().toLowerCase().contains(criterioBusqueda)) return true;
+            if (producto.getCategoria() != null && producto.getCategoria().toLowerCase().contains(criterioBusqueda)) return true;
+            return false;
+        });
+        
+        if (lblTotalProductos != null) {
+            lblTotalProductos.setText(String.format("Mostrando: %d de %d productos", 
+                productosFiltrados.size(), listaCompletaProductos.size()));
+        }
+    }
+
+    @FXML
+    private void refrescarClientes() {
+        txtBuscarCliente.clear();
+        cargarTodosLosClientes();
+        mostrarInformacion("Lista de clientes actualizada");
+    }
+    
+    @FXML
+    private void refrescarProductos() {
+        txtBuscarProducto.clear();
+        cargarTodosLosProductos();
+        mostrarInformacion("Lista de productos actualizada");
     }
 
     private void configurarTablaClientes() {
         if (tablaClientes == null) return;
         
-        // CORRECCIÓN: Usar lambdas con SimpleStringProperty como en ClientesController
         colClienteCedula.setCellValueFactory(cellData -> 
             new SimpleStringProperty(cellData.getValue().getCedula()));
         
@@ -161,14 +303,11 @@ public class VentaController {
                 setGraphic(empty ? null : btnSeleccionar);
             }
         });
-        
-        tablaClientes.setItems(clientesEncontrados);
     }
     
     private void configurarTablaProductos() {
         if (tablaProductos == null) return;
         
-        // Usar lambdas con SimpleStringProperty
         colProductoCodigo.setCellValueFactory(cellData -> 
             new SimpleStringProperty(cellData.getValue().getCodigo()));
         
@@ -191,6 +330,26 @@ public class VentaController {
             protected void updateItem(Double precio, boolean empty) {
                 super.updateItem(precio, empty);
                 setText(empty || precio == null ? null : formatoMoneda.format(precio));
+            }
+        });
+        
+        colProductoStock.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Integer stock, boolean empty) {
+                super.updateItem(stock, empty);
+                if (empty || stock == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(String.valueOf(stock));
+                    if (stock < 5) {
+                        setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+                    } else if (stock < 10) {
+                        setStyle("-fx-text-fill: #f39c12; -fx-font-weight: bold;");
+                    } else {
+                        setStyle("-fx-text-fill: #27ae60;");
+                    }
+                }
             }
         });
         
@@ -218,8 +377,6 @@ public class VentaController {
                 setGraphic(empty ? null : btnAgregar);
             }
         });
-        
-        tablaProductos.setItems(productosEncontrados);
     }
 
     private void configurarTablaDetalleVenta() {
@@ -233,6 +390,19 @@ public class VentaController {
         
         colCantidad.setCellValueFactory(cellData -> 
             new SimpleIntegerProperty(cellData.getValue().getCantidad()).asObject());
+        
+        if (colPrecioUnitario != null) {
+            colPrecioUnitario.setCellValueFactory(cellData -> 
+                new SimpleDoubleProperty(cellData.getValue().getPrecioUnitario()).asObject());
+            
+            colPrecioUnitario.setCellFactory(col -> new TableCell<>() {
+                @Override
+                protected void updateItem(Double item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty || item == null ? null : formatoMoneda.format(item));
+                }
+            });
+        }
         
         colDescuento.setCellValueFactory(cellData -> 
             new SimpleDoubleProperty(cellData.getValue().getDescuento()).asObject());
@@ -259,45 +429,6 @@ public class VentaController {
         tblDetalleVenta.setItems(detalleVentaItems);
     }
 
-    @FXML
-    private void buscarCliente() {
-        String criterio = txtBuscarCliente.getText().trim().toLowerCase();
-        
-        if (criterio.isEmpty()) {
-            mostrarAdvertencia("Ingrese un criterio de búsqueda (cédula, nombre o teléfono)");
-            txtBuscarCliente.requestFocus();
-            return;
-        }
-        
-        try {
-            List<Cliente> todosClientes = clienteServicio.listarClientes();
-            
-            List<Cliente> clientesFiltrados = todosClientes.stream()
-                .filter(c -> 
-                    c.getCedula().toLowerCase().contains(criterio) ||
-                    c.getNombre().toLowerCase().contains(criterio) ||
-                    (c.getTelefono() != null && c.getTelefono().toLowerCase().contains(criterio))
-                )
-                .collect(Collectors.toList());
-            
-            clientesEncontrados.clear();
-            clientesEncontrados.addAll(clientesFiltrados);
-            
-            // Forzar refresco de la tabla
-            tablaClientes.refresh();
-            
-            if (clientesFiltrados.isEmpty()) {
-                mostrarInformacion("No se encontraron clientes con el criterio: " + criterio);
-            } else {
-                System.out.println("Clientes encontrados: " + clientesFiltrados.size());
-            }
-            
-        } catch (Exception e) {
-            mostrarError("Error al buscar clientes: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-    
     private void seleccionarCliente(Cliente cliente) {
         if (cliente == null) return;
         
@@ -317,16 +448,12 @@ public class VentaController {
             Parent root = loader.load();
 
             Stage stage = new Stage();
-            stage.setTitle("Gestión de Clientes");
+            stage.setTitle("Gestion de Clientes");
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setScene(new Scene(root));
             stage.setResizable(true);
             
-            stage.setOnHidden(e -> {
-                if (!txtBuscarCliente.getText().trim().isEmpty()) {
-                    buscarCliente();
-                }
-            });
+            stage.setOnHidden(e -> cargarTodosLosClientes());
             
             stage.showAndWait();
 
@@ -336,45 +463,6 @@ public class VentaController {
         }
     }
 
-    @FXML
-    private void buscarProducto() {
-        String criterio = txtBuscarProducto.getText().trim().toLowerCase();
-        
-        if (criterio.isEmpty()) {
-            mostrarAdvertencia("Ingrese un criterio de búsqueda (código, nombre o categoría)");
-            txtBuscarProducto.requestFocus();
-            return;
-        }
-        
-        try {
-            List<Producto> todosProductos = productoServicio.listarProductos();
-            
-            List<Producto> productosFiltrados = todosProductos.stream()
-                .filter(p -> 
-                    p.getCodigo().toLowerCase().contains(criterio) ||
-                    p.getNombre().toLowerCase().contains(criterio) ||
-                    (p.getCategoria() != null && p.getCategoria().toLowerCase().contains(criterio))
-                )
-                .filter(p -> p.getStock() > 0)
-                .collect(Collectors.toList());
-            
-            productosEncontrados.clear();
-            productosEncontrados.addAll(productosFiltrados);
-            
-            tablaProductos.refresh();
-            
-            if (productosFiltrados.isEmpty()) {
-                mostrarInformacion("No se encontraron productos con stock disponible para: " + criterio);
-            } else {
-                System.out.println("Productos encontrados: " + productosFiltrados.size());
-            }
-            
-        } catch (Exception e) {
-            mostrarError("Error al buscar productos: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-    
     private void agregarProductoDesdeTabla(Producto producto) {
         if (producto == null) return;
         
@@ -389,7 +477,7 @@ public class VentaController {
                 return;
             }
         } catch (NumberFormatException e) {
-            mostrarAdvertencia("La cantidad debe ser un número válido");
+            mostrarAdvertencia("La cantidad debe ser un numero valido");
             txtCantidad.requestFocus();
             return;
         }
@@ -405,7 +493,7 @@ public class VentaController {
                 return;
             }
         } catch (NumberFormatException e) {
-            mostrarAdvertencia("El descuento debe ser un número válido");
+            mostrarAdvertencia("El descuento debe ser un numero valido");
             txtDescuento.requestFocus();
             return;
         }
@@ -419,7 +507,7 @@ public class VentaController {
 
     private void agregarProducto(Producto producto, int cantidad, double descuento) {
         if (producto == null || cantidad <= 0) {
-            mostrarError("Producto o cantidad inválidos");
+            mostrarError("Producto o cantidad invalidos");
             return;
         }
         
@@ -440,7 +528,7 @@ public class VentaController {
                 int nuevaCantidad = item.getCantidad() + cantidad;
                 if (!producto.tieneStock(nuevaCantidad)) {
                     mostrarAdvertencia(
-                        String.format("No puede agregar más unidades de %s.\nStock disponible: %d", 
+                        String.format("No puede agregar mas unidades de %s.\nStock disponible: %d", 
                             producto.getNombre(), producto.getStock())
                     );
                     return;
@@ -468,7 +556,7 @@ public class VentaController {
         
         calcularTotales();
         mostrarInformacion(
-            String.format("✓ Producto agregado: %s x%d", producto.getNombre(), cantidad)
+            String.format("Producto agregado: %s x%d", producto.getNombre(), cantidad)
         );
     }
 
@@ -478,7 +566,7 @@ public class VentaController {
         if (itemSeleccionado != null) {
             Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
             confirmacion.setTitle("Eliminar Producto");
-            confirmacion.setHeaderText("¿Desea eliminar este producto de la venta?");
+            confirmacion.setHeaderText("Desea eliminar este producto de la venta?");
             confirmacion.setContentText(
                 String.format("%s x%d - %s", 
                     itemSeleccionado.getNombreProducto(), 
@@ -520,7 +608,7 @@ public class VentaController {
                 porcentajeIVA = Double.parseDouble(ivaTexto) / 100.0;
             }
         } catch (NumberFormatException e) {
-            porcentajeIVA = 0.16;
+            porcentajeIVA = 0.0;
         }
         
         montoIVA = subtotalNeto * porcentajeIVA;
@@ -531,12 +619,22 @@ public class VentaController {
     }
 
     private void actualizarLabelsResumen() {
+        if (lblSubtotal != null) {
+            lblSubtotal.setText(formatoMoneda.format(subtotalNeto));
+        }
+        
+        if (lblDescuentoTotal != null) {
+            lblDescuentoTotal.setText(formatoMoneda.format(descuentoGlobalTotal));
+        }
+        
+        if (lblIVA != null) {
+            lblIVA.setText(formatoMoneda.format(montoIVA));
+        }
+        
         if (lblTotalPagar != null) {
-            lblTotalPagar.setText(
-                String.format("TOTAL A PAGAR: %s", formatoMoneda.format(totalPagar))
-            );
+            lblTotalPagar.setText(formatoMoneda.format(totalPagar));
             lblTotalPagar.setStyle(
-                "-fx-font-size: 16px; " +
+                "-fx-font-size: 18px; " +
                 "-fx-font-weight: bold; " +
                 "-fx-text-fill: #1e3c72;"
             );
@@ -553,7 +651,7 @@ public class VentaController {
                 return;
             }
             
-            double montoRecibido = Double.parseDouble(montoTexto);
+            double montoRecibido = Double.parseDouble(montoTexto.replace(",", ""));
             double cambio = montoRecibido - totalPagar;
             
             if (cambio < 0) {
@@ -600,8 +698,8 @@ public class VentaController {
                         txtCambio.clear();
                         txtMontoRecibido.requestFocus();
                     } else if ("Tarjeta".equals(metodoPago) || "Transferencia".equals(metodoPago)) {
-                        txtMontoRecibido.setText(String.format("%.2f", totalPagar));
-                        txtCambio.setText("0.00");
+                        txtMontoRecibido.setText(formatoEntero.format(Math.round(totalPagar)));
+                        txtCambio.setText("0");
                         txtCambio.setDisable(true);
                     }
                 }
@@ -622,16 +720,42 @@ public class VentaController {
             });
         }
         
-        if (txtBuscarCliente != null) {
-            txtBuscarCliente.setOnAction(e -> buscarCliente());
+        if (txtCantidad != null) {
+            txtCantidad.setOnAction(e -> txtDescuento.requestFocus());
         }
         
-        if (txtBuscarProducto != null) {
-            txtBuscarProducto.setOnAction(e -> buscarProducto());
+        if (txtDescuento != null) {
+            txtDescuento.setOnAction(e -> {
+                if (!productosFiltrados.isEmpty()) {
+                    agregarProductoDesdeTabla(productosFiltrados.get(0));
+                }
+            });
         }
         
         if (btnCancelarVenta != null) {
             btnCancelarVenta.setOnAction(e -> cancelarVenta());
+        }
+        
+        if (tablaClientes != null) {
+            tablaClientes.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2) {
+                    Cliente cliente = tablaClientes.getSelectionModel().getSelectedItem();
+                    if (cliente != null) {
+                        seleccionarCliente(cliente);
+                    }
+                }
+            });
+        }
+        
+        if (tablaProductos != null) {
+            tablaProductos.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2) {
+                    Producto producto = tablaProductos.getSelectionModel().getSelectedItem();
+                    if (producto != null) {
+                        agregarProductoDesdeTabla(producto);
+                    }
+                }
+            });
         }
     }
 
@@ -668,7 +792,7 @@ public class VentaController {
             double cambio = 0.0;
             
             if ("Efectivo".equals(metodoPago)) {
-                montoRecibido = Double.parseDouble(txtMontoRecibido.getText().trim());
+                montoRecibido = Double.parseDouble(txtMontoRecibido.getText().trim().replace(",", ""));
                 cambio = montoRecibido - totalPagar;
             } else {
                 montoRecibido = totalPagar;
@@ -684,34 +808,130 @@ public class VentaController {
                 descuentoGlobalTotal
             );
             
-            String mensaje = String.format(
-                " VENTA GUARDADA EXITOSAMENTE\n" +
-                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
-                "📄 Código de Venta: %s\n" +
-                " Comprobante: %s\n\n" +
-                "👤 Cliente: %s\n" +
-                "📦 Productos: %d items\n" +
-                "💰 Total: %s\n" +
-                "💳 Método de Pago: %s\n" +
-                "%s",
-                txtCodigoVenta.getText(),
-                factura.getNumeroComprobante(),
-                clienteSeleccionado.getNombre(),
-                detalleVentaItems.size(),
-                formatoMoneda.format(totalPagar),
-                metodoPago,
-                ("Efectivo".equals(metodoPago) && cambio > 0) 
-                    ? String.format("💵 Cambio: %s", formatoMoneda.format(cambio))
-                    : ""
-            );
-            
-            mostrarExito(mensaje);
-            limpiarFormulario();
+            String mensaje = construirMensajeVentaExitosa(factura, metodoPago, cambio);
+                mostrarExito(mensaje);
+
+                // Guardar referencias antes de limpiar el formulario
+                final Cliente clienteParaEmail = clienteSeleccionado;
+                final Factura facturaParaEmail = factura;
+
+                // Limpiar ANTES de preguntar por el email
+                limpiarFormulario();
+                cargarTodosLosProductos();
+
+                // Preguntar si desea enviar comprobante por email
+                if (clienteParaEmail.getEmail() != null && !clienteParaEmail.getEmail().trim().isEmpty()) {
+                    preguntarEnviarComprobante(facturaParaEmail, clienteParaEmail);
+                }
+                            // Preguntar si desea enviar comprobante por email
+            if (clienteParaEmail.getEmail() != null && !clienteParaEmail.getEmail().trim().isEmpty()) {
+                preguntarEnviarComprobante(facturaParaEmail, clienteParaEmail);
+            }
             
         } catch (Exception e) {
-            mostrarError("Error al guardar la venta: " + e.getMessage());
+            mostrarError("Error al generar o enviar el comprobante:\n" + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Pregunta al usuario si desea enviar el comprobante por email
+     */
+   private void preguntarEnviarComprobante(Factura factura, Cliente cliente) {
+    Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+    confirmacion.setTitle("Enviar Comprobante");
+    confirmacion.setHeaderText("Desea enviar el comprobante por email?");
+    confirmacion.setContentText(
+        String.format(
+            "Cliente: %s\n" +
+            "Email: %s\n" +
+            "Comprobante: %s",
+            cliente.getNombre(),
+            cliente.getEmail(),
+            factura.getNumeroComprobante()
+        )
+    );
+    
+    ButtonType btnEnviar = new ButtonType("Enviar");
+    ButtonType btnNoEnviar = new ButtonType("No enviar", ButtonBar.ButtonData.CANCEL_CLOSE);
+    
+    confirmacion.getButtonTypes().setAll(btnEnviar, btnNoEnviar);
+    
+    confirmacion.showAndWait().ifPresent(response -> {
+        if (response == btnEnviar) {
+            enviarEmailEnSegundoPlano(factura, cliente);
+        }
+    });
+}
+
+    /**
+     * Envia el email en segundo plano para no bloquear la UI
+     */
+    private void enviarEmailEnSegundoPlano(Factura factura, Cliente cliente) {
+    Alert progress = new Alert(Alert.AlertType.INFORMATION);
+    progress.setTitle("Enviando Email");
+    progress.setHeaderText("Generando y enviando comprobante...");
+    progress.setContentText("Por favor espere");
+    progress.show();
+    
+    new Thread(() -> {
+        try {
+            byte[] pdfBytes = GeneradorPDFComprobante.generarComprobanteTicketBytes(factura);
+            
+            EmailServicio emailServicio = new EmailServicio();
+            emailServicio.enviarComprobanteCliente(
+                cliente.getEmail(),
+                cliente.getNombre(),
+                factura.getNumeroComprobante(),
+                pdfBytes
+            );
+            
+            Platform.runLater(() -> {
+                progress.close();
+                mostrarInformacion(
+                    String.format(
+                        "Comprobante enviado exitosamente a:\n%s",
+                        cliente.getEmail()
+                    )
+                );
+            });
+            
+        } catch (EmailException e) {
+            Platform.runLater(() -> {
+                progress.close();
+                mostrarAdvertencia(
+                    "No se pudo enviar el comprobante por email:\n" + e.getMessage()
+                );
+            });
+        } catch (Exception e) {
+            Platform.runLater(() -> {
+                progress.close();
+                mostrarError(
+                    "Error al generar o enviar el comprobante:\n" + e.getMessage()
+                );
+            });
+            e.printStackTrace();
+        }
+    }).start();
+}
+    private String construirMensajeVentaExitosa(Factura factura, String metodoPago, double cambio) {
+        StringBuilder mensaje = new StringBuilder();
+        mensaje.append("VENTA GUARDADA EXITOSAMENTE\n\n");
+        mensaje.append(String.format("Codigo de Venta: %s\n", txtCodigoVenta.getText()));
+        mensaje.append(String.format("Comprobante: %s\n\n", factura.getNumeroComprobante()));
+        mensaje.append(String.format("Cliente: %s\n", clienteSeleccionado.getNombre()));
+        mensaje.append(String.format("Productos: %d items\n", detalleVentaItems.size()));
+        mensaje.append(String.format("Subtotal: %s\n", formatoMoneda.format(subtotalNeto)));
+        mensaje.append(String.format("Descuento: %s\n", formatoMoneda.format(descuentoGlobalTotal)));
+        mensaje.append(String.format("IVA (%.0f%%): %s\n", porcentajeIVA * 100, formatoMoneda.format(montoIVA)));
+        mensaje.append(String.format("Total: %s\n", formatoMoneda.format(totalPagar)));
+        mensaje.append(String.format("Metodo de Pago: %s\n", metodoPago));
+        
+        if ("Efectivo".equals(metodoPago) && cambio > 0) {
+            mensaje.append(String.format("Cambio: %s", formatoMoneda.format(cambio)));
+        }
+        
+        return mensaje.toString();
     }
 
     private boolean validarVenta() {
@@ -728,7 +948,7 @@ public class VentaController {
         }
         
         if (cmbMetodoPago == null || cmbMetodoPago.getValue() == null) {
-            mostrarAdvertencia("Debe seleccionar un método de pago");
+            mostrarAdvertencia("Debe seleccionar un metodo de pago");
             if (cmbMetodoPago != null) cmbMetodoPago.requestFocus();
             return false;
         }
@@ -740,7 +960,8 @@ public class VentaController {
         }
         
         try {
-            double montoRecibido = Double.parseDouble(txtMontoRecibido.getText());
+            String montoTexto = txtMontoRecibido.getText().trim().replace(",", "");
+            double montoRecibido = Double.parseDouble(montoTexto);
             String metodoPago = cmbMetodoPago.getValue();
             
             if ("Efectivo".equals(metodoPago)) {
@@ -767,7 +988,7 @@ public class VentaController {
                 }
             }
         } catch (NumberFormatException e) {
-            mostrarAdvertencia("El monto recibido debe ser un número válido");
+            mostrarAdvertencia("El monto recibido debe ser un numero valido");
             txtMontoRecibido.requestFocus();
             return false;
         }
@@ -784,13 +1005,13 @@ public class VentaController {
         
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacion.setTitle("Cancelar Venta");
-        confirmacion.setHeaderText("¿Está seguro de cancelar esta venta?");
+        confirmacion.setHeaderText("Esta seguro de cancelar esta venta?");
         confirmacion.setContentText(
             String.format(
-                "Se perderán todos los datos:\n\n" +
-                "• Cliente: %s\n" +
-                "• Productos: %d items\n" +
-                "• Total: %s",
+                "Se perderan todos los datos:\n\n" +
+                "Cliente: %s\n" +
+                "Productos: %d items\n" +
+                "Total: %s",
                 clienteSeleccionado != null ? clienteSeleccionado.getNombre() : "Sin seleccionar",
                 detalleVentaItems.size(),
                 formatoMoneda.format(totalPagar)
@@ -800,15 +1021,13 @@ public class VentaController {
         confirmacion.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 limpiarFormulario();
-                mostrarInformacion("✓ La venta ha sido cancelada");
+                mostrarInformacion("La venta ha sido cancelada");
             }
         });
     }
 
     private void limpiarFormulario() {
         detalleVentaItems.clear();
-        clientesEncontrados.clear();
-        productosEncontrados.clear();
         
         clienteSeleccionado = null;
         if (lblClienteSeleccionado != null) {
@@ -828,14 +1047,14 @@ public class VentaController {
         }
         
         if (txtIVA != null) {
-            txtIVA.setText("16");
+            txtIVA.setText("0");
         }
         
         subtotalNeto = 0.0;
         descuentoGlobalTotal = 0.0;
         montoIVA = 0.0;
         totalPagar = 0.0;
-        porcentajeIVA = 0.16;
+        porcentajeIVA = 0.0;
         
         actualizarLabelsResumen();
         
@@ -845,13 +1064,11 @@ public class VentaController {
         LocalDateTime fechaActual = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
         txtFecha.setText(fechaActual.format(formatter));
-        
-        System.out.println("Formulario limpiado para nueva venta");
     }
 
     private void mostrarError(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("❌ Error");
+        alert.setTitle("Error");
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
         alert.showAndWait();
@@ -859,7 +1076,7 @@ public class VentaController {
 
     private void mostrarAdvertencia(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("⚠️ Advertencia");
+        alert.setTitle("Advertencia");
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
         alert.showAndWait();
@@ -867,7 +1084,7 @@ public class VentaController {
 
     private void mostrarInformacion(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("ℹ️ Información");
+        alert.setTitle("Informacion");
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
         alert.showAndWait();
@@ -875,8 +1092,8 @@ public class VentaController {
     
     private void mostrarExito(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("✓ Éxito");
-        alert.setHeaderText("Operación Completada");
+        alert.setTitle("Exito");
+        alert.setHeaderText("Operacion Completada");
         alert.setContentText(mensaje);
         
         DialogPane dialogPane = alert.getDialogPane();
@@ -923,72 +1140,27 @@ public class VentaController {
             this.subtotal = new SimpleDoubleProperty(subtotal);
         }
 
-        public int getNumero() { 
-            return numero.get(); 
-        }
+        public int getNumero() { return numero.get(); }
+        public void setNumero(int num) { numero.set(num); }
+        public SimpleIntegerProperty numeroProperty() { return numero; }
         
-        public void setNumero(int num) { 
-            numero.set(num); 
-        }
+        public Producto getProducto() { return producto; }
+        public String getNombreProducto() { return nombreProducto.get(); }
+        public SimpleStringProperty nombreProductoProperty() { return nombreProducto; }
         
-        public SimpleIntegerProperty numeroProperty() { 
-            return numero; 
-        }
+        public int getCantidad() { return cantidad.get(); }
+        public void setCantidad(int cant) { cantidad.set(cant); }
+        public SimpleIntegerProperty cantidadProperty() { return cantidad; }
         
-        public Producto getProducto() { 
-            return producto; 
-        }
+        public double getPrecioUnitario() { return precioUnitario.get(); }
+        public SimpleDoubleProperty precioUnitarioProperty() { return precioUnitario; }
         
-        public String getNombreProducto() { 
-            return nombreProducto.get(); 
-        }
+        public double getDescuento() { return descuento.get(); }
+        public void setDescuento(double desc) { descuento.set(desc); }
+        public SimpleDoubleProperty descuentoProperty() { return descuento; }
         
-        public SimpleStringProperty nombreProductoProperty() { 
-            return nombreProducto; 
-        }
-        
-        public int getCantidad() { 
-            return cantidad.get(); 
-        }
-        
-        public void setCantidad(int cant) { 
-            cantidad.set(cant); 
-        }
-        
-        public SimpleIntegerProperty cantidadProperty() { 
-            return cantidad; 
-        }
-        
-        public double getPrecioUnitario() { 
-            return precioUnitario.get(); 
-        }
-        
-        public SimpleDoubleProperty precioUnitarioProperty() { 
-            return precioUnitario; 
-        }
-        
-        public double getDescuento() { 
-            return descuento.get(); 
-        }
-        
-        public void setDescuento(double desc) { 
-            descuento.set(desc); 
-        }
-        
-        public SimpleDoubleProperty descuentoProperty() { 
-            return descuento; 
-        }
-        
-        public double getSubtotal() { 
-            return subtotal.get(); 
-        }
-        
-        public void setSubtotal(double sub) { 
-            subtotal.set(sub); 
-        }
-        
-        public SimpleDoubleProperty subtotalProperty() { 
-            return subtotal; 
-        }
+        public double getSubtotal() { return subtotal.get(); }
+        public void setSubtotal(double sub) { subtotal.set(sub); }
+        public SimpleDoubleProperty subtotalProperty() { return subtotal; }
     }
 }

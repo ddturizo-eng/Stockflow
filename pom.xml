@@ -39,6 +39,13 @@
             <version>${javafx.version}</version>
         </dependency>
         
+        <!-- JavaFX Media (para procesamiento avanzado de imágenes) -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-media</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        
         <!-- ==================== JSON ==================== -->
         <dependency>
             <groupId>org.json</groupId>
@@ -101,6 +108,20 @@
             <version>${itext.version}</version>
         </dependency>
         
+        <!-- ==================== JAVAMAIL API ==================== -->
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>1.6.2</version>
+        </dependency>
+        
+        <!-- Activation Framework -->
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+        
         <!-- ==================== LOGGING (Requerido por iText) ==================== -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -126,12 +147,18 @@
             <artifactId>bcpkix-jdk15on</artifactId>
             <version>1.70</version>
         </dependency>
+
+        <!-- Webcam Capture - Para acceder a la cámara -->
+        <dependency>
+            <groupId>com.github.sarxos</groupId>
+            <artifactId>webcam-capture</artifactId>
+            <version>0.3.12</version>
+        </dependency>
         
     </dependencies>
     
     <build>
         <plugins>
-            <!-- COMPILADOR JAVA -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

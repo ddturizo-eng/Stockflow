@@ -1,6 +1,7 @@
 package com.mycompany.stockflow;
 
 import com.mycompany.stockflow.Logica.AutenticacionServicio;
+import com.mycompany.stockflow.Logica.UsuarioServicio;
 import com.mycompany.stockflow.Modelo.Usuario;
 import javafx.animation.*;
 import javafx.event.ActionEvent;
@@ -9,13 +10,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 import java.io.IOException;
@@ -24,67 +24,131 @@ import java.util.ResourceBundle;
 
 public class LoginController implements Initializable {
     
-    @FXML
-    private TextField txtUsuario;
-    
-    @FXML
-    private PasswordField txtPassword;
-    
-    @FXML
-    private TextField txtPasswordVisible;
-    
-    @FXML
-    private Button btnLogin;
-    
-    @FXML
-    private Button btnVolver;
-    
-    @FXML
-    private Button btnTogglePassword;
-    
-    @FXML
-    private Label lblEyeIcon;
-    
-    @FXML
-    private Label lblOlvidePassword;
-    
-    @FXML
-    private Label lblError;
-    
-    @FXML
-    private StackPane rootPane;
+    @FXML private TextField txtUsuario;
+    @FXML private PasswordField txtPassword;
+    @FXML private TextField txtPasswordVisible;
+    @FXML private Button btnLogin;
+    @FXML private Button btnVolver;
+    @FXML private Button btnTogglePassword;
+    @FXML private Label lblEyeIcon;
+    @FXML private Label lblOlvidePassword;
+    @FXML private Label lblError;
+    @FXML private StackPane rootPane;
     
     private AutenticacionServicio autenticacionServicio;
+    private UsuarioServicio usuarioServicio;
     private boolean passwordVisible = false;
     
+    
     @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        autenticacionServicio = new AutenticacionServicio();
+public void initialize(URL url, ResourceBundle rb) {
+    autenticacionServicio = new AutenticacionServicio();
+    usuarioServicio = new UsuarioServicio();
+    
+    lblError.setVisible(false);
+    
+    configurarListenersInput();
+    sincronizarCamposPassword();
+    configurarHoverButtons();
+    
+    // ✓ CONFIGURAR LABEL OLVIDÉ CONTRASEÑA
+    if (lblOlvidePassword != null) {
+        lblOlvidePassword.setStyle("-fx-cursor: hand; -fx-underline: true; -fx-text-fill: #2196f3;");
+        lblOlvidePassword.setOnMouseClicked(event -> manejarOlvidePassword());
         
-        lblError.setVisible(false);
-        
-        configurarListenersInput();
-        sincronizarCamposPassword();
-        configurarHoverButtons();
-        
-        // Permitir login con Enter en ambos campos
-        txtPassword.setOnAction(this::ini_sesion);
-        txtPasswordVisible.setOnAction(this::ini_sesion);
-        
-        // Animación de entrada suave
-        if (rootPane != null) {
-            rootPane.setOpacity(0);
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), rootPane);
-            fadeIn.setFromValue(0);
-            fadeIn.setToValue(1);
-            fadeIn.play();
+        // Agregar efecto hover
+        lblOlvidePassword.setOnMouseEntered(event -> 
+            lblOlvidePassword.setStyle("-fx-cursor: hand; -fx-underline: true; -fx-text-fill: #1565c0; -fx-font-weight: bold;")
+        );
+        lblOlvidePassword.setOnMouseExited(event -> 
+            lblOlvidePassword.setStyle("-fx-cursor: hand; -fx-underline: true; -fx-text-fill: #2196f3;")
+        );
+    }
+    
+    // Permitir login con Enter
+    txtPassword.setOnAction(this::ini_sesion);
+    txtPasswordVisible.setOnAction(this::ini_sesion);
+    
+    // Animación de entrada
+    if (rootPane != null) {
+        rootPane.setOpacity(0);
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(300), rootPane);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+        fadeIn.play();
+    }
+    
+    // Verificar si el sistema está vacío
+    verificarSistemaVacio();
+    
+    System.out.println("✓ LoginController inicializado correctamente");
+}
+    
+    /**
+     * ⭐ Verifica si el sistema está vacío y muestra el wizard de setup
+     */
+    private void verificarSistemaVacio() {
+        if (usuarioServicio.sistemaVacio()) {
+            System.out.println("⚠️ Sistema vacío - Mostrando wizard de configuración inicial");
+            
+            // Mostrar alerta informativa
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("¡Bienvenido a StockFlow!");
+            alert.setHeaderText("Configuración Inicial");
+            alert.setContentText(
+                "Parece que es la primera vez que usas StockFlow.\n\n" +
+                "A continuación crearemos el primer usuario administrador."
+            );
+            alert.showAndWait();
+            
+            // Abrir wizard de setup
+            mostrarWizardSetup();
         }
-        
-        System.out.println("Login inicializado correctamente");
+    }
+    
+    /**
+     * Muestra el wizard de configuración inicial
+     */
+    private void mostrarWizardSetup() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("SetupWizard.fxml"));
+            Parent root = loader.load();
+            
+            Stage setupStage = new Stage();
+            setupStage.setTitle("Configuración Inicial - StockFlow");
+            setupStage.setScene(new Scene(root));
+            setupStage.initModality(Modality.APPLICATION_MODAL);
+            setupStage.initStyle(StageStyle.DECORATED);
+            setupStage.setResizable(false);
+            
+            // Obtener el controller
+            SetupWizardController controller = loader.getController();
+            
+            // Mostrar y esperar
+            setupStage.showAndWait();
+            
+            // Verificar si se completó el setup
+            if (controller.isSetupCompletado()) {
+                mostrarExito("Setup completado", "Ahora puedes iniciar sesión con tus credenciales.");
+            } else {
+                // Si no completó, verificar nuevamente al volver
+                if (usuarioServicio.sistemaVacio()) {
+                    Alert alert = new Alert(Alert.AlertType.WARNING);
+                    alert.setTitle("Configuración Requerida");
+                    alert.setHeaderText("No se puede usar el sistema");
+                    alert.setContentText("Debes crear al menos un administrador para usar StockFlow.");
+                    alert.showAndWait();
+                }
+            }
+            
+        } catch (IOException e) {
+            System.err.println("Error al cargar SetupWizard: " + e.getMessage());
+            e.printStackTrace();
+            mostrarError("Error al cargar el asistente de configuración");
+        }
     }
     
     private void sincronizarCamposPassword() {
-        // Sincronizar texto entre PasswordField y TextField
         txtPassword.textProperty().addListener((obs, oldVal, newVal) -> {
             if (!passwordVisible) {
                 txtPasswordVisible.setText(newVal);
@@ -103,7 +167,6 @@ public class LoginController implements Initializable {
         passwordVisible = !passwordVisible;
         
         if (passwordVisible) {
-            // Mostrar contraseña
             txtPasswordVisible.setText(txtPassword.getText());
             txtPassword.setVisible(false);
             txtPasswordVisible.setVisible(true);
@@ -111,7 +174,6 @@ public class LoginController implements Initializable {
             txtPasswordVisible.requestFocus();
             txtPasswordVisible.positionCaret(txtPasswordVisible.getText().length());
         } else {
-            // Ocultar contraseña
             txtPassword.setText(txtPasswordVisible.getText());
             txtPasswordVisible.setVisible(false);
             txtPassword.setVisible(true);
@@ -126,7 +188,6 @@ public class LoginController implements Initializable {
     }
     
     private void configurarListenersInput() {
-        // Limpiar error cuando el usuario escriba
         txtUsuario.textProperty().addListener((obs, oldVal, newVal) -> {
             lblError.setVisible(false);
             txtUsuario.setStyle("-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 8;");
@@ -146,7 +207,6 @@ public class LoginController implements Initializable {
     }
     
     private void configurarHoverButtons() {
-        // Hover en botón Volver
         btnVolver.setOnMouseEntered(e -> {
             btnVolver.setStyle(
                 "-fx-background-color: rgba(255, 255, 255, 0.95);" +
@@ -165,7 +225,6 @@ public class LoginController implements Initializable {
             );
         });
         
-        // Hover en botón ojo
         btnTogglePassword.setOnMouseEntered(e -> {
             lblEyeIcon.setStyle("-fx-font-size: 18; -fx-text-fill: #2196F3;");
         });
@@ -203,12 +262,9 @@ public class LoginController implements Initializable {
             Usuario usuarioAutenticado = autenticacionServicio.autenticar(usuario, password);
             
             if (usuarioAutenticado != null) {
-                // Login exitoso
                 System.out.println("✓ Login exitoso para: " + usuarioAutenticado.getNombre());
                 cargarDashboard();
-                
             } else {
-                // Credenciales incorrectas
                 mostrarError("Usuario o contraseña incorrectos");
                 txtUsuario.setStyle("-fx-background-radius: 5; -fx-border-color: #e74c3c; -fx-border-width: 2; -fx-border-radius: 5; -fx-padding: 8;");
                 txtPassword.setStyle("-fx-background-radius: 5; -fx-border-color: #e74c3c; -fx-border-width: 2; -fx-border-radius: 5; -fx-padding: 8 40 8 8;");
@@ -228,7 +284,6 @@ public class LoginController implements Initializable {
     }
     
     private void cargarDashboard() {
-        // Animación de salida suave
         if (rootPane != null) {
             animarSalida(() -> cambiarADashboard());
         } else {
@@ -238,19 +293,15 @@ public class LoginController implements Initializable {
     
     private void cambiarADashboard() {
         try {
-            // Cargar Dashboard
             FXMLLoader loader = new FXMLLoader(getClass().getResource("Dashboard.fxml"));
             Parent root = loader.load();
             
-            // Obtener la Scene y Stage actuales
             Scene currentScene = txtUsuario.getScene();
             Stage stage = (Stage) currentScene.getWindow();
             
-            // Cambiar la raíz de la Scene actual sin redimensionar
             currentScene.setRoot(root);
             stage.setTitle("StockFlow - Dashboard");
             
-            // Mantener F11 para pantalla completa
             currentScene.setOnKeyPressed(event -> {
                 if (event.getCode() == KeyCode.F11) {
                     stage.setFullScreen(!stage.isFullScreen());
@@ -259,7 +310,6 @@ public class LoginController implements Initializable {
             
             stage.setFullScreenExitHint("Presiona F11 o ESC para salir de pantalla completa");
             
-            // Animación de entrada del Dashboard
             root.setOpacity(0);
             FadeTransition fadeIn = new FadeTransition(Duration.millis(300), root);
             fadeIn.setFromValue(0);
@@ -290,11 +340,9 @@ public class LoginController implements Initializable {
     
     private void cambiarABienvenida() {
         try {
-            // Cargar Bienvenida
             FXMLLoader loader = new FXMLLoader(getClass().getResource("Bienvenida.fxml"));
             Parent root = loader.load();
             
-            // Obtener Stage actual
             Stage stage = (Stage) btnVolver.getScene().getWindow();
             Scene scene = new Scene(root, 1000, 600);
             
@@ -303,7 +351,6 @@ public class LoginController implements Initializable {
             stage.setResizable(true);
             stage.setMaximized(true);
             
-            // Configurar F11
             scene.setOnKeyPressed(event -> {
                 if (event.getCode() == KeyCode.F11) {
                     stage.setFullScreen(!stage.isFullScreen());
@@ -312,7 +359,6 @@ public class LoginController implements Initializable {
             
             stage.setFullScreenExitHint("Presiona F11 o ESC para salir de pantalla completa");
             
-            // Animación de entrada
             root.setOpacity(0);
             FadeTransition fadeIn = new FadeTransition(Duration.millis(300), root);
             fadeIn.setFromValue(0);
@@ -332,7 +378,6 @@ public class LoginController implements Initializable {
         lblError.setText(mensaje);
         lblError.setVisible(true);
         
-        // Animación para el mensaje de error
         lblError.setOpacity(0);
         FadeTransition fade = new FadeTransition(Duration.millis(200), lblError);
         fade.setFromValue(0);
@@ -340,8 +385,15 @@ public class LoginController implements Initializable {
         fade.play();
     }
     
+    private void mostrarExito(String titulo, String mensaje) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(titulo);
+        alert.setHeaderText(null);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
+    }
+    
     private void animarError() {
-        // Animación de "shake" para los campos con error
         double distancia = 10;
         
         txtUsuario.setTranslateX(distancia);
@@ -374,11 +426,44 @@ public class LoginController implements Initializable {
     }
     
     private void animarSalida(Runnable onFinished) {
-        // Solo fade out suave, sin zoom
         FadeTransition fade = new FadeTransition(Duration.millis(250), rootPane);
         fade.setFromValue(1.0);
         fade.setToValue(0.0);
         fade.setOnFinished(e -> onFinished.run());
         fade.play();
     }
+    
+    /**
+ * Se ejecuta cuando el usuario hace clic en "Olvidé mi contraseña"
+ */
+@FXML
+private void manejarOlvidePassword() {
+    System.out.println("Usuario solicitó recuperación de contraseña");
+    mostrarDialogoOlvidePassword();
+}
+
+/**
+ * Muestra el diálogo de recuperación de contraseña
+ */
+private void mostrarDialogoOlvidePassword() {
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("DialogoOlvidePassword.fxml"));
+        Parent root = loader.load();
+        
+        Stage stage = new Stage();
+        stage.setTitle("Recuperar Contraseña");
+        stage.setScene(new Scene(root));
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setResizable(false);
+        
+        stage.showAndWait();
+        
+        System.out.println("✓ Diálogo de recuperación cerrado");
+        
+    } catch (IOException e) {
+        System.err.println("Error al abrir diálogo de recuperación: " + e.getMessage());
+        e.printStackTrace();
+        mostrarError("Error al abrir el diálogo de recuperación");
+    }
+}
 }

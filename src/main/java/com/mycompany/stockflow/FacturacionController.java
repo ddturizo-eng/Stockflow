@@ -1,3 +1,25 @@
+   /*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/javafx/FXMLController.java to edit this template
+ */
+/**
+ * Controlador para la gestión de facturación y consulta de comprobantes.
+ * 
+ * Este controlador gestiona la interfaz de facturación, permitiendo:
+ * - Listar y filtrar facturas por número, cliente o estado
+ * - Ver el detalle completo de cada factura
+ * - Exportar comprobantes a PDF en formatos A4 y Ticket
+ * - Enviar comprobantes por email a los clientes
+ * - Anular facturas
+ * - Visualizar estadísticas de facturación
+ * 
+ * La clase utiliza una tabla interactiva con búsqueda en tiempo real
+ * y muestra estadísticas de comprobantes pagados, anulados y promedios.
+ * 
+ * @author Equipo StockFlow
+ * @version 1.0
+ * @since 1.0
+ */
 package com.mycompany.stockflow;
 
 import com.mycompany.stockflow.Modelo.Factura;
@@ -19,6 +41,9 @@ import java.io.File;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.stream.Collectors;
+import com.mycompany.stockflow.utils.EmailServicio;
+import com.mycompany.stockflow.excepciones.EmailException;
+import javafx.application.Platform;
 
 public class FacturacionController {
 
@@ -49,15 +74,31 @@ public class FacturacionController {
     private ObservableList<FacturaItem> facturasFiltradas;
     private DecimalFormat formatoMoneda = new DecimalFormat("$#,##0.00");
 
+    /**
+     * Constructor del controlador de facturación.
+     * 
+     * Inicializa los servicios y las listas observables
+     * necesarias para la gestión de facturas.
+     */
     public FacturacionController() {
         this.facturacionServicio = new FacturacionServicio();
         this.facturaItems = FXCollections.observableArrayList();
         this.facturasFiltradas = FXCollections.observableArrayList();
     }
 
+    /**
+     * Inicializa el controlador de la vista.
+     * 
+     * Se ejecuta cuando el documento FXML es cargado. Realiza
+     * las siguientes acciones:
+     * - Configura las columnas de la tabla
+     * - Configura el ComboBox de estados
+     * - Carga todas las facturas disponibles
+     * - Actualiza las estadísticas en pantalla
+     */
     @FXML
     public void initialize() {
-        System.out.println("✅ FacturacionController inicializado");
+        System.out.println(" FacturacionController inicializado");
         
         configurarTabla();
         configurarComboBoxEstado();
@@ -66,7 +107,14 @@ public class FacturacionController {
     }
 
     /**
-     * Configura las columnas de la tabla
+     * Configura las columnas de la tabla de facturas.
+     * 
+     * Define el binding entre las propiedades del modelo y las columnas,
+     * aplica formato de moneda a la columna de total y colorea los estados.
+     * Los colores utilizados son:
+     * - Verde (#27AE60) para PAGADA
+     * - Rojo (#E74C3C) para ANULADA
+     * - Naranja (#F39C12) para PENDIENTE
      */
     private void configurarTabla() {
         colNumero.setCellValueFactory(new PropertyValueFactory<>("numeroComprobante"));
@@ -115,7 +163,10 @@ public class FacturacionController {
     }
 
     /**
-     * Configura el ComboBox de estados
+     * Configura el ComboBox de filtrado por estado.
+     * 
+     * Carga los estados disponibles: Todos, PAGADA, PENDIENTE, ANULADA
+     * y establece "Todos" como valor por defecto.
      */
     private void configurarComboBoxEstado() {
         cmbEstado.setItems(FXCollections.observableArrayList("Todos", "PAGADA", "PENDIENTE", "ANULADA"));
@@ -123,7 +174,11 @@ public class FacturacionController {
     }
 
     /**
-     * Carga todas las facturas desde el servicio
+     * Carga todas las facturas desde el servicio de facturación.
+     * 
+     * Obtiene la lista de facturas de la base de datos, las convierte
+     * en FacturaItem para mostrar en la tabla y actualiza las listas.
+     * Maneja excepciones mostrando un mensaje de error al usuario.
      */
     private void cargarFacturas() {
         try {
@@ -136,7 +191,7 @@ public class FacturacionController {
             
             facturasFiltradas.setAll(facturaItems);
             
-            System.out.println("📊 Facturas cargadas: " + facturas.size());
+            System.out.println(" Facturas cargadas: " + facturas.size());
             
         } catch (Exception e) {
             mostrarError("Error al cargar facturas: " + e.getMessage());
@@ -145,7 +200,14 @@ public class FacturacionController {
     }
 
     /**
-     * Busca facturas según los filtros aplicados
+     * Busca y filtra facturas según los criterios especificados.
+     * 
+     * Aplica los siguientes filtros:
+     * - Por número de comprobante (búsqueda parcial)
+     * - Por nombre del cliente o cédula (búsqueda parcial)
+     * - Por estado (exacto)
+     * 
+     * Muestra un mensaje informativo con la cantidad de resultados encontrados.
      */
     @FXML
     private void buscarFacturas() {
@@ -180,7 +242,10 @@ public class FacturacionController {
     }
 
     /**
-     * Limpia los filtros de búsqueda
+     * Limpia todos los filtros de búsqueda.
+     * 
+     * Restaura los campos de búsqueda a su estado inicial,
+     * establece el estado en "Todos" y recarga la lista completa de facturas.
      */
     @FXML
     private void limpiarFiltros() {
@@ -192,7 +257,13 @@ public class FacturacionController {
     }
 
     /**
-     * Actualiza las estadísticas en pantalla
+     * Actualiza las estadísticas mostradas en pantalla.
+     * 
+     * Calcula y actualiza:
+     * - Total de comprobantes en la lista filtrada
+     * - Total facturado (suma de comprobantes PAGADAS)
+     * - Total de comprobantes anulados
+     * - Ticket promedio (total facturado / cantidad de comprobantes pagados)
      */
     private void actualizarEstadisticas() {
         // Total de comprobantes
@@ -227,7 +298,11 @@ public class FacturacionController {
     }
 
     /**
-     * Muestra el detalle de la factura seleccionada
+     * Muestra el detalle completo de una factura seleccionada.
+     * 
+     * Obtiene la factura seleccionada en la tabla, busca su información
+     * completa en la base de datos y abre un diálogo con los detalles.
+     * Muestra una advertencia si no se ha seleccionado ninguna factura.
      */
     @FXML
     private void verDetalleFactura() {
@@ -248,7 +323,17 @@ public class FacturacionController {
     }
 
     /**
-     * Muestra el detalle completo de una factura en un diálogo
+     * Muestra el detalle formateado de una factura en un diálogo.
+     * 
+     * Presenta la información de la factura en formato de comprobante con:
+     * - Encabezado de la empresa
+     * - Número y fecha del comprobante
+     * - Datos del cliente
+     * - Detalle de productos con cantidad, precio unitario y subtotal
+     * - Cálculos: subtotal, descuento, IVA y total
+     * - Información de pago (efectivo con cambio o tarjeta)
+     * 
+     * @param factura La factura cuyo detalle se desea mostrar
      */
     private void mostrarDetalleFactura(Factura factura) {
         StringBuilder detalle = new StringBuilder();
@@ -314,14 +399,18 @@ public class FacturacionController {
     }
 
     /**
-     * Imprime o exporta la factura a PDF formato A4
+     * Exporta la factura seleccionada a PDF en formato A4.
+     * 
+     * Permite al usuario seleccionar la ubicación y nombre del archivo
+     * para guardar el comprobante en formato A4 estándar. Después de 
+     * generar el PDF, pregunta si desea abrir el archivo.
      */
     @FXML
     private void imprimirComprobanteA4() {
         FacturaItem facturaSeleccionada = tblFacturas.getSelectionModel().getSelectedItem();
         
         if (facturaSeleccionada == null) {
-            mostrarAdvertencia("⚠️ Seleccione una factura para imprimir");
+            mostrarAdvertencia("️ Seleccione una factura para imprimir");
             return;
         }
         
@@ -342,7 +431,7 @@ public class FacturacionController {
                 // Generar PDF en formato A4
                 GeneradorPDFComprobante.generarComprobanteA4(factura, archivo.getAbsolutePath());
                 
-                mostrarExito("✅ Comprobante PDF (A4) generado exitosamente:\n" + archivo.getAbsolutePath());
+                mostrarExito("Comprobante PDF (A4) generado exitosamente:\n" + archivo.getAbsolutePath());
                 
                 // Preguntar si desea abrir el archivo
                 Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
@@ -368,14 +457,18 @@ public class FacturacionController {
     }
 
     /**
-     * Imprime o exporta la factura a PDF formato Ticket
+     * Exporta la factura seleccionada a PDF en formato Ticket.
+     * 
+     * Permite al usuario seleccionar la ubicación y nombre del archivo
+     * para guardar el comprobante en formato de ticket (más compacto).
+     * Después de generar el PDF, pregunta si desea abrir el archivo.
      */
     @FXML
     private void imprimirComprobanteTicket() {
         FacturaItem facturaSeleccionada = tblFacturas.getSelectionModel().getSelectedItem();
         
         if (facturaSeleccionada == null) {
-            mostrarAdvertencia("⚠️ Seleccione una factura para imprimir");
+            mostrarAdvertencia("Seleccione una factura para imprimir");
             return;
         }
         
@@ -396,7 +489,7 @@ public class FacturacionController {
                 // Generar PDF en formato Ticket
                 GeneradorPDFComprobante.generarComprobanteTicket(factura, archivo.getAbsolutePath());
                 
-                mostrarExito("✅ Comprobante PDF (Ticket) generado exitosamente:\n" + archivo.getAbsolutePath());
+                mostrarExito("Comprobante PDF (Ticket) generado exitosamente:\n" + archivo.getAbsolutePath());
                 
                 // Preguntar si desea abrir el archivo
                 Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
@@ -422,19 +515,23 @@ public class FacturacionController {
     }
 
     /**
-     * Anula una factura
+     * Anula una factura previamente registrada.
+     * 
+     * Solicita confirmación del usuario antes de anular la factura.
+     * No permite anular facturas que ya están anuladas.
+     * Una vez anulada, actualiza la lista y muestra un mensaje de éxito.
      */
     @FXML
     private void anularFactura() {
         FacturaItem facturaSeleccionada = tblFacturas.getSelectionModel().getSelectedItem();
         
         if (facturaSeleccionada == null) {
-            mostrarAdvertencia("⚠️ Seleccione una factura para anular");
+            mostrarAdvertencia("️ Seleccione una factura para anular");
             return;
         }
         
         if ("ANULADA".equals(facturaSeleccionada.getEstado())) {
-            mostrarAdvertencia("⚠️ Esta factura ya está anulada");
+            mostrarAdvertencia(" Esta factura ya está anulada");
             return;
         }
         
@@ -460,16 +557,163 @@ public class FacturacionController {
     }
 
     /**
-     * Actualiza la lista de facturas
+     * Actualiza la lista de facturas recargando datos desde la base de datos.
+     * 
+     * Carga nuevamente todas las facturas, limpia los filtros aplicados
+     * y actualiza las estadísticas. Muestra un mensaje informativo al finalizar.
      */
     @FXML
     private void actualizarLista() {
         cargarFacturas();
         limpiarFiltros();
-        mostrarInformacion("✅ Lista actualizada");
+        mostrarInformacion("Lista actualizada");
     }
 
-    // ==================== MÉTODOS DE ALERTAS ====================
+    /**
+     * Envía el comprobante de la factura seleccionada por email al cliente.
+     * 
+     * Valida que:
+     * - Se haya seleccionado una factura
+     * - El cliente tenga email registrado
+     * 
+     * Solicita confirmación antes de enviar y ejecuta el envío en un hilo
+     * separado para no bloquear la interfaz. Maneja excepciones de email
+     * mostrando mensajes informativos.
+     */
+    @FXML
+    private void enviarComprobanteEmail() {
+        FacturaItem facturaSeleccionada = tblFacturas.getSelectionModel().getSelectedItem();
+
+        if (facturaSeleccionada == null) {
+            mostrarAdvertencia("️ Seleccione una factura para enviar por email");
+            return;
+        }
+
+        try {
+            // Buscar la factura completa
+            Factura factura = facturacionServicio.buscarFactura(facturaSeleccionada.getNumeroComprobante());
+
+            // Validar que el cliente tenga email
+            String emailCliente = factura.getVenta().getCliente().getEmail();
+
+            if (emailCliente == null || emailCliente.trim().isEmpty()) {
+                mostrarAdvertencia(
+                    "️ El cliente no tiene email registrado\n\n" +
+                    "Cliente: " + factura.getNombreCliente() + "\n" +
+                    "Cédula: " + factura.getCedulaCliente() + "\n\n" +
+                    "Por favor, actualice la información del cliente."
+                );
+                return;
+            }
+
+            // Confirmar envío
+            Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmacion.setTitle("Enviar Comprobante");
+            confirmacion.setHeaderText("¿Desea enviar el comprobante por email?");
+            confirmacion.setContentText(
+                String.format(
+                    "Cliente: %s\n" +
+                    "Email: %s\n" +
+                    "Comprobante: %s\n" +
+                    "Total: %s",
+                    factura.getNombreCliente(),
+                    emailCliente,
+                    factura.getNumeroComprobante(),
+                    formatoMoneda.format(factura.getTotal())
+                )
+            );
+
+            ButtonType btnEnviar = new ButtonType("Enviar");
+            ButtonType btnCancelar = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+            confirmacion.getButtonTypes().setAll(btnEnviar, btnCancelar);
+
+            confirmacion.showAndWait().ifPresent(response -> {
+                if (response == btnEnviar) {
+                    enviarEmailEnSegundoPlano(factura, emailCliente);
+                }
+            });
+
+        } catch (Exception e) {
+            mostrarError("Error al procesar la factura:\n" + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Envía el email en un hilo separado para no bloquear la interfaz.
+     * 
+     * Genera el PDF del comprobante en memoria, lo envía por email
+     * al destinatario especificado y actualiza la UI con el resultado.
+     * Maneja excepciones de email mostrando mensajes informativos.
+     * 
+     * @param factura La factura cuyo comprobante se enviará
+     * @param emailDestino La dirección de email del cliente
+     */
+    private void enviarEmailEnSegundoPlano(Factura factura, String emailDestino) {
+        // Mostrar diálogo de progreso
+        Alert progress = new Alert(Alert.AlertType.INFORMATION);
+        progress.setTitle("Enviando Email");
+        progress.setHeaderText("Generando y enviando comprobante...");
+        progress.setContentText("Por favor espere");
+        progress.show();
+
+        // Ejecutar en hilo separado
+        new Thread(() -> {
+            try {
+                // Generar PDF en memoria
+                byte[] pdfBytes = GeneradorPDFComprobante.generarComprobanteTicketBytes(factura);
+
+                // Enviar email
+                EmailServicio emailServicio = new EmailServicio();
+                emailServicio.enviarComprobanteCliente(
+                    emailDestino,
+                    factura.getNombreCliente(),
+                    factura.getNumeroComprobante(),
+                    pdfBytes
+                );
+
+                // Actualizar UI en el hilo principal
+                Platform.runLater(() -> {
+                    progress.close();
+                    mostrarExito(
+                        String.format(
+                            " Comprobante enviado exitosamente\n\n" +
+                            "Destinatario: %s\n" +
+                            "Email: %s\n" +
+                            "Comprobante: %s",
+                            factura.getNombreCliente(),
+                            emailDestino,
+                            factura.getNumeroComprobante()
+                        )
+                    );
+                });
+
+            } catch (EmailException e) {
+                Platform.runLater(() -> {
+                    progress.close();
+                    mostrarAdvertencia(
+                        "️ No se pudo enviar el comprobante por email:\n\n" + 
+                        e.getMessage() + "\n\n" +
+                        "Verifique:\n" +
+                        "• Conexión a Internet\n" +
+                        "• Email del destinatario\n" +
+                        "• Configuración del servidor de correo"
+                    );
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    progress.close();
+                    mostrarError(
+                        "Error al generar o enviar el comprobante:\n\n" + 
+                        e.getMessage()
+                    );
+                });
+                e.printStackTrace();
+            }
+        }).start();
+    }
+    // MÉTODOS DE ALERTAS 
     
     private void mostrarError(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -503,7 +747,7 @@ public class FacturacionController {
         alert.showAndWait();
     }
 
-    // ==================== CLASE INTERNA ====================
+    //  CLASE INTERNA 
     
     /**
      * Clase interna para representar items en la tabla

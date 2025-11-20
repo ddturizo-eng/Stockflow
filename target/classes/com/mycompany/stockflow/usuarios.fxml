@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane style="-fx-background-color: #f8fafb;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.stockflow.UsuariosController">
+    
+    <!-- HEADER PREMIUM -->
+    <top>
+        <VBox style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0;">
+            <padding>
+                <Insets bottom="24" left="32" right="32" top="24" />
+            </padding>
+            
+            <!-- Titulo Principal -->
+            <VBox spacing="8">
+                <HBox alignment="CENTER_LEFT" spacing="16">
+                    <VBox alignment="CENTER_LEFT" spacing="4">
+                        <Label style="-fx-font-size: 13; -fx-text-fill: #64748b;" text="Administra y controla el acceso de usuarios del sistema" />
+                    </VBox>
+                    
+                    <Region HBox.hgrow="ALWAYS" />
+                    
+                    <!-- Botón Nuevo Usuario Premium -->
+                    <Button fx:id="btnNuevoUsuario" onAction="#handleNuevoUsuario" style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-weight: bold;                                     -fx-font-size: 12; -fx-padding: 14 28; -fx-background-radius: 8; -fx-cursor: hand;" text="NUEVO USUARIO">
+                        <font>
+                            <Font name="System Bold" size="12" />
+                        </font>
+                    </Button>
+                </HBox>
+            </VBox>
+            
+            <!-- Barra de búsqueda y filtros mejorada -->
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <padding>
+                    <Insets top="20" />
+                </padding>
+                
+                <!-- Campo de búsqueda con estilo moderno -->
+                <TextField fx:id="txtBuscar" prefWidth="280" promptText="Buscar por usuario, email..." style="-fx-background-radius: 8; -fx-padding: 11 16; -fx-border-color: #e2e8f0;                                    -fx-border-radius: 8; -fx-background-color: #f1f5f9; -fx-border-width: 1.5;                                   -fx-text-fill: #1e293b; -fx-font-size: 12;">
+                    <font>
+                        <Font size="12" />
+                    </font>
+                </TextField>
+                
+                <!-- Combo Rol -->
+                <ComboBox fx:id="cmbFiltroRol" prefWidth="140" promptText="Rol" style="-fx-background-radius: 8; -fx-padding: 10; -fx-font-size: 12;                                  -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-border-width: 1.5;" />
+                
+                <!-- Combo Estado -->
+                <ComboBox fx:id="cmbFiltroEstado" prefWidth="140" promptText="Estado" style="-fx-background-radius: 8; -fx-padding: 10; -fx-font-size: 12;                                  -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-border-width: 1.5;" />
+                
+                <!-- Botón Limpiar -->
+                <Button fx:id="btnLimpiarFiltros" onAction="#handleLimpiarFiltros" style="-fx-background-color: #f1f5f9; -fx-text-fill: #475569; -fx-padding: 10 16;                                 -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 12; -fx-font-weight: bold;                                -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-border-width: 1;" text="Limpiar">
+                    <font>
+                        <Font name="System Bold" size="12" />
+                    </font>
+                </Button>
+                
+                <Region HBox.hgrow="ALWAYS" />
+                
+                <!-- Badge Contador -->
+                <VBox alignment="CENTER" style="-fx-background-color: #eff6ff; -fx-background-radius: 8; -fx-padding: 8 16;">
+                    <Label fx:id="lblContador" style="-fx-font-size: 13; -fx-text-fill: #1e40af; -fx-font-weight: bold;" text="0 usuarios" />
+                </VBox>
+            </HBox>
+        </VBox>
+    </top>
+    
+    <!-- CONTENIDO CENTRAL CON DISEÑO MODERNO -->
+    <center>
+        <VBox spacing="0" style="-fx-background-color: #f8fafb;">
+            <padding>
+                <Insets bottom="24" left="32" right="32" top="24" />
+            </padding>
+            
+            <!-- Tabla de Usuarios con diseño moderno -->
+            <TableView fx:id="tblUsuarios" style="-fx-background-color: white; -fx-background-radius: 12;                                -fx-border-color: #e2e8f0; -fx-border-radius: 12; -fx-border-width: 1;" VBox.vgrow="ALWAYS">
+                
+                <columns>
+                    <TableColumn fx:id="colUsername" minWidth="100" prefWidth="140" text="Usuario" />
+                    <TableColumn fx:id="colNombreCompleto" minWidth="150" prefWidth="220" text="Nombre Completo" />
+                    <TableColumn fx:id="colEmail" minWidth="150" prefWidth="200" text="Email" />
+                    <TableColumn fx:id="colRol" minWidth="100" prefWidth="120" text="Rol" />
+                    <TableColumn fx:id="colEstado" minWidth="90" prefWidth="110" text="Estado" />
+                    <TableColumn fx:id="colUltimoAcceso" minWidth="120" prefWidth="140" text="Último Acceso" />
+                    <TableColumn fx:id="colAcciones" minWidth="160" prefWidth="180" text="Acciones" />
+                </columns>
+                
+                <placeholder>
+                    <VBox alignment="CENTER" spacing="16" style="-fx-padding: 60;">
+                        <Label style="-fx-font-size: 18; -fx-text-fill: #475569; -fx-font-weight: bold;" text="SIN USUARIOS REGISTRADOS" />
+                        <Label style="-fx-font-size: 12; -fx-text-fill: #94a3b8;" text="Comienza creando tu primer usuario con el botón de arriba" />
+                    </VBox>
+                </placeholder>
+            </TableView>
+            
+            <!-- Panel de Estadísticas Moderno -->
+            <GridPane alignment="TOP_CENTER" hgap="16" vgap="16">
+                <padding>
+                    <Insets bottom="0" left="0" right="0" top="24" />
+                </padding>
+                
+                <columnConstraints>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="20" />
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="20" />
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="20" />
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="20" />
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="20" />
+                </columnConstraints>
+                
+                <rowConstraints>
+                    <RowConstraints vgrow="SOMETIMES" />
+                </rowConstraints>
+                
+                <!-- Card 1: Total Usuarios -->
+                <VBox alignment="TOP_LEFT" spacing="12" style="-fx-padding: 20; -fx-background-color: white;                        -fx-background-radius: 12; -fx-border-color: #e2e8f0; -fx-border-radius: 12; -fx-border-width: 1;" GridPane.columnIndex="0">
+                    <VBox spacing="8">
+                        <Label style="-fx-font-size: 11; -fx-text-fill: #64748b; -fx-font-weight: bold;" text="TOTAL USUARIOS" />
+                        <Label fx:id="lblTotalUsuarios" style="-fx-font-size: 32; -fx-text-fill: #2563eb; -fx-font-weight: bold;" text="0" />
+                        <Label style="-fx-font-size: 10; -fx-text-fill: #94a3b8;" text="Registrados en el sistema" />
+                    </VBox>
+                </VBox>
+                
+                <!-- Card 2: Activos -->
+                <VBox alignment="TOP_LEFT" spacing="12" style="-fx-padding: 20; -fx-background-color: white;                        -fx-background-radius: 12; -fx-border-color: #e2e8f0; -fx-border-radius: 12; -fx-border-width: 1;" GridPane.columnIndex="1">
+                    <VBox spacing="8">
+                        <Label style="-fx-font-size: 11; -fx-text-fill: #64748b; -fx-font-weight: bold;" text="USUARIOS ACTIVOS" />
+                        <Label fx:id="lblUsuariosActivos" style="-fx-font-size: 32; -fx-text-fill: #10b981; -fx-font-weight: bold;" text="0" />
+                        <Label style="-fx-font-size: 10; -fx-text-fill: #94a3b8;" text="Conectados hoy" />
+                    </VBox>
+                </VBox>
+                
+                <!-- Card 3: Administradores -->
+                <VBox alignment="TOP_LEFT" spacing="12" style="-fx-padding: 20; -fx-background-color: white;                        -fx-background-radius: 12; -fx-border-color: #e2e8f0; -fx-border-radius: 12; -fx-border-width: 1;" GridPane.columnIndex="2">
+                    <VBox spacing="8">
+                        <Label style="-fx-font-size: 11; -fx-text-fill: #64748b; -fx-font-weight: bold;" text="ADMINISTRADORES" />
+                        <Label fx:id="lblAdmins" style="-fx-font-size: 32; -fx-text-fill: #6366f1; -fx-font-weight: bold;" text="0" />
+                        <Label style="-fx-font-size: 10; -fx-text-fill: #94a3b8;" text="Con permisos totales" />
+                    </VBox>
+                </VBox>
+                
+                <!-- Card 4: Propietarios -->
+                <VBox alignment="TOP_LEFT" spacing="12" style="-fx-padding: 20; -fx-background-color: white;                        -fx-background-radius: 12; -fx-border-color: #e2e8f0; -fx-border-radius: 12; -fx-border-width: 1;" GridPane.columnIndex="3">
+                    <VBox spacing="8">
+                        <Label style="-fx-font-size: 11; -fx-text-fill: #64748b; -fx-font-weight: bold;" text="PROPIETARIOS" />
+                        <Label fx:id="lblDuenos" style="-fx-font-size: 32; -fx-text-fill: #3b82f6; -fx-font-weight: bold;" text="0" />
+                        <Label style="-fx-font-size: 10; -fx-text-fill: #94a3b8;" text="Dueños del negocio" />
+                    </VBox>
+                </VBox>
+                
+                <!-- Card 5: Cajeros -->
+                <VBox alignment="TOP_LEFT" spacing="12" style="-fx-padding: 20; -fx-background-color: white;                        -fx-background-radius: 12; -fx-border-color: #e2e8f0; -fx-border-radius: 12; -fx-border-width: 1;" GridPane.columnIndex="4">
+                    <VBox spacing="8">
+                        <Label style="-fx-font-size: 11; -fx-text-fill: #64748b; -fx-font-weight: bold;" text="CAJEROS" />
+                        <Label fx:id="lblCajeros" style="-fx-font-size: 32; -fx-text-fill: #8b5cf6; -fx-font-weight: bold;" text="0" />
+                        <Label style="-fx-font-size: 10; -fx-text-fill: #94a3b8;" text="Personal de caja" />
+                    </VBox>
+                </VBox>
+            </GridPane>
+        </VBox>
+    </center>
+    
+</BorderPane>

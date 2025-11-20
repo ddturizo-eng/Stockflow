@@ -1,7 +1,15 @@
+   /*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/javafx/FXMLController.java to edit this template
+ */
+
 package com.mycompany.stockflow;
 
 import com.mycompany.stockflow.Modelo.Producto;
 import com.mycompany.stockflow.Logica.ProductoServicio;
+import com.mycompany.stockflow.utils.ImagenProductoUtil;
+import com.mycompany.stockflow.utils.CamaraServicio;
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +24,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 public class ProductosController implements Initializable {
     
@@ -46,10 +58,22 @@ public class ProductosController implements Initializable {
     @FXML private TextArea txtDescripcion;
     @FXML private Button btnGuardar;
     
+    // Nuevos controles para la imagen
+    @FXML private ImageView imgVistaPrevia;
+    @FXML private Button btnSeleccionarImagen;
+    @FXML private Button btnTomarFoto;
+    @FXML private Button btnEliminarImagen;
+    
     private ProductoServicio productoServicio;
     private ObservableList<Producto> listaProductos;
     private Producto productoSeleccionado;
     private boolean esEdicion = false;
+    
+    // Variables para manejo de imagen
+    private File archivoImagenSeleccionado;
+    private Image imagenCapturada;
+    private boolean imagenModificada = false;
+    private DashboardController dashboardController;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -61,6 +85,7 @@ public class ProductosController implements Initializable {
         cargarProductos();
         configurarBusqueda();
         configurarValidacionTiempoReal();
+        configurarVistaPrevia();
     }
     
     private void configurarTabla() {
@@ -206,6 +231,136 @@ public class ProductosController implements Initializable {
         });
     }
     
+    // NUEVOS MÉTODOS PARA MANEJO DE IMÁGENES
+    
+    /**
+     * Configura la vista previa de imagen con imagen por defecto
+     */
+    private void configurarVistaPrevia() {
+        cargarImagenPorDefecto();
+    }
+    
+    /**
+     * Carga la imagen por defecto en la vista previa
+     */
+    private void cargarImagenPorDefecto() {
+        Image imagenDefault = ImagenProductoUtil.obtenerImagenPorDefecto();
+        if (imagenDefault != null) {
+            imgVistaPrevia.setImage(imagenDefault);
+        }
+    }
+    
+    /**
+     * Permite al usuario seleccionar una imagen desde el sistema de archivos
+     */
+    @FXML
+    private void seleccionarImagen() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Seleccionar Imagen del Producto");
+        
+        // Configurar filtros de extensión
+        fileChooser.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("Imágenes", "*.png", "*.jpg", "*.jpeg", "*.bmp"),
+            new FileChooser.ExtensionFilter("PNG", "*.png"),
+            new FileChooser.ExtensionFilter("JPG", "*.jpg", "*.jpeg"),
+            new FileChooser.ExtensionFilter("BMP", "*.bmp")
+        );
+        
+        // Abrir diálogo de selección
+        Stage stage = (Stage) btnSeleccionarImagen.getScene().getWindow();
+        File archivo = fileChooser.showOpenDialog(stage);
+        
+        if (archivo != null) {
+            try {
+                // Cargar y mostrar la imagen seleccionada
+                Image imagen = new Image(archivo.toURI().toString());
+                imgVistaPrevia.setImage(imagen);
+                
+                // Guardar referencia al archivo
+                archivoImagenSeleccionado = archivo;
+                imagenCapturada = null;
+                imagenModificada = true;
+                
+                mostrarInformacion("Imagen seleccionada", "La imagen se guardará al crear/actualizar el producto");
+                
+            } catch (Exception e) {
+                mostrarError("Error al cargar imagen", "No se pudo cargar la imagen seleccionada: " + e.getMessage());
+            }
+        }
+    }
+    
+    /**
+     * Permite tomar una foto con la cámara (si está disponible)
+     */
+    @FXML
+    private void tomarFoto() {
+        if (!CamaraServicio.isCamaraDisponible()) {
+            mostrarAdvertencia("Cámara no disponible", 
+                "No se detectó ninguna cámara web en el sistema.\n\n" +
+                "Para usar esta función necesita:\n" +
+                "1. Una webcam conectada\n" +
+                "2. La librería Webcam Capture (sarxos)\n\n" +
+                "Por favor, use 'Seleccionar Imagen' para cargar una foto existente.");
+            return;
+        }
+        
+        try {
+            // Capturar foto con la cámara
+            Image fotoCapturada = CamaraServicio.capturarFoto();
+            
+            if (fotoCapturada != null) {
+                imgVistaPrevia.setImage(fotoCapturada);
+                imagenCapturada = fotoCapturada;
+                archivoImagenSeleccionado = null;
+                imagenModificada = true;
+                
+                mostrarInformacion("Foto capturada", 
+                    "La foto se guardará al crear/actualizar el producto");
+            } else {
+                System.out.println("Captura de foto cancelada por el usuario");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Error al capturar foto: " + e.getMessage());
+            e.printStackTrace();
+            mostrarError("Error al capturar foto", 
+                "No se pudo capturar la foto: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Elimina la imagen seleccionada y restaura la imagen por defecto
+     */
+    @FXML
+    private void eliminarImagenPrevia() {
+        cargarImagenPorDefecto();
+        archivoImagenSeleccionado = null;
+        imagenCapturada = null;
+        imagenModificada = true;
+    }
+    
+    /**
+     * Carga la imagen de un producto en la vista previa
+     */
+    private void cargarImagenProducto(Producto producto) {
+        if (producto.tieneImagen()) {
+            Image imagen = ImagenProductoUtil.cargarImagen(producto.getRutaImagen());
+            if (imagen != null) {
+                imgVistaPrevia.setImage(imagen);
+            } else {
+                cargarImagenPorDefecto();
+            }
+        } else {
+            cargarImagenPorDefecto();
+        }
+        
+        archivoImagenSeleccionado = null;
+        imagenCapturada = null;
+        imagenModificada = false;
+    }
+    
+    // FIN DE MÉTODOS DE MANEJO DE IMÁGENES
+    
     @FXML
     private void cargarProductos() {
         try {
@@ -255,6 +410,7 @@ public class ProductosController implements Initializable {
         lblTituloFormulario.setText("Agregar Nuevo Producto");
         limpiarFormulario();
         txtCodigo.setDisable(false);
+        cargarImagenPorDefecto();
         formularioContainer.setVisible(true);
     }
     
@@ -273,70 +429,137 @@ public class ProductosController implements Initializable {
         txtStockMinimo.setText(String.valueOf(producto.getStockMinimo()));
         txtDescripcion.setText(producto.getDescripcion() != null ? producto.getDescripcion() : "");
         
+        // Cargar imagen del producto
+        cargarImagenProducto(producto);
+        
         formularioContainer.setVisible(true);
     }
     
     @FXML
-    private void guardarProducto() {
-        if (!validarFormulario()) return;
-        
-        try {
-            Producto producto = esEdicion ? productoSeleccionado : new Producto();
-            
-            if (!esEdicion) {
-                producto.setCodigo(txtCodigo.getText().trim().toUpperCase());
+ 
+            private void guardarProducto() {
+                if (!validarFormulario()) return;
+
+                try {
+                    Producto producto = esEdicion ? productoSeleccionado : new Producto();
+
+                    if (!esEdicion) {
+                        producto.setCodigo(txtCodigo.getText().trim().toUpperCase());
+                    }
+
+                    producto.setNombre(txtNombre.getText().trim());
+                    producto.setCategoria(cbCategoria.getValue());
+                    producto.setPrecioCompra(formatearPrecio(txtPrecioCompra.getText().trim()));
+                    producto.setPrecioVenta(formatearPrecio(txtPrecioVenta.getText().trim()));
+                    producto.setStock(Integer.parseInt(txtStock.getText().trim()));
+                    producto.setStockMinimo(Integer.parseInt(txtStockMinimo.getText().trim()));
+
+                    String descripcion = txtDescripcion.getText().trim();
+                    producto.setDescripcion(descripcion.isEmpty() ? null : descripcion);
+
+                    // GUARDAR IMAGEN SI FUE MODIFICADA
+                    if (imagenModificada) {
+                        try {
+                            String rutaImagen = null;
+
+                            if (archivoImagenSeleccionado != null) {
+                                rutaImagen = ImagenProductoUtil.copiarImagen(
+                                    archivoImagenSeleccionado, 
+                                    producto.getCodigo()
+                                );
+                            } else if (imagenCapturada != null) {
+                                rutaImagen = ImagenProductoUtil.guardarImagen(
+                                    imagenCapturada, 
+                                    producto.getCodigo()
+                                );
+                            }
+
+                            if (esEdicion && producto.tieneImagen() && rutaImagen != null) {
+                                ImagenProductoUtil.eliminarImagen(producto.getRutaImagen());
+                            }
+
+                            producto.setRutaImagen(rutaImagen);
+
+                        } catch (Exception e) {
+                            System.err.println("Error al guardar imagen: " + e.getMessage());
+                            mostrarAdvertencia("Advertencia", "El producto se guardará sin imagen");
+                        }
+                    }
+
+                    if (esEdicion) {
+                        productoServicio.actualizarProducto(producto);
+                        mostrarInformacion("Éxito", "Producto actualizado correctamente");
+                    } else {
+                        productoServicio.crearProducto(producto);
+                        mostrarInformacion("Éxito", "Producto agregado correctamente");
+                    }
+
+                    cerrarFormulario();
+                    cargarProductos();
+                    verificarStockBajo();
+
+                    // ✅ NUEVO: Notificar cambios
+                    if (dashboardController != null) {
+                        dashboardController.notificarCambioEnProductos();
+                    }
+
+                } catch (Exception e) {
+                    mostrarError("Error al guardar", e.getMessage());
+                }
             }
-            
-            producto.setNombre(txtNombre.getText().trim());
-            producto.setCategoria(cbCategoria.getValue());
-            producto.setPrecioCompra(formatearPrecio(txtPrecioCompra.getText().trim()));
-            producto.setPrecioVenta(formatearPrecio(txtPrecioVenta.getText().trim()));
-            producto.setStock(Integer.parseInt(txtStock.getText().trim()));
-            producto.setStockMinimo(Integer.parseInt(txtStockMinimo.getText().trim()));
-            
-            String descripcion = txtDescripcion.getText().trim();
-            producto.setDescripcion(descripcion.isEmpty() ? null : descripcion);
-            
-            if (esEdicion) {
-                productoServicio.actualizarProducto(producto);
-                mostrarInformacion("Éxito", "Producto actualizado correctamente");
-            } else {
-                productoServicio.crearProducto(producto);
-                mostrarInformacion("Éxito", "Producto agregado correctamente");
-            }
-            
-            cerrarFormulario();
-            cargarProductos();
-            verificarStockBajo();
-            
-        } catch (Exception e) {
-            mostrarError("Error al guardar", e.getMessage());
-        }
-    }
     
-    private void eliminarProducto(Producto producto) {
-        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacion.setTitle("Confirmar Eliminación");
-        confirmacion.setHeaderText("¿Está seguro de eliminar este producto?");
-        confirmacion.setContentText(producto.getNombre() + " - " + producto.getCodigo());
-        
-        Optional<ButtonType> resultado = confirmacion.showAndWait();
-        if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
+                private void eliminarProducto(Producto producto) {
+                Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+                confirmacion.setTitle("Confirmar Eliminación");
+                confirmacion.setHeaderText("¿Está seguro de eliminar este producto?");
+                confirmacion.setContentText(producto.getNombre() + " - " + producto.getCodigo());
+
+                Optional<ButtonType> resultado = confirmacion.showAndWait();
+                if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
+                    try {
+                        if (producto.tieneImagen()) {
+                            ImagenProductoUtil.eliminarImagen(producto.getRutaImagen());
+                        }
+
+                        productoServicio.eliminarProducto(producto.getCodigo());
+                        mostrarInformacion("Éxito", "Producto eliminado correctamente");
+                        cargarProductos();
+
+                        // ✅ NUEVO: Actualizar gráficas del dashboard
+                        notificarCambiosAlDashboard();
+
+                    } catch (Exception e) {
+                        mostrarError("Error al eliminar", e.getMessage());
+                    }
+                }
+            }
+            /**
+            * Notifica al controlador de Inteligencia de Negocios que hay cambios en los productos
+            */
+        private void notificarCambiosAlDashboard() {
             try {
-                productoServicio.eliminarProducto(producto.getCodigo());
-                mostrarInformacion("Éxito", "Producto eliminado correctamente");
-                cargarProductos();
+                // Obtener la ventana principal (Scene)
+                javafx.scene.Scene scene = tablaProductos.getScene();
+                if (scene != null) {
+                    javafx.stage.Window window = scene.getWindow();
+
+                    // Intentar acceder al controlador principal de la app
+                    // Si tienes un MainController o principal, aquí es donde notificarías
+                    System.out.println("📊 Cambios en productos detectados - Dashboard se actualizará");
+                }
             } catch (Exception e) {
-                mostrarError("Error al eliminar", e.getMessage());
+                System.err.println("No se pudo notificar cambios: " + e.getMessage());
             }
         }
-    }
-    
+
     @FXML
     private void cerrarFormulario() {
         formularioContainer.setVisible(false);
         limpiarFormulario();
         txtCodigo.setDisable(false);
+        archivoImagenSeleccionado = null;
+        imagenCapturada = null;
+        imagenModificada = false;
     }
     
     private void limpiarFormulario() {
@@ -348,6 +571,7 @@ public class ProductosController implements Initializable {
         txtStock.clear();
         txtStockMinimo.clear();
         txtDescripcion.clear();
+        cargarImagenPorDefecto();
     }
     
     private boolean validarFormulario() {
@@ -564,4 +788,12 @@ public class ProductosController implements Initializable {
         alert.setContentText(mensaje);
         alert.showAndWait();
     }
+
+            /**
+         * El Dashboard inyecta su referencia para que podamos notificar cambios
+         */
+        public void setDashboardController(DashboardController dashboard) {
+            this.dashboardController = dashboard;
+            System.out.println("✓ ProductosController: Dashboard controller asignado");
+        }
 }
