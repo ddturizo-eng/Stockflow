@@ -107,6 +107,7 @@
             <artifactId>hyph</artifactId>
             <version>${itext.version}</version>
         </dependency>
+       
         
         <!-- ==================== JAVAMAIL API ==================== -->
         <dependency>

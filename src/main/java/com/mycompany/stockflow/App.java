@@ -87,7 +87,7 @@ public class App extends Application {
         primaryStage = stage;
         
         // Cargar pantalla de bienvenida como vista inicial
-        scene = new Scene(loadFXML("bienvenida"), 1100, 700);
+        scene = new Scene(loadFXML("bienvenida"), 1100, 750);
         
         // Configuración de la ventana principal
         primaryStage.setTitle("StockFlow - Sistema de Gestión de Inventario");

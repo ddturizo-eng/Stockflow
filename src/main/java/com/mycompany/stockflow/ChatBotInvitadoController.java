@@ -185,7 +185,7 @@ public class ChatBotInvitadoController implements Initializable {
         } else {
             contenedorMensaje.setAlignment(Pos.CENTER_LEFT);
             
-            Label iconoBot = new Label("🤖");
+            Label iconoBot = new Label("");
             iconoBot.setStyle(
                 "-fx-font-size: 24px; " +
                 "-fx-padding: 5px; " +
@@ -255,7 +255,7 @@ public class ChatBotInvitadoController implements Initializable {
         contenedor.setPadding(new Insets(10));
         contenedor.setAlignment(Pos.CENTER_LEFT);
         
-        Label iconoBot = new Label("🤖");
+        Label iconoBot = new Label("");
         iconoBot.setStyle(
             "-fx-font-size: 24px; " +
             "-fx-padding: 5px; " +

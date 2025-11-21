@@ -233,7 +233,7 @@ public class InteligenciaNegocioController {
             "-fx-text-fill: #1E3A8A;"
         );
         
-        Label lblMensaje = new Label("Procesando datos del negocio...\nEsto puede tardar entre 5 y 15 segundos");
+        Label lblMensaje = new Label("Procesando datos del negocio...\nEsto puede tardar un momento");
         lblMensaje.setStyle(
             "-fx-font-size: 13px;" +
             "-fx-text-fill: #64748B;" +

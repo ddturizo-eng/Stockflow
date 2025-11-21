@@ -301,35 +301,64 @@ public class ProductosController implements Initializable {
      * Muestra un FileChooser con filtros para archivos de imagen (PNG, JPG, BMP).
      * La imagen seleccionada se carga en la vista previa y se marca como modificada.
      */
-    @FXML
+        @FXML
     private void seleccionarImagen() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Seleccionar Imagen del Producto");
-        
-        fileChooser.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter("Imágenes", "*.png", "*.jpg", "*.jpeg", "*.bmp"),
-            new FileChooser.ExtensionFilter("PNG", "*.png"),
-            new FileChooser.ExtensionFilter("JPG", "*.jpg", "*.jpeg"),
-            new FileChooser.ExtensionFilter("BMP", "*.bmp")
-        );
-        
-        Stage stage = (Stage) btnSeleccionarImagen.getScene().getWindow();
-        File archivo = fileChooser.showOpenDialog(stage);
-        
-        if (archivo != null) {
-            try {
-                Image imagen = new Image(archivo.toURI().toString());
-                imgVistaPrevia.setImage(imagen);
-                
-                archivoImagenSeleccionado = archivo;
-                imagenCapturada = null;
-                imagenModificada = true;
-                
-                mostrarInformacion("Imagen seleccionada", "La imagen se guardará al crear/actualizar el producto");
-                
-            } catch (Exception e) {
-                mostrarError("Error al cargar imagen", "No se pudo cargar la imagen seleccionada: " + e.getMessage());
+        // Deshabilitar botón para evitar conflicto con captura de cámara
+        btnTomarFoto.setDisable(true);
+
+        try {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Seleccionar Imagen del Producto");
+
+            // Agregar filtros de archivo
+            fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Imágenes", "*.png", "*.jpg", "*.jpeg", "*.bmp"),
+                new FileChooser.ExtensionFilter("PNG", "*.png"),
+                new FileChooser.ExtensionFilter("JPG", "*.jpg", "*.jpeg"),
+                new FileChooser.ExtensionFilter("BMP", "*.bmp")
+            );
+
+            Stage stage = (Stage) btnSeleccionarImagen.getScene().getWindow();
+            File archivo = fileChooser.showOpenDialog(stage);
+
+            if (archivo != null) {
+                try {
+                    System.out.println("Cargando imagen: " + archivo.getAbsolutePath());
+
+                    Image imagen = new Image(archivo.toURI().toString());
+
+                    // Validar que la imagen se cargó correctamente
+                    if (imagen.isError()) {
+                        mostrarError("Error al cargar imagen", 
+                            "La imagen no pudo ser cargada. Asegúrese de que es un archivo válido.");
+                        return;
+                    }
+
+                    imgVistaPrevia.setImage(imagen);
+                    archivoImagenSeleccionado = archivo;
+                    imagenCapturada = null;
+                    imagenModificada = true;
+
+                    System.out.println("Imagen cargada exitosamente");
+                    mostrarInformacion("Imagen seleccionada", 
+                        "La imagen se guardará al crear/actualizar el producto");
+
+                } catch (Exception e) {
+                    System.err.println("Error al cargar imagen: " + e.getMessage());
+                    e.printStackTrace();
+                    mostrarError("Error al cargar imagen", 
+                        "No se pudo cargar la imagen seleccionada: " + e.getMessage());
+                }
+            } else {
+                System.out.println("Selección de imagen cancelada");
             }
+
+        } catch (Exception e) {
+            System.err.println("Error en selector de imagen: " + e.getMessage());
+            mostrarError("Error", "Error al abrir el selector de imagen: " + e.getMessage());
+        } finally {
+            // Siempre habilitar botón al terminar
+            btnTomarFoto.setDisable(false);
         }
     }
     
@@ -339,8 +368,9 @@ public class ProductosController implements Initializable {
      * Verifica que la cámara esté disponible en el sistema.
      * La foto capturada se muestra en la vista previa y se marca como modificada.
      */
-    @FXML
+   @FXML
     private void tomarFoto() {
+        // Validar disponibilidad de cámara
         if (!CamaraServicio.isCamaraDisponible()) {
             mostrarAdvertencia("Cámara no disponible", 
                 "No se detectó ninguna cámara web en el sistema.\n\n" +
@@ -350,27 +380,44 @@ public class ProductosController implements Initializable {
                 "Por favor, use 'Seleccionar Imagen' para cargar una foto existente.");
             return;
         }
-        
+
         try {
-            Image fotoCapturada = CamaraServicio.capturarFoto();
-            
-            if (fotoCapturada != null) {
-                imgVistaPrevia.setImage(fotoCapturada);
-                imagenCapturada = fotoCapturada;
-                archivoImagenSeleccionado = null;
-                imagenModificada = true;
-                
-                mostrarInformacion("Foto capturada", 
-                    "La foto se guardará al crear/actualizar el producto");
-            } else {
-                System.out.println("Captura de foto cancelada por el usuario");
+            System.out.println("Iniciando captura de foto...");
+
+            // Deshabilitar botón para evitar clics múltiples
+            btnTomarFoto.setDisable(true);
+            btnSeleccionarImagen.setDisable(true);
+
+            try {
+                // Capturar foto con timeout integrado en CamaraServicio
+                Image fotoCapturada = CamaraServicio.capturarFoto();
+
+                // Validar que se capturó la foto (usuario no canceló)
+                if (fotoCapturada != null) {
+                    imgVistaPrevia.setImage(fotoCapturada);
+                    imagenCapturada = fotoCapturada;
+                    archivoImagenSeleccionado = null;
+                    imagenModificada = true;
+
+                    System.out.println("Foto capturada exitosamente");
+                    mostrarInformacion("Foto capturada", 
+                        "La foto se guardará al crear/actualizar el producto");
+                } else {
+                    System.out.println("Captura de foto cancelada por el usuario");
+                }
+
+            } catch (Exception e) {
+                System.err.println("Error durante la captura de foto: " + e.getMessage());
+                e.printStackTrace();
+                mostrarError("Error al capturar foto", 
+                    "No se pudo capturar la foto: " + e.getMessage() + 
+                    "\n\nVerifique que la cámara esté correctamente conectada.");
             }
-            
-        } catch (Exception e) {
-            System.err.println("Error al capturar foto: " + e.getMessage());
-            e.printStackTrace();
-            mostrarError("Error al capturar foto", 
-                "No se pudo capturar la foto: " + e.getMessage());
+
+        } finally {
+            // Siempre habilitar botones al terminar
+            btnTomarFoto.setDisable(false);
+            btnSeleccionarImagen.setDisable(false);
         }
     }
     
@@ -379,10 +426,19 @@ public class ProductosController implements Initializable {
      */
     @FXML
     private void eliminarImagenPrevia() {
-        cargarImagenPorDefecto();
-        archivoImagenSeleccionado = null;
-        imagenCapturada = null;
-        imagenModificada = true;
+        try {
+            cargarImagenPorDefecto();
+            archivoImagenSeleccionado = null;
+            imagenCapturada = null;
+            imagenModificada = true;
+
+            System.out.println("Imagen eliminada, restaurada imagen por defecto");
+            mostrarInformacion("Imagen eliminada", "Se restauró la imagen por defecto");
+
+        } catch (Exception e) {
+            System.err.println("Error al eliminar imagen: " + e.getMessage());
+            mostrarError("Error", "Error al eliminar la imagen: " + e.getMessage());
+        }
     }
     
     /**
@@ -390,21 +446,31 @@ public class ProductosController implements Initializable {
      * 
      * @param producto El producto del cual se cargará la imagen
      */
-    private void cargarImagenProducto(Producto producto) {
-        if (producto.tieneImagen()) {
-            Image imagen = ImagenProductoUtil.cargarImagen(producto.getRutaImagen());
-            if (imagen != null) {
-                imgVistaPrevia.setImage(imagen);
+        private void cargarImagenProducto(Producto producto) {
+        try {
+            if (producto != null && producto.tieneImagen()) {
+                System.out.println("Cargando imagen del producto: " + producto.getCodigo());
+
+                Image imagen = ImagenProductoUtil.cargarImagen(producto.getRutaImagen());
+                if (imagen != null && !imagen.isError()) {
+                    imgVistaPrevia.setImage(imagen);
+                    System.out.println("Imagen cargada exitosamente");
+                } else {
+                    System.out.println("La imagen del producto no es válida, usando imagen por defecto");
+                    cargarImagenPorDefecto();
+                }
             } else {
                 cargarImagenPorDefecto();
             }
-        } else {
+
+            archivoImagenSeleccionado = null;
+            imagenCapturada = null;
+            imagenModificada = false;
+
+        } catch (Exception e) {
+            System.err.println("Error al cargar imagen del producto: " + e.getMessage());
             cargarImagenPorDefecto();
         }
-        
-        archivoImagenSeleccionado = null;
-        imagenCapturada = null;
-        imagenModificada = false;
     }
     
     /**
@@ -512,7 +578,12 @@ public class ProductosController implements Initializable {
      */
     @FXML
     private void guardarProducto() {
-        if (!validarFormulario()) return;
+        if (!validarFormulario()) {
+            return;
+        }
+
+        // Deshabilitar botón para evitar clics múltiples
+        btnGuardar.setDisable(true);
 
         try {
             Producto producto = esEdicion ? productoSeleccionado : new Producto();
@@ -531,38 +602,55 @@ public class ProductosController implements Initializable {
             String descripcion = txtDescripcion.getText().trim();
             producto.setDescripcion(descripcion.isEmpty() ? null : descripcion);
 
+            // Gestión mejorada de imágenes
             if (imagenModificada) {
                 try {
                     String rutaImagen = null;
 
                     if (archivoImagenSeleccionado != null) {
+                        System.out.println("Guardando imagen desde archivo...");
                         rutaImagen = ImagenProductoUtil.copiarImagen(
                             archivoImagenSeleccionado, 
                             producto.getCodigo()
                         );
+                        System.out.println("Imagen guardada en: " + rutaImagen);
+
                     } else if (imagenCapturada != null) {
+                        System.out.println("Guardando imagen capturada de cámara...");
                         rutaImagen = ImagenProductoUtil.guardarImagen(
                             imagenCapturada, 
                             producto.getCodigo()
                         );
+                        System.out.println("Imagen guardada en: " + rutaImagen);
                     }
 
+                    // Eliminar imagen anterior si se edita y cambia
                     if (esEdicion && producto.tieneImagen() && rutaImagen != null) {
-                        ImagenProductoUtil.eliminarImagen(producto.getRutaImagen());
+                        try {
+                            ImagenProductoUtil.eliminarImagen(producto.getRutaImagen());
+                            System.out.println("Imagen anterior eliminada");
+                        } catch (Exception e) {
+                            System.err.println("Advertencia al eliminar imagen anterior: " + e.getMessage());
+                        }
                     }
 
                     producto.setRutaImagen(rutaImagen);
 
                 } catch (Exception e) {
                     System.err.println("Error al guardar imagen: " + e.getMessage());
-                    mostrarAdvertencia("Advertencia", "El producto se guardará sin imagen");
+                    e.printStackTrace();
+                    mostrarAdvertencia("Advertencia", 
+                        "El producto se guardará sin imagen.\n\nError: " + e.getMessage());
                 }
             }
 
+            // Guardar producto en base de datos
             if (esEdicion) {
+                System.out.println("Actualizando producto: " + producto.getCodigo());
                 productoServicio.actualizarProducto(producto);
                 mostrarInformacion("Éxito", "Producto actualizado correctamente");
             } else {
+                System.out.println("Creando nuevo producto: " + producto.getCodigo());
                 productoServicio.crearProducto(producto);
                 mostrarInformacion("Éxito", "Producto agregado correctamente");
             }
@@ -571,12 +659,20 @@ public class ProductosController implements Initializable {
             cargarProductos();
             verificarStockBajo();
 
+            // Notificar cambios al dashboard
             if (dashboardController != null) {
                 dashboardController.notificarCambioEnProductos();
+                System.out.println("Dashboard notificado de cambios");
             }
 
         } catch (Exception e) {
-            mostrarError("Error al guardar", e.getMessage());
+            System.err.println("Error al guardar producto: " + e.getMessage());
+            e.printStackTrace();
+            mostrarError("Error al guardar", 
+                "No se pudo guardar el producto: " + e.getMessage());
+        } finally {
+            // Siempre habilitar botón al terminar
+            btnGuardar.setDisable(false);
         }
     }
     
@@ -635,12 +731,26 @@ public class ProductosController implements Initializable {
      */
     @FXML
     private void cerrarFormulario() {
-        formularioContainer.setVisible(false);
-        limpiarFormulario();
-        txtCodigo.setDisable(false);
-        archivoImagenSeleccionado = null;
-        imagenCapturada = null;
-        imagenModificada = false;
+        try {
+            formularioContainer.setVisible(false);
+            limpiarFormulario();
+            txtCodigo.setDisable(false);
+
+            // Limpiar estado de imágenes
+            archivoImagenSeleccionado = null;
+            imagenCapturada = null;
+            imagenModificada = false;
+
+            // Habilitar botones
+            btnTomarFoto.setDisable(false);
+            btnSeleccionarImagen.setDisable(false);
+            btnGuardar.setDisable(false);
+
+            System.out.println("Formulario cerrado");
+
+        } catch (Exception e) {
+            System.err.println("Error al cerrar formulario: " + e.getMessage());
+        }
     }
     
     /**

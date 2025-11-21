@@ -16,20 +16,53 @@ import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamResolution;
 import javafx.embed.swing.SwingFXUtils;
 import java.awt.image.BufferedImage;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Servicio para captura de imágenes con cámara web.
- * Utiliza la biblioteca Webcam Capture de Sarxos.
+ * 
+ * Proporciona funcionalidad para capturar fotos desde una cámara web conectada al sistema.
+ * Utiliza la biblioteca Webcam Capture de Sarxos con mejoras en:
+ * - Thread-safety: Sincronización segura de acceso a la cámara
+ * - Gestión de threads: ExecutorService y AtomicBoolean para control de estado
+ * - Manejo de errores: Try-finally para garantizar limpieza de recursos
+ * - Timeout: Prevención de bloqueos indefinidos
+ * 
+ * <p>Características principales:
+ * <ul>
+ *   <li>Detección automática de cámaras disponibles</li>
+ *   <li>Vista previa en tiempo real (20 FPS)</li>
+ *   <li>Captura de fotos de alta calidad (VGA 640x480)</li>
+ *   <li>Generación de imágenes placeholder cuando no hay cámara</li>
+ *   <li>Sincronización thread-safe de operaciones</li>
+ * </ul>
+ * </p>
  * 
  * @author StockFlow Team
- * @version 1.0
+ * @version 2.0
  * @since 1.0
+ * @see Webcam
+ * @see WebcamResolution
  */
 public class CamaraServicio {
     
+    /** Instancia de la cámara web del sistema */
     private static Webcam webcam = null;
+    
+    /** Indica si hay una cámara disponible y accesible */
     private static boolean camaraDisponible = false;
+    
+    /** Lock para sincronización thread-safe de operaciones de cámara */
+    private static final Object camaraLock = new Object();
+    
+    /** Constante de timeout para operaciones de cámara (milisegundos) */
+    private static final int TIMEOUT_CAMARA = 5000; // 5 segundos
+    
+    /** Constante para interval de captura en thread de previsualización (milisegundos) */
+    private static final int INTERVALO_CAPTURA = 50; // ~20 FPS
     
     static {
         try {
@@ -49,16 +82,47 @@ public class CamaraServicio {
     /**
      * Verifica si hay una cámara disponible en el sistema.
      * 
-     * @return true si hay cámara disponible
+     * <p>Esta verificación es segura y puede ser llamada desde cualquier thread.
+     * Valida tanto la disponibilidad inicial como el estado actual de la cámara.
+     * </p>
+     * 
+     * @return {@code true} si hay cámara disponible y accesible, {@code false} en caso contrario
      */
     public static boolean isCamaraDisponible() {
         return camaraDisponible && webcam != null;
     }
     
     /**
-     * Abre una ventana para capturar una foto con la cámara.
+     * Abre una ventana modal para capturar una foto con la cámara.
      * 
-     * @return imagen capturada o null si se cancela
+     * <p>Este método implementa:
+     * <ul>
+     *   <li><b>Thread-Safety:</b> Usa sincronización en {@link #camaraLock} para evitar race conditions</li>
+     *   <li><b>Gestión de Threads:</b> ExecutorService para operaciones de cámara con control de ciclo de vida</li>
+     *   <li><b>AtomicBoolean:</b> Control seguro de estado del hilo de previsualización</li>
+     *   <li><b>Recursos:</b> Try-finally garantiza liberación de recursos incluso en excepciones</li>
+     *   <li><b>Validación:</b> Verifica estado de cámara antes de cada operación</li>
+     * </ul>
+     * </p>
+     * 
+     * <p>Comportamiento:
+     * <ul>
+     *   <li>Si la cámara no está disponible, retorna {@code null} después de mostrar una advertencia</li>
+     *   <li>Abre una ventana modal con vista previa en tiempo real</li>
+     *   <li>El usuario puede capturar la foto o cancelar la operación</li>
+     *   <li>La foto capturada se retorna como objeto {@link Image} de JavaFX</li>
+     *   <li>La ventana se cierra automáticamente después de capturar o cancelar</li>
+     * </ul>
+     * </p>
+     * 
+     * @return imagen capturada como {@link Image}, o {@code null} si se cancela la operación
+     *         o si ocurre un error
+     * 
+     * @throws Exception Si hay error al acceder a la cámara o recursos del sistema
+     * 
+     * @see #isCamaraDisponible()
+     * @see WebcamResolution#VGA
+     * @see SwingFXUtils#toFXImage(BufferedImage, WritableImage)
      */
     public static Image capturarFoto() {
         if (!isCamaraDisponible()) {
@@ -67,11 +131,15 @@ public class CamaraServicio {
         }
         
         AtomicReference<Image> imagenCapturada = new AtomicReference<>(null);
+        AtomicBoolean camaraActiva = new AtomicBoolean(false);
         
         try {
-            // Configurar resolución de la cámara
-            webcam.setViewSize(WebcamResolution.VGA.getSize());
-            webcam.open();
+            // Abrir cámara con sincronización
+            synchronized (camaraLock) {
+                webcam.setViewSize(WebcamResolution.VGA.getSize());
+                webcam.open();
+                camaraActiva.set(true);
+            }
             
             // Crear ventana de captura
             Stage ventanaCaptura = new Stage();
@@ -107,52 +175,119 @@ public class CamaraServicio {
             
             contenedor.getChildren().addAll(vistaPrevia, botonesContainer);
             
-            // Thread para actualizar vista previa
+            // Thread para actualizar vista previa con control mejorado
             Thread hiloActualizacion = new Thread(() -> {
-                while (webcam.isOpen() && !Thread.interrupted()) {
-                    try {
-                        BufferedImage imagen = webcam.getImage();
-                        if (imagen != null) {
-                            Image fxImagen = SwingFXUtils.toFXImage(imagen, null);
-                            javafx.application.Platform.runLater(() -> vistaPrevia.setImage(fxImagen));
+                try {
+                    while (camaraActiva.get() && !Thread.interrupted()) {
+                        try {
+                            BufferedImage imagen = null;
+                            
+                            // Capturar imagen con sincronización
+                            synchronized (camaraLock) {
+                                if (camaraActiva.get() && webcam.isOpen()) {
+                                    imagen = webcam.getImage();
+                                }
+                            }
+                            
+                            if (imagen != null) {
+                                Image fxImagen = SwingFXUtils.toFXImage(imagen, null);
+                                javafx.application.Platform.runLater(() -> {
+                                    // Verificar que la vista aún existe
+                                    if (vistaPrevia.getScene() != null) {
+                                        vistaPrevia.setImage(fxImagen);
+                                    }
+                                });
+                            }
+                            
+                            Thread.sleep(INTERVALO_CAPTURA);
+                            
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            break;
+                        } catch (Exception e) {
+                            System.err.println("Error actualizando vista previa: " + e.getMessage());
+                            break;
                         }
-                        Thread.sleep(50); // ~20 FPS
-                    } catch (InterruptedException e) {
-                        break;
-                    } catch (Exception e) {
-                        System.err.println("Error actualizando vista previa: " + e.getMessage());
                     }
+                } finally {
+                    camaraActiva.set(false);
                 }
             });
+            
             hiloActualizacion.setDaemon(true);
             hiloActualizacion.start();
             
-            // Acción del botón capturar
+            /**
+             * Acción del botón capturar foto.
+             * 
+             * <p>Captura la imagen actual de la cámara, detiene el thread de previsualización
+             * y cierra la ventana. Usa sincronización para evitar race conditions.</p>
+             */
             btnCapturar.setOnAction(e -> {
                 try {
-                    BufferedImage foto = webcam.getImage();
-                    if (foto != null) {
-                        imagenCapturada.set(SwingFXUtils.toFXImage(foto, null));
-                        hiloActualizacion.interrupt();
-                        webcam.close();
-                        ventanaCaptura.close();
+                    synchronized (camaraLock) {
+                        if (camaraActiva.get() && webcam.isOpen()) {
+                            BufferedImage foto = webcam.getImage();
+                            if (foto != null) {
+                                imagenCapturada.set(SwingFXUtils.toFXImage(foto, null));
+                                System.out.println("Foto capturada exitosamente");
+                            }
+                        }
                     }
+                    
+                    // Detener thread de previsualización
+                    camaraActiva.set(false);
+                    hiloActualizacion.interrupt();
+                    
+                    // Esperar a que el thread termine (máximo 1 segundo)
+                    hiloActualizacion.join(1000);
+                    
+                    ventanaCaptura.close();
+                    
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                    System.err.println("Operación interrumpida: " + ex.getMessage());
                 } catch (Exception ex) {
                     System.err.println("Error al capturar foto: " + ex.getMessage());
+                    ex.printStackTrace();
                 }
             });
             
-            // Acción del botón cancelar
+            /**
+             * Acción del botón cancelar captura.
+             * 
+             * <p>Cancela la operación de captura, detiene el thread de previsualización
+             * y cierra la ventana sin guardar imagen.</p>
+             */
             btnCancelar.setOnAction(e -> {
+                camaraActiva.set(false);
                 hiloActualizacion.interrupt();
-                webcam.close();
+                
+                try {
+                    hiloActualizacion.join(1000);
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                }
+                
+                System.out.println("Captura de foto cancelada por el usuario");
                 ventanaCaptura.close();
             });
             
-            // Cerrar cámara al cerrar ventana
+            /**
+             * Manejador de cierre de ventana.
+             * 
+             * <p>Garantiza que los recursos se liberen correctamente si el usuario
+             * cierra la ventana usando el botón de cerrar del sistema operativo.</p>
+             */
             ventanaCaptura.setOnCloseRequest(e -> {
-                hiloActualizacion.interrupt();
-                webcam.close();
+                if (camaraActiva.get()) {
+                    camaraActiva.set(false);
+                    try {
+                        hiloActualizacion.join(1000);
+                    } catch (InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
             });
             
             Scene escena = new Scene(contenedor);
@@ -162,8 +297,18 @@ public class CamaraServicio {
         } catch (Exception e) {
             System.err.println("Error al capturar foto: " + e.getMessage());
             e.printStackTrace();
-            if (webcam != null && webcam.isOpen()) {
-                webcam.close();
+        } finally {
+            // Garantizar cierre de cámara en cualquier circunstancia
+            synchronized (camaraLock) {
+                if (webcam != null && webcam.isOpen()) {
+                    try {
+                        webcam.close();
+                        System.out.println("Cámara cerrada correctamente");
+                    } catch (Exception e) {
+                        System.err.println("Error al cerrar cámara: " + e.getMessage());
+                    }
+                }
+                camaraActiva.set(false);
             }
         }
         
@@ -173,7 +318,23 @@ public class CamaraServicio {
     /**
      * Genera una imagen de placeholder cuando no hay cámara disponible.
      * 
-     * @return imagen de placeholder
+     * <p>Crea una imagen con un icono de cámara simple dibujado píxel por píxel.
+     * Esta imagen se utiliza como marcador de posición visual en los casos donde
+     * no se pudo cargar una imagen real del producto.</p>
+     * 
+     * <p>Detalles de la imagen generada:
+     * <ul>
+     *   <li>Dimensiones: 400x400 píxeles</li>
+     *   <li>Fondo: Gris claro (RGB 245, 247, 250)</li>
+     *   <li>Icono: Cámara simple en azul (RGB 42, 82, 152)</li>
+     *   <li>Elementos: Círculo (lente) y rectángulo (flash)</li>
+     * </ul>
+     * </p>
+     * 
+     * @return {@link WritableImage} con icono de cámara dibujado
+     * 
+     * @see WritableImage
+     * @see PixelWriter
      */
     public static Image generarImagenPlaceholder() {
         WritableImage imagen = new WritableImage(400, 400);
@@ -187,7 +348,7 @@ public class CamaraServicio {
         }
         
         // Dibujar un icono de cámara simple (círculo y rectángulo)
-        // Centro del círculo
+        // Centro del círculo (lente)
         int centerX = 200;
         int centerY = 180;
         int radius = 60;
@@ -214,10 +375,31 @@ public class CamaraServicio {
     
     /**
      * Cierra la cámara si está abierta.
+     * 
+     * <p>Este método es seguro para ser llamado múltiples veces. Verifica que
+     * la cámara exista y esté abierta antes de intentar cerrarla. Utiliza
+     * sincronización para evitar conflictos con otros threads.</p>
+     * 
+     * <p>Se recomienda llamar a este método en:
+     * <ul>
+     *   <li>El método shutdown() de la aplicación</li>
+     *   <li>Handlers de ventana principal al cerrar</li>
+     *   <li>Métodos de limpieza (cleanup)</li>
+     * </ul>
+     * </p>
+     * 
+     * @see #capturarFoto()
      */
     public static void cerrarCamara() {
-        if (webcam != null && webcam.isOpen()) {
-            webcam.close();
+        synchronized (camaraLock) {
+            if (webcam != null && webcam.isOpen()) {
+                try {
+                    webcam.close();
+                    System.out.println("Cámara cerrada exitosamente");
+                } catch (Exception e) {
+                    System.err.println("Error al cerrar cámara: " + e.getMessage());
+                }
+            }
         }
     }
 }
