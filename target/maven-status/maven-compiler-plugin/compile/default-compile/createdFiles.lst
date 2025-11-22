@@ -15,6 +15,7 @@ com\mycompany\stockflow\DialogoOlvidePasswordController.class
 com\mycompany\stockflow\Productos_invitadoController.class
 com\mycompany\stockflow\FacturacionController$1.class
 com\mycompany\stockflow\VentaController$5.class
+com\mycompany\stockflow\Modelo\InsightIA$NivelPrioridad.class
 com\mycompany\stockflow\Logica\AutenticacionServicio.class
 com\mycompany\stockflow\excepciones\AnalisisFallidoException.class
 com\mycompany\stockflow\Modelo\Producto.class
@@ -32,11 +33,14 @@ com\mycompany\stockflow\utils\GeneradorPDFComprobante$TipoFormato.class
 com\mycompany\stockflow\excepciones\AIAPIException.class
 com\mycompany\stockflow\Presentacion\primaryController.class
 com\mycompany\stockflow\Logica\EmailNotificacionServicio$1.class
+com\mycompany\stockflow\Modelo\InsightIA.class
 com\mycompany\stockflow\Logica\ProductoServicio.class
 com\mycompany\stockflow\ControlInventarioController$3.class
 com\mycompany\stockflow\Logica\UsuarioServicio.class
 com\mycompany\stockflow\utils\EmailServicio$ByteArrayDataSource.class
+com\mycompany\stockflow\Logica\PrediccionServicio.class
 com\mycompany\stockflow\Modelo\Usuario.class
+com\mycompany\stockflow\Logica\VisualizacionServicio.class
 com\mycompany\stockflow\utils\ConfiguracionEmail.class
 com\mycompany\stockflow\Logica\InteligenciaNegocioServicio.class
 com\mycompany\stockflow\utils\EmailServicio.class
@@ -98,6 +102,8 @@ com\mycompany\stockflow\Modelo\DetalleVenta.class
 com\mycompany\stockflow\utils\EmailServicio$1.class
 com\mycompany\stockflow\DialogoUsuarioController$2.class
 com\mycompany\stockflow\Modelo\Rol.class
+com\mycompany\stockflow\Logica\NotificacionIAServicio.class
+com\mycompany\stockflow\Modelo\InsightIA$TipoInsight.class
 com\mycompany\stockflow\ChatBotController.class
 com\mycompany\stockflow\Persistencia\AnalisisRepositorio$1.class
 com\mycompany\stockflow\Persistencia\UsuarioRepositorio.class
@@ -107,6 +113,7 @@ com\mycompany\stockflow\Persistencia\FacturacionRepositorio.class
 com\mycompany\stockflow\VentaController$7.class
 com\mycompany\stockflow\Persistencia\ClienteRepositorio.class
 com\mycompany\stockflow\FacturacionController.class
+com\mycompany\stockflow\Logica\PrediccionServicio$DatosTendencia.class
 com\mycompany\stockflow\BienvenidaController.class
 com\mycompany\stockflow\ProductosController$1.class
 com\mycompany\stockflow\excepciones\InventarioInsuficienteExcepcion.class
@@ -116,12 +123,15 @@ com\mycompany\stockflow\Persistencia\InventarioRepositorio.class
 com\mycompany\stockflow\ProductosController$2.class
 com\mycompany\stockflow\utils\GeneradorPDF.class
 com\mycompany\stockflow\utils\DeepSeekAPIClient.class
+com\mycompany\stockflow\ChatBotController$1.class
 com\mycompany\stockflow\ControlInventarioController.class
 com\mycompany\stockflow\excepciones\AccesoDenegadoExcepcion.class
 com\mycompany\stockflow\Modelo\PuntoGrafica.class
 com\mycompany\stockflow\ClientesController.class
 com\mycompany\stockflow\Modelo\Venta.class
+com\mycompany\stockflow\Modelo\PrediccionDemanda.class
 com\mycompany\stockflow\excepciones\ClienteNoEncontradoExcepcion.class
 com\mycompany\stockflow\BienvenidaController$1.class
 com\mycompany\stockflow\utils\GeneradorPDFComprobante.class
+com\mycompany\stockflow\ChatBotController$2.class
 com\mycompany\stockflow\ProductosController$3.class

@@ -7,6 +7,7 @@ C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockf
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\Modelo\TipoGrafica.java
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\LoginController.java
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\utils\Validador.java
+C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\Logica\PrediccionServicio.java
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\excepciones\StockFlowExcepcion.java
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\Productos_invitadoController.java
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\Logica\VentaServicio.java
@@ -38,6 +39,7 @@ C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockf
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\utils\DeepSeekAPIClient.java
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\SetupWizardController.java
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\excepciones\AIAPIException.java
+C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\Logica\NotificacionIAServicio.java
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\Logica\UsuarioServicio.java
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\ProductosController.java
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\Persistencia\AnalisisRepositorio.java
@@ -58,7 +60,9 @@ C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockf
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\Logica\DatosGraficaServicio.java
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\utils\GeneradorPDFComprobante.java
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\App.java
+C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\Modelo\PrediccionDemanda.java
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\DashboardController.java
+C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\Modelo\InsightIA.java
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\utils\EncriptadorPassword.java
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\ControlInventarioController.java
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\Logica\AnalisisIAServicio.java
@@ -68,6 +72,7 @@ C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockf
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\Modelo\PromptConfiguracion.java
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\excepciones\CredencialesInvalidasExcepcion.java
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\Modelo\ResultadoAnalisisIA.java
+C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\Logica\VisualizacionServicio.java
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\Persistencia\ProductoRepositorio.java
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\utils\ConfiguracionAI.java
 C:\Users\user\OneDrive - unicesar.edu.co\Documentos\PROYECTO P2 STOCKFLOW\Stockflow\src\main\java\com\mycompany\stockflow\Modelo\Producto.java

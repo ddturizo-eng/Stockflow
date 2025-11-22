@@ -29,6 +29,7 @@ module com.mycompany.stockflow {
     opens com.mycompany.stockflow to javafx.fxml;
     opens com.mycompany.stockflow.Modelo to javafx.base;
     opens com.mycompany.stockflow.Logica to java.mail;
+    opens com.mycompany.stockflow.Persistencia to java.sql;
    
     exports com.mycompany.stockflow;
     exports com.mycompany.stockflow.Modelo;

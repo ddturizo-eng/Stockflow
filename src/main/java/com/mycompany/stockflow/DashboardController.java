@@ -537,8 +537,7 @@
             alert.showAndWait();
         }
 
-        // ========== MÉTODOS DE ANIMACIÓN ==========
-        // (Se mantienen igual que en tu código original)
+ 
 
         private void aplicarAnimacionesIniciales() {
             if (contenedorPrincipal.getChildren().isEmpty()) return;
@@ -900,7 +899,7 @@
                 chatBotStage.initOwner(btnChatBotFlotante.getScene().getWindow());
 
                 // Configurar la escena
-                Scene scene = new Scene(root, 1200, 700);
+                Scene scene = new Scene(root, 1180, 820);
                 chatBotStage.setScene(scene);
 
                 // Configurar dimensiones mínimas

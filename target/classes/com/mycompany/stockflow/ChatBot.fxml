@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
@@ -9,137 +13,343 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Circle?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
-<BorderPane style="-fx-background-color: #0a0e1a;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.stockflow.ChatBotController">
-   <top>
-      <VBox style="-fx-background-color: #0f1419; -fx-border-color: #1a1f2e; -fx-border-width: 0 0 1 0;">
-         <padding>
-            <Insets bottom="20.0" left="30.0" right="30.0" top="20.0" />
-         </padding>
-         <children>
-            <HBox alignment="CENTER_LEFT" spacing="15.0">
-               <children>
-                  <StackPane style="-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(102, 126, 234, 0.4), 12, 0, 0, 2);">
-                     <padding>
-                        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-                     </padding>
-                     <children>
-                        <ImageView fitHeight="44.0" fitWidth="44.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@IMG/chatbot.png" />
-                           </image>
-                        </ImageView>
-                     </children>
-                  </StackPane>
-                  <VBox spacing="2.0">
-                     <children>
-                        <Label style="-fx-text-fill: #e8eaed; -fx-font-size: 20px; -fx-font-weight: 600;" text="StockFlow Intelligence">
-                           <font>
-                              <Font name="System Bold" size="20.0" />
-                           </font>
-                        </Label>
-                        <HBox alignment="CENTER_LEFT" spacing="6.0">
-                           <children>
-                              <Circle fill="#10b981" radius="4.0" />
-                              <Label style="-fx-text-fill: #9aa0a6; -fx-font-size: 12px;" text="Asistente IA • En línea" />
-                           </children>
+<StackPane style="-fx-background-color: #f8f9fa;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.stockflow.ChatBotController">
+    
+    <BorderPane>
+        
+        <top>
+            <HBox alignment="CENTER_LEFT" spacing="0.0" style="-fx-background-color: #ffffff; -fx-border-color: #dee2e6; -fx-border-width: 0 0 1 0; -fx-padding: 0;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+    
+    <!-- SECCION 1: Menu Button -->
+    <Button fx:id="btnToggleSidebar" style="-fx-background-color: transparent; -fx-text-fill: #0066cc; -fx-font-size: 14; -fx-background-radius: 0; -fx-min-width: 60; -fx-min-height: 70; -fx-cursor: hand; -fx-font-weight: bold; -fx-padding: 0 20;" text="☰" />
+    
+    <!-- SECCION 2: Logo y Branding -->
+    <VBox alignment="CENTER_LEFT" spacing="0.0" style="-fx-padding: 0 25 0 15;">
+        <HBox alignment="CENTER_LEFT" spacing="12.0">
+            <StackPane prefHeight="45.0" prefWidth="45.0" style="-fx-background-color: #0066cc; -fx-background-radius: 10; -fx-padding: 8;">
+                <ImageView fitHeight="45.0" fitWidth="45.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@IMG/logoStockflow.png" />
+                    </image>
+                </ImageView>
+            </StackPane>
+            <VBox spacing="2.0">
+                <Label style="-fx-text-fill: #212529; -fx-font-weight: 700; -fx-font-size: 16;" text="STOCKFLOW" />
+                <Label style="-fx-text-fill: #6c757d; -fx-font-size: 10;" text="Panel Inteligente" />
+            </VBox>
+        </HBox>
+    </VBox>
+    
+    <!-- SECCION 3: Separador flexible -->
+    <Region HBox.hgrow="ALWAYS" />
+    
+    <!-- SECCION 4: Información de Inventario -->
+    <VBox alignment="CENTER_RIGHT" spacing="3.0" style="-fx-padding: 0 30 0 0; -fx-alignment: center;">
+        <Label style="-fx-text-fill: #6c757d; -fx-font-size: 10; -fx-font-weight: 600;" text="VALOR TOTAL" />
+        <Label fx:id="lblInventarioTotal" style="-fx-text-fill: #0066cc; -fx-font-weight: bold; -fx-font-size: 18;" text="0 COP" />
+    </VBox>
+    
+    <!-- SECCION 5: Separador visual -->
+    <Region style="-fx-background-color: #e9ecef; -fx-min-width: 1; -fx-pref-height: 40;" HBox.hgrow="never" />
+    
+    <!-- SECCION 6: Botones de Acción (Notificaciones, Chat, Usuario) -->
+    <HBox alignment="CENTER" spacing="12.0" style="-fx-padding: 0 20;">
+        
+        <!-- Chat Flotante -->
+        <StackPane>
+            <Button fx:id="btnChatFlotante" minHeight="45.0" minWidth="45.0" style="-fx-background-color: #0066cc; -fx-text-fill: white; -fx-font-size: 18; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 0;">
+                <graphic>
+                    <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@IMG/chatbot.png" />
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
+        </StackPane>
+        
+        <!-- Notificaciones -->
+        <StackPane>
+            <Button fx:id="btnNotificaciones" style="-fx-background-color: #f0f0f0; -fx-text-fill: #495057; -fx-font-size: 14; -fx-background-radius: 8; -fx-min-width: 45; -fx-min-height: 45; -fx-cursor: hand; -fx-padding: 0;">
+                <graphic>
+                    <ImageView fitHeight="22.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@IMG/notificacion.png" />
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <Label fx:id="lblContadorNotificaciones" style="-fx-background-color: #ff6b6b; -fx-text-fill: white; -fx-font-size: 9; -fx-font-weight: bold; -fx-background-radius: 10; -fx-min-width: 18; -fx-min-height: 18; -fx-alignment: center;" text="0" translateX="12" translateY="-12" visible="false" StackPane.alignment="TOP_RIGHT" />
+        </StackPane>
+        
+        <!-- Usuario -->
+        <Button fx:id="btnUsuario" style="-fx-background-color: #f0f0f0; -fx-text-fill: #495057; -fx-font-size: 14; -fx-background-radius: 8; -fx-min-width: 45; -fx-min-height: 45; -fx-cursor: hand; -fx-padding: 0;">
+            <graphic>
+                <ImageView fitHeight="22.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@IMG/hombre-de-negocios.png" />
+                    </image>
+                </ImageView>
+            </graphic>
+        </Button>
+    </HBox>
+</HBox>
+        </top>
+        
+        <left>
+            <VBox fx:id="sidebarContainer" spacing="0.0" style="-fx-background-color: #ffffff; -fx-border-color: #dee2e6; -fx-border-width: 0 2 0 0; -fx-min-width: 240; -fx-max-width: 240;">
+                
+                <HBox alignment="CENTER_LEFT" spacing="8.0" style="-fx-padding: 24 20;">
+                    <Label style="-fx-text-fill: #212529; -fx-font-weight: 600; -fx-font-size: 13;" text="NAVEGACION" />
+                </HBox>
+                
+                <VBox spacing="10.0" style="-fx-padding: 0 20 20 20;">
+                    <Button fx:id="btnDashboard" maxWidth="Infinity" style="-fx-background-color: #e7f3ff; -fx-text-fill: #0066cc; -fx-alignment: CENTER_LEFT; -fx-font-size: 13; -fx-font-weight: 600; -fx-padding: 14 16; -fx-background-radius: 10; -fx-cursor: hand; -fx-border-color: #0066cc; -fx-border-width: 1; -fx-border-radius: 10;" text="Dashboard" />
+                    
+                    <Button fx:id="btnStockCritico" maxWidth="Infinity" style="-fx-background-color: #f8f9fa; -fx-text-fill: #212529; -fx-alignment: CENTER_LEFT; -fx-font-size: 13; -fx-padding: 14 16; -fx-background-radius: 10; -fx-cursor: hand; -fx-border-color: #dee2e6; -fx-border-width: 1; -fx-border-radius: 10;" text="Stock Critico" />
+                    
+                    <Button fx:id="btnPromociones" maxWidth="Infinity" style="-fx-background-color: #f8f9fa; -fx-text-fill: #212529; -fx-alignment: CENTER_LEFT; -fx-font-size: 13; -fx-padding: 14 16; -fx-background-radius: 10; -fx-cursor: hand; -fx-border-color: #dee2e6; -fx-border-width: 1; -fx-border-radius: 10;" text="Promociones" />
+                    
+                    <Button fx:id="btnProveedores" maxWidth="Infinity" style="-fx-background-color: #f8f9fa; -fx-text-fill: #212529; -fx-alignment: CENTER_LEFT; -fx-font-size: 13; -fx-padding: 14 16; -fx-background-radius: 10; -fx-cursor: hand; -fx-border-color: #dee2e6; -fx-border-width: 1; -fx-border-radius: 10;" text="Proveedores" />
+                    
+                    <Button fx:id="btnAnalisisIA" maxWidth="Infinity" style="-fx-background-color: #f8f9fa; -fx-text-fill: #212529; -fx-alignment: CENTER_LEFT; -fx-font-size: 13; -fx-padding: 14 16; -fx-background-radius: 10; -fx-cursor: hand; -fx-border-color: #dee2e6; -fx-border-width: 1; -fx-border-radius: 10;" text="Analisis IA" />
+                    
+                    <Button fx:id="btnPredicciones" maxWidth="Infinity" style="-fx-background-color: #f8f9fa; -fx-text-fill: #212529; -fx-alignment: CENTER_LEFT; -fx-font-size: 13; -fx-padding: 14 16; -fx-background-radius: 10; -fx-cursor: hand; -fx-border-color: #dee2e6; -fx-border-width: 1; -fx-border-radius: 10;" text="Predicciones" />
+                </VBox>
+                
+                <Separator style="-fx-background-color: #dee2e6;" />
+                
+                <VBox spacing="12.0" style="-fx-padding: 20;">
+                    <Label style="-fx-text-fill: #6c757d; -fx-font-weight: 600; -fx-font-size: 11;" text="FILTROS" />
+                    
+                    <VBox spacing="8">
+                        <Label style="-fx-text-fill: #495057; -fx-font-size: 11;" text="Producto" />
+                        <ComboBox fx:id="cbProductos" maxWidth="Infinity" promptText="Seleccionar" style="-fx-background-color: #f8f9fa; -fx-font-size: 12;" />
+                    </VBox>
+                    
+                    <VBox spacing="8">
+                        <Label style="-fx-text-fill: #495057; -fx-font-size: 11;" text="Periodo" />
+                        <ComboBox fx:id="cbPeriodo" maxWidth="Infinity" promptText="30 dias" style="-fx-background-color: #f8f9fa; -fx-font-size: 12;" />
+                    </VBox>
+                    
+                    <Button fx:id="btnAplicarFiltros" maxWidth="Infinity" style="-fx-background-color: #0066cc; -fx-text-fill: white; -fx-font-size: 12; -fx-padding: 10; -fx-background-radius: 8; -fx-cursor: hand;" text="Aplicar" />
+                </VBox>
+                
+                <Region VBox.vgrow="ALWAYS" />
+                
+                <VBox spacing="10" style="-fx-padding: 20; -fx-background-color: #f8f9fa;">
+                    <Label fx:id="lblEstadoIA" style="-fx-text-fill: #51cf66; -fx-font-size: 11; -fx-font-weight: 600; -fx-padding: 8 12; -fx-background-color: #f0fff4; -fx-background-radius: 8;" text="IA Lista" />
+                    <Label fx:id="lblUltimaActualizacion" style="-fx-text-fill: #6c757d; -fx-font-size: 10;" text="Actualizado: Ahora" />
+                </VBox>
+            </VBox>
+        </left>
+        
+        <center>
+            <StackPane>
+                <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-border-color: transparent;">
+                    <VBox spacing="24.0" style="-fx-padding: 30; -fx-background-color: #f8f9fa;">
+                        
+                        <HBox alignment="CENTER_LEFT" spacing="15">
+                            <Label style="-fx-text-fill: #212529; -fx-font-weight: 600; -fx-font-size: 18;" text="CENTRO DE ANALISIS" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Button fx:id="btnRefrescar" style="-fx-background-color: #e9ecef; -fx-text-fill: #495057; -fx-font-size: 12; -fx-padding: 8 16; -fx-background-radius: 8; -fx-cursor: hand;" text="Refrescar" />
+                            <Button fx:id="btnExportar" style="-fx-background-color: #0066cc; -fx-text-fill: white; -fx-font-size: 12; -fx-padding: 8 16; -fx-background-radius: 8; -fx-cursor: hand;" text="Exportar" />
                         </HBox>
-                     </children>
-                  </VBox>
-                  <Region HBox.hgrow="ALWAYS" />
-                  <Button fx:id="limpiarButton" mnemonicParsing="false" style="-fx-background-color: #1a1f2e; -fx-text-fill: #e8eaed; -fx-font-weight: 500; -fx-background-radius: 8; -fx-padding: 10 20; -fx-cursor: hand; -fx-border-color: #2a2f3e; -fx-border-radius: 8; -fx-border-width: 1;" text="Nueva conversación">
-                     <font>
-                        <Font size="13.0" />
-                     </font>
-                  </Button>
-               </children>
+                        
+                        <GridPane hgap="20" vgap="20">
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="25" />
+                                <ColumnConstraints percentWidth="25" />
+                                <ColumnConstraints percentWidth="25" />
+                                <ColumnConstraints percentWidth="25" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints />
+                            </rowConstraints>
+                            
+                            <VBox spacing="8.0" style="-fx-background-color: #ffffff; -fx-background-radius: 12; -fx-padding: 20; -fx-border-color: #dee2e6; -fx-border-radius: 12; -fx-border-width: 1;" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                <Label style="-fx-text-fill: #6c757d; -fx-font-size: 10; -fx-font-weight: 600;" text="PRODUCTOS EN RIESGO" />
+                                <Label fx:id="lblProductosRiesgo" style="-fx-text-fill: #ff6b6b; -fx-font-weight: bold; -fx-font-size: 36;" text="0" />
+                                <Label fx:id="lblCambioRiesgo" style="-fx-text-fill: #6c757d; -fx-font-size: 11;" text="Sin cambios" />
+                            </VBox>
+                            
+                            <VBox spacing="8.0" style="-fx-background-color: #ffffff; -fx-background-radius: 12; -fx-padding: 20; -fx-border-color: #dee2e6; -fx-border-radius: 12; -fx-border-width: 1;" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                <Label style="-fx-text-fill: #6c757d; -fx-font-size: 10; -fx-font-weight: 600;" text="PREDICCIONES ACTIVAS" />
+                                <Label fx:id="lblPrediccionesActivas" style="-fx-text-fill: #0066cc; -fx-font-weight: bold; -fx-font-size: 36;" text="0" />
+                                <Label fx:id="lblConfianzaPromedio" style="-fx-text-fill: #6c757d; -fx-font-size: 11;" text="Confianza: 0%" />
+                            </VBox>
+                            
+                            <VBox spacing="8.0" style="-fx-background-color: #ffffff; -fx-background-radius: 12; -fx-padding: 20; -fx-border-color: #dee2e6; -fx-border-radius: 12; -fx-border-width: 1;" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                                <Label style="-fx-text-fill: #6c757d; -fx-font-size: 10; -fx-font-weight: 600;" text="MARGEN PROMEDIO" />
+                                <Label fx:id="lblMargenPromedio" style="-fx-text-fill: #51cf66; -fx-font-weight: bold; -fx-font-size: 36;" text="0%" />
+                                <Label fx:id="lblTendenciaMargen" style="-fx-text-fill: #6c757d; -fx-font-size: 11;" text="Estable" />
+                            </VBox>
+                            
+                            <VBox spacing="8.0" style="-fx-background-color: #ffffff; -fx-background-radius: 12; -fx-padding: 20; -fx-border-color: #dee2e6; -fx-border-radius: 12; -fx-border-width: 1;" GridPane.columnIndex="3" GridPane.rowIndex="0">
+                                <Label style="-fx-text-fill: #6c757d; -fx-font-size: 10; -fx-font-weight: 600;" text="INSIGHTS IA" />
+                                <Label fx:id="lblTotalInsights" style="-fx-text-fill: #ff9900; -fx-font-weight: bold; -fx-font-size: 36;" text="0" />
+                                <Label fx:id="lblInsightsCriticos" style="-fx-text-fill: #6c757d; -fx-font-size: 11;" text="0 criticos" />
+                            </VBox>
+                        </GridPane>
+                        
+                        <VBox spacing="16.0" style="-fx-background-color: #ffffff; -fx-background-radius: 12; -fx-padding: 24; -fx-border-color: #dee2e6; -fx-border-radius: 12; -fx-border-width: 1;">
+                            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                    <Label fx:id="lblTituloGrafica" style="-fx-text-fill: #212529; -fx-font-weight: 600; -fx-font-size: 16;" text="PRONOSTICO DE DEMANDA" />
+                                    <Label fx:id="lblSubtituloGrafica" style="-fx-text-fill: #6c757d; -fx-font-size: 12;" text="Seleccione un producto" />
+                                </VBox>
+                                <HBox alignment="CENTER" spacing="10.0">
+                                    <Label style="-fx-background-color: #e7f3ff; -fx-text-fill: #0066cc; -fx-font-size: 10; -fx-font-weight: 600; -fx-padding: 6 12; -fx-background-radius: 6;" text="RECOMENDADO IA" />
+                                    <Button fx:id="btnCambiarVista" style="-fx-background-color: #e9ecef; -fx-text-fill: #495057; -fx-font-size: 12; -fx-padding: 6 12; -fx-background-radius: 8; -fx-cursor: hand;" text="Cambiar" />
+                                </HBox>
+                            </HBox>
+                            
+                            <StackPane style="-fx-background-color: #f8f9fa; -fx-background-radius: 8; -fx-padding: 16;">
+                                <LineChart fx:id="chartPrincipal" animated="true" legendVisible="true" minHeight="450" prefHeight="450" style="-fx-background-color: transparent;">
+                                    <xAxis>
+                                        <CategoryAxis side="BOTTOM" style="-fx-tick-label-fill: #6c757d; -fx-font-size: 10;" tickLabelRotation="-45" />
+                                    </xAxis>
+                                    <yAxis>
+                                        <NumberAxis label="Unidades" side="LEFT" style="-fx-tick-label-fill: #6c757d; -fx-font-size: 11;" />
+                                    </yAxis>
+                                </LineChart>
+                            </StackPane>
+                        </VBox>
+                        
+                        <GridPane hgap="20" vgap="20">
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="50" />
+                                <ColumnConstraints percentWidth="50" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints />
+                                <RowConstraints />
+                            </rowConstraints>
+                            
+                            <VBox spacing="12.0" style="-fx-background-color: #ffffff; -fx-background-radius: 12; -fx-padding: 20; -fx-border-color: #dee2e6; -fx-border-radius: 12; -fx-border-width: 1;" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <Label style="-fx-text-fill: #ff6b6b; -fx-font-weight: 600; -fx-font-size: 13;" text="ALERTA IA" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Label fx:id="lblToggleAlerta" style="-fx-text-fill: #ff6b6b; -fx-font-size: 16; -fx-cursor: hand;" text="-" />
+                                </HBox>
+                                <Text fx:id="txtAlertCard" style="-fx-fill: #212529; -fx-font-size: 13;" text="Cargando..." wrappingWidth="380" />
+                            </VBox>
+                            
+                            <VBox spacing="12.0" style="-fx-background-color: #ffffff; -fx-background-radius: 12; -fx-padding: 20; -fx-border-color: #dee2e6; -fx-border-radius: 12; -fx-border-width: 1;" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <Label style="-fx-text-fill: #51cf66; -fx-font-weight: 600; -fx-font-size: 13;" text="OPORTUNIDAD" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Label fx:id="lblToggleOportunidad" style="-fx-text-fill: #51cf66; -fx-font-size: 16; -fx-cursor: hand;" text="-" />
+                                </HBox>
+                                <Text fx:id="txtOpportunityCard" style="-fx-fill: #212529; -fx-font-size: 13;" text="Cargando..." wrappingWidth="380" />
+                            </VBox>
+                            
+                            <VBox spacing="12.0" style="-fx-background-color: #ffffff; -fx-background-radius: 12; -fx-padding: 20; -fx-border-color: #dee2e6; -fx-border-radius: 12; -fx-border-width: 1;" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="1">
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <Label style="-fx-text-fill: #0066cc; -fx-font-weight: 600; -fx-font-size: 13;" text="ANALISIS IA" />
+                                    <Region HBox.hgrow="ALWAYS" />
+                                    <Label fx:id="lblToggleAnalisis" style="-fx-text-fill: #0066cc; -fx-font-size: 16; -fx-cursor: hand;" text="-" />
+                                </HBox>
+                                <Text fx:id="txtInsightCard" style="-fx-fill: #212529; -fx-font-size: 13;" text="Cargando..." wrappingWidth="800" />
+                            </VBox>
+                        </GridPane>
+                        
+                        <VBox spacing="12.0" style="-fx-background-color: #f8f9fa; -fx-background-radius: 12; -fx-padding: 22; -fx-border-color: #dee2e6; -fx-border-radius: 12; -fx-border-width: 1;">
+                            <Label style="-fx-text-fill: #0066cc; -fx-font-weight: 600; -fx-font-size: 13;" text="EXPLICACION DE LA IA" />
+                            <Text fx:id="txtExplicacionIA" style="-fx-fill: #212529; -fx-font-size: 14;" text="Cargando explicacion..." wrappingWidth="1100" />
+                        </VBox>
+                        
+                        <VBox spacing="16.0" style="-fx-background-color: #ffffff; -fx-background-radius: 12; -fx-padding: 24; -fx-border-color: #dee2e6; -fx-border-radius: 12; -fx-border-width: 1;">
+                            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                <Label style="-fx-text-fill: #212529; -fx-font-weight: 600; -fx-font-size: 16;" text="TOP PRODUCTOS POR VENTAS" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <ComboBox fx:id="cbLimiteTop" prefWidth="100" promptText="Top 5" style="-fx-background-color: #f8f9fa; -fx-font-size: 12;" />
+                            </HBox>
+                            
+                            <StackPane style="-fx-background-color: #f8f9fa; -fx-background-radius: 8; -fx-padding: 16;">
+                                <BarChart fx:id="chartTopProductos" animated="true" legendVisible="false" minHeight="300" prefHeight="300" style="-fx-background-color: transparent;">
+                                    <xAxis>
+                                        <CategoryAxis side="BOTTOM" style="-fx-tick-label-fill: #6c757d; -fx-font-size: 11;" />
+                                    </xAxis>
+                                    <yAxis>
+                                        <NumberAxis label="Unidades Vendidas" side="LEFT" style="-fx-tick-label-fill: #6c757d; -fx-font-size: 11;" />
+                                    </yAxis>
+                                </BarChart>
+                            </StackPane>
+                        </VBox>
+                        
+                        <VBox spacing="16.0">
+                            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                <Label style="-fx-text-fill: #212529; -fx-font-weight: 600; -fx-font-size: 16;" text="NOTIFICACIONES IA" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Button fx:id="btnVerTodasNotif" style="-fx-background-color: transparent; -fx-text-fill: #0066cc; -fx-font-size: 12; -fx-cursor: hand; -fx-underline: true;" text="Ver todas" />
+                            </HBox>
+                            
+                            <ScrollPane fitToWidth="true" maxHeight="400" style="-fx-background-color: transparent; -fx-border-color: transparent;">
+                                <VBox fx:id="notificacionesContainer" spacing="12.0" />
+                            </ScrollPane>
+                        </VBox>
+                        
+                        <VBox spacing="16.0" style="-fx-background-color: #ffffff; -fx-background-radius: 12; -fx-padding: 24; -fx-border-color: #dee2e6; -fx-border-radius: 12; -fx-border-width: 1;">
+                            <Label style="-fx-text-fill: #212529; -fx-font-weight: 600; -fx-font-size: 16;" text="PREDICCIONES MULTIPLES" />
+                            
+                            <ScrollPane fitToWidth="true" maxHeight="500" style="-fx-background-color: transparent; -fx-border-color: transparent;">
+                                <VBox fx:id="prediccionesContainer" spacing="12.0" />
+                            </ScrollPane>
+                        </VBox>
+                    </VBox>
+                </ScrollPane>
+                
+                <VBox fx:id="panelNotificaciones" managed="false" spacing="0" style="-fx-background-color: #ffffff; -fx-background-radius: 12; -fx-max-width: 400; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 15, 0, 0, 3);" translateX="-20" translateY="80" visible="false" StackPane.alignment="TOP_RIGHT">
+                    
+                    <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 20; -fx-background-color: #0066cc; -fx-background-radius: 12 12 0 0;">
+                        <Label style="-fx-text-fill: white; -fx-font-weight: 600; -fx-font-size: 14;" text="NOTIFICACIONES" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button fx:id="btnCerrarNotif" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 16; -fx-cursor: hand;" text="X" />
+                    </HBox>
+                    
+                    <ScrollPane fitToWidth="true" maxHeight="500" prefHeight="500" style="-fx-background-color: transparent; -fx-border-color: transparent;">
+                        <VBox fx:id="todasNotificacionesContainer" spacing="10" style="-fx-padding: 15;" />
+                    </ScrollPane>
+                </VBox>
+            </StackPane>
+        </center>
+    </BorderPane>
+    
+    <StackPane fx:id="chatModalContainer" style="-fx-background-color: rgba(0, 0, 0, 0.5);" visible="false">
+        <VBox spacing="0.0" style="-fx-background-color: #ffffff; -fx-background-radius: 16; -fx-max-width: 700; -fx-max-height: 800; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 20, 0, 0, 4);">
+            
+            <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-padding: 20; -fx-background-color: #0066cc; -fx-background-radius: 16 16 0 0;">
+                <Label style="-fx-text-fill: white; -fx-font-weight: 600; -fx-font-size: 16;" text="ASISTENTE IA" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="lblEstadoIAChat" style="-fx-text-fill: white; -fx-font-size: 11; -fx-font-weight: 600; -fx-padding: 5 12; -fx-background-color: rgba(255,255,255,0.2); -fx-background-radius: 12;" text="Online" />
+                <Button fx:id="btnCerrarChat" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 20; -fx-cursor: hand; -fx-padding: 0; -fx-min-width: 30; -fx-min-height: 30;" text="X" />
             </HBox>
-         </children>
-      </VBox>
-   </top>
-   <center>
-      <HBox spacing="0.0" style="-fx-padding: 0;">
-         <children>
-            <VBox spacing="0.0" style="-fx-background-color: #0f1419;" HBox.hgrow="ALWAYS">
-               <children>
-                  <ScrollPane fx:id="scrollPane" fitToWidth="true" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-background: #0f1419;" VBox.vgrow="ALWAYS">
-                     <padding>
-                        <Insets bottom="20.0" left="40.0" right="40.0" top="20.0" />
-                     </padding>
-                     <content>
-                        <VBox fx:id="mensajesContainer" spacing="24.0" style="-fx-background-color: transparent; -fx-padding: 10 0;" />
-                     </content>
-                  </ScrollPane>
-                  
-                  <VBox style="-fx-background-color: #0a0e1a; -fx-border-color: #1a1f2e; -fx-border-width: 1 0 0 0; -fx-padding: 20 40 30 40;">
-                     <children>
-                        <HBox alignment="CENTER" spacing="12.0" style="-fx-background-color: #1a1f2e; -fx-background-radius: 12; -fx-padding: 6; -fx-border-color: #2a2f3e; -fx-border-radius: 12; -fx-border-width: 1;">
-                           <children>
-                              <TextField fx:id="inputTextField" promptText="Escribe tu consulta sobre ventas, inventario o análisis..." style="-fx-font-size: 14px; -fx-padding: 12 16; -fx-background-color: transparent; -fx-text-fill: #e8eaed; -fx-prompt-text-fill: #5f6368; -fx-border-color: transparent; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;" HBox.hgrow="ALWAYS">
-                                 <font>
-                                    <Font size="14.0" />
-                                 </font>
-                              </TextField>
-                              <Button fx:id="enviarButton" mnemonicParsing="false" style="-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -fx-text-fill: white; -fx-font-weight: 600; -fx-font-size: 14px; -fx-padding: 12 24; -fx-background-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(102, 126, 234, 0.3), 8, 0, 0, 2);" text="Enviar">
-                                 <font>
-                                    <Font name="System Bold" size="14.0" />
-                                 </font>
-                              </Button>
-                           </children>
-                        </HBox>
-                        <Label style="-fx-font-size: 11px; -fx-text-fill: #5f6368; -fx-padding: 8 0 0 4;" text="Presiona Enter para enviar • StockFlow puede cometer errores, verifica información importante" />
-                     </children>
-                  </VBox>
-               </children>
-            </VBox>
             
-            <VBox fx:id="sugerenciasBox" spacing="12.0" style="-fx-background-color: #0a0e1a; -fx-border-color: #1a1f2e; -fx-border-width: 0 0 0 1; -fx-padding: 24; -fx-min-width: 300; -fx-max-width: 300;">
-               <children>
-                  <VBox spacing="8.0">
-                     <children>
-                        <HBox alignment="CENTER_LEFT" spacing="8.0">
-                           <children>
-                              <StackPane style="-fx-background-color: rgba(102, 126, 234, 0.15); -fx-background-radius: 8; -fx-padding: 6;">
-                                 <children>
-                                    <Label style="-fx-font-size: 16px;" text="✨" />
-                                 </children>
-                              </StackPane>
-                              <Label style="-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #e8eaed;" text="Sugerencias">
-                                 <font>
-                                    <Font name="System Bold" size="14.0" />
-                                 </font>
-                              </Label>
-                           </children>
-                        </HBox>
-                        <Label style="-fx-font-size: 11px; -fx-text-fill: #9aa0a6; -fx-wrap-text: true;" text="Explora estas consultas frecuentes" />
-                     </children>
-                  </VBox>
-                  
-                  <Separator style="-fx-background-color: #1a1f2e; -fx-padding: 4 0;" />
-                  
-                  <VBox spacing="8.0" style="-fx-padding: 4 0;">
-                     <!-- Aquí se agregarán las sugerencias dinámicamente -->
-                  </VBox>
-               </children>
-            </VBox>
-         </children>
-      </HBox>
-   </center>
-   
-   <bottom>
-      <HBox alignment="CENTER" spacing="20.0" style="-fx-background-color: #0a0e1a; -fx-padding: 14 30; -fx-border-color: #1a1f2e; -fx-border-width: 1 0 0 0;">
-         <children>
+            <ScrollPane fx:id="scrollPaneChat" fitToWidth="true" prefHeight="550" style="-fx-background-color: #f8f9fa; -fx-border-color: transparent;" VBox.vgrow="ALWAYS">
+                <VBox fx:id="chatContainer" spacing="16.0" style="-fx-padding: 20; -fx-background-color: #f8f9fa;" />
+            </ScrollPane>
             
-            <Region HBox.hgrow="ALWAYS" />
+            <HBox alignment="CENTER" spacing="8.0" style="-fx-padding: 12 20;">
+                <Label style="-fx-text-fill: #6c757d; -fx-font-size: 11;" text="Rapido:" />
+                <Button fx:id="btnCmdVentasSemanal" style="-fx-background-color: #e9ecef; -fx-text-fill: #495057; -fx-font-size: 11; -fx-padding: 6 12; -fx-background-radius: 6; -fx-cursor: hand;" text="Ventas" />
+                <Button fx:id="btnCmdInventario" style="-fx-background-color: #e9ecef; -fx-text-fill: #495057; -fx-font-size: 11; -fx-padding: 6 12; -fx-background-radius: 6; -fx-cursor: hand;" text="Inventario" />
+                <Button fx:id="btnCmdSugerencia" style="-fx-background-color: #e7f3ff; -fx-text-fill: #0066cc; -fx-font-size: 11; -fx-font-weight: 600; -fx-padding: 6 12; -fx-background-radius: 6; -fx-cursor: hand;" text="Sugerencia" />
+            </HBox>
             
-            <Label style="-fx-font-size: 10px; -fx-text-fill: #5f6368;" text="StockFlow Intelligence v1.0" />
-         </children>
-      </HBox>
-   </bottom>
-</BorderPane>
+            <HBox spacing="12.0" style="-fx-padding: 16 20 20 20; -fx-background-color: #ffffff; -fx-border-color: #dee2e6; -fx-border-width: 1 0 0 0;">
+                <TextField fx:id="txtInputUsuario" promptText="Pregunta lo que necesites" style="-fx-background-color: #f8f9fa; -fx-text-fill: #212529; -fx-prompt-text-fill: #adb5bd; -fx-font-size: 14; -fx-padding: 14 16; -fx-background-radius: 10; -fx-border-color: #dee2e6; -fx-border-radius: 10; -fx-border-width: 1;" HBox.hgrow="ALWAYS" />
+                <Button fx:id="btnEnviarChat" style="-fx-background-color: #0066cc; -fx-text-fill: white; -fx-font-weight: 600; -fx-font-size: 14; -fx-min-width: 80; -fx-min-height: 50; -fx-background-radius: 10; -fx-cursor: hand;" text="ENVIAR" />
+            </HBox>
+        </VBox>
+    </StackPane>
+</StackPane>
