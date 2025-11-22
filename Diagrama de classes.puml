@@ -1,0 +1,891 @@
+@startuml
+abstract class com.mycompany.stockflow.Modelo.Entidad
+annotation java.lang.Deprecated
+annotation java.lang.FunctionalInterface
+annotation java.lang.Override
+annotation java.lang.SuppressWarnings
+annotation javafx.fxml.FXML
+class com.github.sarxos.webcam.Webcam
+class com.github.sarxos.webcam.WebcamResolution
+class com.itextpdf.io.font.constants.StandardFonts
+class com.itextpdf.io.image.ImageData
+class com.itextpdf.io.image.ImageDataFactory
+class com.itextpdf.kernel.colors.ColorConstants
+class com.itextpdf.kernel.colors.DeviceRgb
+class com.itextpdf.kernel.font.PdfFont
+class com.itextpdf.kernel.font.PdfFontFactory
+class com.itextpdf.kernel.geom.PageSize
+class com.itextpdf.kernel.pdf.PdfDocument
+class com.itextpdf.kernel.pdf.PdfWriter
+class com.itextpdf.kernel.pdf.canvas.draw.SolidLine
+class com.itextpdf.layout.Document
+class com.itextpdf.layout.borders.SolidBorder
+class com.itextpdf.layout.properties.TextAlignment
+class com.itextpdf.layout.properties.UnitValue
+class com.itextpdf.layout.properties.VerticalAlignment
+class com.mycompany.stockflow.App
+class com.mycompany.stockflow.BienvenidaController
+class com.mycompany.stockflow.ChatBotController
+class com.mycompany.stockflow.ChatBotInvitadoController
+class com.mycompany.stockflow.ClientesController
+class com.mycompany.stockflow.ControlInventarioController
+class com.mycompany.stockflow.DashboardController
+class com.mycompany.stockflow.DialogoOlvidePasswordController
+class com.mycompany.stockflow.DialogoUsuarioController
+class com.mycompany.stockflow.FacturacionController
+class com.mycompany.stockflow.InteligenciaNegocioController
+class com.mycompany.stockflow.Logica.AnalisisIAServicio
+class com.mycompany.stockflow.Logica.AnaliticaAvanzadaServicio
+class com.mycompany.stockflow.Logica.AutenticacionServicio
+class com.mycompany.stockflow.Logica.ChatBotInvitadoServicio
+class com.mycompany.stockflow.Logica.ChatBotServicio
+class com.mycompany.stockflow.Logica.ClienteServicio
+class com.mycompany.stockflow.Logica.ConfiguracionAIServicio
+class com.mycompany.stockflow.Logica.DatosGraficaServicio
+class com.mycompany.stockflow.Logica.EmailNotificacionServicio
+class com.mycompany.stockflow.Logica.EstadisticasServicio
+class com.mycompany.stockflow.Logica.FacturacionServicio
+class com.mycompany.stockflow.Logica.InteligenciaNegocioServicio
+class com.mycompany.stockflow.Logica.InventarioServicio
+class com.mycompany.stockflow.Logica.NotificacionIAServicio
+class com.mycompany.stockflow.Logica.PrediccionServicio
+class com.mycompany.stockflow.Logica.ProductoServicio
+class com.mycompany.stockflow.Logica.RecomendacionServicio
+class com.mycompany.stockflow.Logica.UsuarioServicio
+class com.mycompany.stockflow.Logica.VentaServicio
+class com.mycompany.stockflow.Logica.VisualizacionServicio
+class com.mycompany.stockflow.LoginController
+class com.mycompany.stockflow.Modelo.AnalisisEstadistico
+class com.mycompany.stockflow.Modelo.ChatMensaje
+class com.mycompany.stockflow.Modelo.Cliente
+class com.mycompany.stockflow.Modelo.ContextoNegocio
+class com.mycompany.stockflow.Modelo.DatosGrafica
+class com.mycompany.stockflow.Modelo.DetalleVenta
+class com.mycompany.stockflow.Modelo.Factura
+class com.mycompany.stockflow.Modelo.InsightIA
+class com.mycompany.stockflow.Modelo.MovimientoInventario
+class com.mycompany.stockflow.Modelo.PrediccionDemanda
+class com.mycompany.stockflow.Modelo.Producto
+class com.mycompany.stockflow.Modelo.PromptConfiguracion
+class com.mycompany.stockflow.Modelo.PuntoGrafica
+class com.mycompany.stockflow.Modelo.Recomendacion
+class com.mycompany.stockflow.Modelo.ResultadoAnalisisIA
+class com.mycompany.stockflow.Modelo.SerieGrafica
+class com.mycompany.stockflow.Modelo.Usuario
+class com.mycompany.stockflow.Modelo.Venta
+class com.mycompany.stockflow.Persistencia.AnalisisRepositorio
+class com.mycompany.stockflow.Persistencia.ClienteRepositorio
+class com.mycompany.stockflow.Persistencia.FacturacionRepositorio
+class com.mycompany.stockflow.Persistencia.InventarioRepositorio
+class com.mycompany.stockflow.Persistencia.ProductoRepositorio
+class com.mycompany.stockflow.Persistencia.UsuarioRepositorio
+class com.mycompany.stockflow.Persistencia.VentaRepositorio
+class com.mycompany.stockflow.Presentacion.primaryController
+class com.mycompany.stockflow.ProductosController
+class com.mycompany.stockflow.Productos_invitadoController
+class com.mycompany.stockflow.SecondaryController
+class com.mycompany.stockflow.SetupWizardController
+class com.mycompany.stockflow.UsuariosController
+class com.mycompany.stockflow.VentaController
+class com.mycompany.stockflow.excepciones.AIAPIException
+class com.mycompany.stockflow.excepciones.AccesoDenegadoExcepcion
+class com.mycompany.stockflow.excepciones.AnalisisFallidoException
+class com.mycompany.stockflow.excepciones.ClienteNoEncontradoExcepcion
+class com.mycompany.stockflow.excepciones.ConfiguracionAIFaltanteException
+class com.mycompany.stockflow.excepciones.CredencialesInvalidasExcepcion
+class com.mycompany.stockflow.excepciones.EmailException
+class com.mycompany.stockflow.excepciones.InventarioInsuficienteExcepcion
+class com.mycompany.stockflow.excepciones.ProductoNoEncontradoExcepcion
+class com.mycompany.stockflow.excepciones.StockFlowExcepcion
+class com.mycompany.stockflow.excepciones.VentaInvalidaExcepcion
+class com.mycompany.stockflow.utils.Alertas
+class com.mycompany.stockflow.utils.AnalizadorContexto
+class com.mycompany.stockflow.utils.CamaraServicio
+class com.mycompany.stockflow.utils.ConfiguracionAI
+class com.mycompany.stockflow.utils.ConfiguracionEmail
+class com.mycompany.stockflow.utils.DeepSeekAPIClient
+class com.mycompany.stockflow.utils.EmailServicio
+class com.mycompany.stockflow.utils.EncriptadorPassword
+class com.mycompany.stockflow.utils.GeneradorPDF
+class com.mycompany.stockflow.utils.GeneradorPDFComprobante
+class com.mycompany.stockflow.utils.GeneradorReporteInventario
+class com.mycompany.stockflow.utils.ImagenProductoUtil
+class com.mycompany.stockflow.utils.PromptTemplates
+class com.mycompany.stockflow.utils.SesionUsuario
+class com.mycompany.stockflow.utils.Validador
+class java.awt.image.BufferedImage
+class java.io.BufferedReader
+class java.io.ByteArrayOutputStream
+class java.io.File
+class java.io.FileInputStream
+class java.io.FileNotFoundException
+class java.io.FileOutputStream
+class java.io.FileWriter
+class java.io.IOException
+class java.io.InputStream
+class java.io.InputStreamReader
+class java.io.OutputStream
+class java.io.PrintWriter
+class java.lang.Exception
+class java.net.HttpURLConnection
+class java.net.URL
+class java.nio.charset.StandardCharsets
+class java.nio.file.Files
+class java.nio.file.Path
+class java.nio.file.Paths
+class java.nio.file.StandardCopyOption
+class java.security.MessageDigest
+class java.security.NoSuchAlgorithmException
+class java.security.SecureRandom
+class java.text.DecimalFormat
+class java.text.NumberFormat
+class java.time.Duration
+class java.time.LocalDate
+class java.time.LocalDateTime
+class java.time.format.DateTimeFormatter
+class java.util.ArrayList
+class java.util.Base64
+class java.util.HashMap
+class java.util.List
+class java.util.Locale
+class java.util.Map
+class java.util.Optional
+class java.util.Properties
+class java.util.Random
+class java.util.ResourceBundle
+class java.util.UUID
+class java.util.concurrent.CompletableFuture
+class java.util.concurrent.ExecutorService
+class java.util.concurrent.Executors
+class java.util.concurrent.atomic.AtomicBoolean
+class java.util.concurrent.atomic.AtomicReference
+class java.util.regex.Matcher
+class java.util.regex.Pattern
+class java.util.stream.Collectors
+class javafx.animation.FadeTransition
+class javafx.animation.TranslateTransition
+class javafx.application.Application
+class javafx.application.Platform
+class javafx.beans.property.SimpleDoubleProperty
+class javafx.beans.property.SimpleIntegerProperty
+class javafx.beans.property.SimpleStringProperty
+class javafx.beans.property.StringProperty
+class javafx.collections.FXCollections
+class javafx.collections.ObservableList
+class javafx.collections.transformation.FilteredList
+class javafx.embed.swing.SwingFXUtils
+class javafx.event.ActionEvent
+class javafx.fxml.FXMLLoader
+class javafx.geometry.Insets
+class javafx.geometry.Pos
+class javafx.scene.Node
+class javafx.scene.Parent
+class javafx.scene.Scene
+class javafx.scene.SnapshotParameters
+class javafx.scene.canvas.Canvas
+class javafx.scene.canvas.GraphicsContext
+class javafx.scene.chart.BarChart
+class javafx.scene.chart.Chart
+class javafx.scene.chart.LineChart
+class javafx.scene.chart.XYChart
+class javafx.scene.control.Alert
+class javafx.scene.control.Button
+class javafx.scene.control.ButtonType
+class javafx.scene.control.Label
+class javafx.scene.control.cell.PropertyValueFactory
+class javafx.scene.image.Image
+class javafx.scene.image.ImageView
+class javafx.scene.image.PixelWriter
+class javafx.scene.image.WritableImage
+class javafx.scene.input.KeyCode
+class javafx.scene.layout.AnchorPane
+class javafx.scene.layout.FlowPane
+class javafx.scene.layout.HBox
+class javafx.scene.layout.Region
+class javafx.scene.layout.StackPane
+class javafx.scene.layout.VBox
+class javafx.scene.paint.Color
+class javafx.scene.text.Text
+class javafx.scene.text.TextFlow
+class javafx.stage.FileChooser
+class javafx.stage.Modality
+class javafx.stage.Stage
+class javafx.stage.StageStyle
+class javafx.util.Duration
+class javafx.util.StringConverter
+class javax.imageio.ImageIO
+class javax.mail.internet.InternetAddress
+class javax.mail.internet.MimeMessage
+class org.json.JSONArray
+class org.json.JSONObject
+enum com.mycompany.stockflow.Modelo.Rol
+enum com.mycompany.stockflow.Modelo.TipoGrafica
+interface java.io.Serializable
+interface javafx.fxml.Initializable
+com.mycompany.stockflow.Modelo.Entidad ..> java.lang.Override
+com.mycompany.stockflow.Modelo.Entidad --|> java.io.Serializable
+com.mycompany.stockflow.App ..> java.lang.Deprecated
+com.mycompany.stockflow.App ..> java.lang.Override
+com.mycompany.stockflow.App ..> java.io.IOException
+com.mycompany.stockflow.App --|> javafx.application.Application
+com.mycompany.stockflow.App ..> javafx.fxml.FXMLLoader
+com.mycompany.stockflow.App ..> javafx.scene.Parent
+com.mycompany.stockflow.App ..> javafx.scene.Scene
+com.mycompany.stockflow.App ..> javafx.scene.input.KeyCode
+com.mycompany.stockflow.App ..> javafx.stage.Stage
+com.mycompany.stockflow.BienvenidaController ..> java.lang.Override
+com.mycompany.stockflow.BienvenidaController ..> javafx.fxml.FXML
+com.mycompany.stockflow.BienvenidaController ..> java.io.IOException
+com.mycompany.stockflow.BienvenidaController ..> java.net.URL
+com.mycompany.stockflow.BienvenidaController ..> java.util.ArrayList
+com.mycompany.stockflow.BienvenidaController ..> java.util.List
+com.mycompany.stockflow.BienvenidaController ..> java.util.Random
+com.mycompany.stockflow.BienvenidaController ..> java.util.ResourceBundle
+com.mycompany.stockflow.BienvenidaController ..> javafx.application.Platform
+com.mycompany.stockflow.BienvenidaController ..> javafx.fxml.FXMLLoader
+com.mycompany.stockflow.BienvenidaController ..> javafx.scene.Parent
+com.mycompany.stockflow.BienvenidaController ..> javafx.scene.Scene
+com.mycompany.stockflow.BienvenidaController ..> javafx.scene.canvas.Canvas
+com.mycompany.stockflow.BienvenidaController ..> javafx.scene.canvas.GraphicsContext
+com.mycompany.stockflow.BienvenidaController ..> javafx.scene.control.Button
+com.mycompany.stockflow.BienvenidaController ..> javafx.scene.control.Label
+com.mycompany.stockflow.BienvenidaController ..> javafx.scene.input.KeyCode
+com.mycompany.stockflow.BienvenidaController ..> javafx.scene.layout.AnchorPane
+com.mycompany.stockflow.BienvenidaController ..> javafx.scene.layout.HBox
+com.mycompany.stockflow.BienvenidaController ..> javafx.scene.paint.Color
+com.mycompany.stockflow.BienvenidaController ..> javafx.stage.Stage
+com.mycompany.stockflow.BienvenidaController ..> javafx.util.Duration
+com.mycompany.stockflow.BienvenidaController --|> javafx.fxml.Initializable
+com.mycompany.stockflow.ChatBotController ..> java.lang.Override
+com.mycompany.stockflow.ChatBotController ..> javafx.fxml.FXML
+com.mycompany.stockflow.ChatBotController ..> java.net.URL
+com.mycompany.stockflow.ChatBotController ..> java.text.NumberFormat
+com.mycompany.stockflow.ChatBotController ..> java.time.LocalDateTime
+com.mycompany.stockflow.ChatBotController ..> java.time.format.DateTimeFormatter
+com.mycompany.stockflow.ChatBotController ..> java.util.concurrent.CompletableFuture
+com.mycompany.stockflow.ChatBotController ..> java.util.stream.Collectors
+com.mycompany.stockflow.ChatBotController ..> javafx.animation.FadeTransition
+com.mycompany.stockflow.ChatBotController ..> javafx.animation.TranslateTransition
+com.mycompany.stockflow.ChatBotController ..> javafx.application.Platform
+com.mycompany.stockflow.ChatBotController ..> javafx.geometry.Insets
+com.mycompany.stockflow.ChatBotController ..> javafx.geometry.Pos
+com.mycompany.stockflow.ChatBotController ..> javafx.scene.chart.BarChart
+com.mycompany.stockflow.ChatBotController ..> javafx.scene.chart.LineChart
+com.mycompany.stockflow.ChatBotController ..> javafx.scene.chart.XYChart
+com.mycompany.stockflow.ChatBotController ..> javafx.scene.layout.HBox
+com.mycompany.stockflow.ChatBotController ..> javafx.scene.layout.Region
+com.mycompany.stockflow.ChatBotController ..> javafx.scene.layout.StackPane
+com.mycompany.stockflow.ChatBotController ..> javafx.scene.layout.VBox
+com.mycompany.stockflow.ChatBotController ..> javafx.scene.text.Text
+com.mycompany.stockflow.ChatBotController ..> javafx.util.Duration
+com.mycompany.stockflow.ChatBotController --|> javafx.fxml.Initializable
+com.mycompany.stockflow.ChatBotInvitadoController ..> java.lang.Override
+com.mycompany.stockflow.ChatBotInvitadoController ..> javafx.fxml.FXML
+com.mycompany.stockflow.ChatBotInvitadoController ..> com.mycompany.stockflow.Logica.ChatBotInvitadoServicio
+com.mycompany.stockflow.ChatBotInvitadoController ..> com.mycompany.stockflow.Modelo.ChatMensaje
+com.mycompany.stockflow.ChatBotInvitadoController ..> java.net.URL
+com.mycompany.stockflow.ChatBotInvitadoController ..> java.util.concurrent.CompletableFuture
+com.mycompany.stockflow.ChatBotInvitadoController ..> javafx.application.Platform
+com.mycompany.stockflow.ChatBotInvitadoController ..> javafx.geometry.Insets
+com.mycompany.stockflow.ChatBotInvitadoController ..> javafx.geometry.Pos
+com.mycompany.stockflow.ChatBotInvitadoController ..> javafx.scene.text.Text
+com.mycompany.stockflow.ChatBotInvitadoController ..> javafx.scene.text.TextFlow
+com.mycompany.stockflow.ChatBotInvitadoController ..> javafx.stage.Stage
+com.mycompany.stockflow.ChatBotInvitadoController --|> javafx.fxml.Initializable
+com.mycompany.stockflow.ClientesController ..> java.lang.Override
+com.mycompany.stockflow.ClientesController ..> javafx.fxml.FXML
+com.mycompany.stockflow.ClientesController ..> com.mycompany.stockflow.Logica.ClienteServicio
+com.mycompany.stockflow.ClientesController ..> com.mycompany.stockflow.Modelo.Cliente
+com.mycompany.stockflow.ClientesController ..> java.net.URL
+com.mycompany.stockflow.ClientesController ..> java.util.ArrayList
+com.mycompany.stockflow.ClientesController ..> java.util.List
+com.mycompany.stockflow.ClientesController ..> java.util.Optional
+com.mycompany.stockflow.ClientesController ..> java.util.ResourceBundle
+com.mycompany.stockflow.ClientesController ..> javafx.beans.property.SimpleStringProperty
+com.mycompany.stockflow.ClientesController ..> javafx.collections.FXCollections
+com.mycompany.stockflow.ClientesController ..> javafx.collections.ObservableList
+com.mycompany.stockflow.ClientesController ..> javafx.geometry.Pos
+com.mycompany.stockflow.ClientesController ..> javafx.scene.layout.HBox
+com.mycompany.stockflow.ClientesController ..> javafx.scene.layout.VBox
+com.mycompany.stockflow.ClientesController --|> javafx.fxml.Initializable
+com.mycompany.stockflow.ControlInventarioController ..> java.lang.Override
+com.mycompany.stockflow.ControlInventarioController ..> javafx.fxml.FXML
+com.mycompany.stockflow.ControlInventarioController ..> com.mycompany.stockflow.Logica.InventarioServicio
+com.mycompany.stockflow.ControlInventarioController ..> com.mycompany.stockflow.Logica.ProductoServicio
+com.mycompany.stockflow.ControlInventarioController ..> com.mycompany.stockflow.Modelo.MovimientoInventario
+com.mycompany.stockflow.ControlInventarioController ..> com.mycompany.stockflow.Modelo.Producto
+com.mycompany.stockflow.ControlInventarioController ..> com.mycompany.stockflow.utils.GeneradorReporteInventario
+com.mycompany.stockflow.ControlInventarioController ..> java.io.File
+com.mycompany.stockflow.ControlInventarioController ..> java.io.FileWriter
+com.mycompany.stockflow.ControlInventarioController ..> java.io.PrintWriter
+com.mycompany.stockflow.ControlInventarioController ..> java.time.LocalDateTime
+com.mycompany.stockflow.ControlInventarioController ..> java.time.format.DateTimeFormatter
+com.mycompany.stockflow.ControlInventarioController ..> java.util.List
+com.mycompany.stockflow.ControlInventarioController ..> java.util.stream.Collectors
+com.mycompany.stockflow.ControlInventarioController ..> javafx.beans.property.SimpleIntegerProperty
+com.mycompany.stockflow.ControlInventarioController ..> javafx.beans.property.SimpleStringProperty
+com.mycompany.stockflow.ControlInventarioController ..> javafx.collections.FXCollections
+com.mycompany.stockflow.ControlInventarioController ..> javafx.collections.ObservableList
+com.mycompany.stockflow.ControlInventarioController ..> javafx.geometry.Pos
+com.mycompany.stockflow.ControlInventarioController ..> javafx.scene.control.cell.PropertyValueFactory
+com.mycompany.stockflow.ControlInventarioController ..> javafx.stage.FileChooser
+com.mycompany.stockflow.ControlInventarioController ..> javafx.util.StringConverter
+com.mycompany.stockflow.DashboardController ..> java.lang.Deprecated
+com.mycompany.stockflow.DashboardController ..> java.lang.Override
+com.mycompany.stockflow.DashboardController ..> javafx.fxml.FXML
+com.mycompany.stockflow.DashboardController ..> com.mycompany.stockflow.Modelo.Usuario
+com.mycompany.stockflow.DashboardController ..> com.mycompany.stockflow.utils.SesionUsuario
+com.mycompany.stockflow.DashboardController ..> java.io.IOException
+com.mycompany.stockflow.DashboardController ..> java.net.URL
+com.mycompany.stockflow.DashboardController ..> java.time.LocalDateTime
+com.mycompany.stockflow.DashboardController ..> java.time.format.DateTimeFormatter
+com.mycompany.stockflow.DashboardController ..> java.util.Locale
+com.mycompany.stockflow.DashboardController ..> java.util.ResourceBundle
+com.mycompany.stockflow.DashboardController ..> javafx.fxml.FXMLLoader
+com.mycompany.stockflow.DashboardController ..> javafx.scene.Node
+com.mycompany.stockflow.DashboardController ..> javafx.scene.Parent
+com.mycompany.stockflow.DashboardController ..> javafx.scene.Scene
+com.mycompany.stockflow.DashboardController ..> javafx.scene.control.Alert
+com.mycompany.stockflow.DashboardController ..> javafx.scene.control.Button
+com.mycompany.stockflow.DashboardController ..> javafx.scene.control.ButtonType
+com.mycompany.stockflow.DashboardController ..> javafx.scene.control.Label
+com.mycompany.stockflow.DashboardController ..> javafx.scene.input.KeyCode
+com.mycompany.stockflow.DashboardController ..> javafx.scene.layout.AnchorPane
+com.mycompany.stockflow.DashboardController ..> javafx.scene.layout.VBox
+com.mycompany.stockflow.DashboardController ..> javafx.stage.Stage
+com.mycompany.stockflow.DashboardController ..> javafx.util.Duration
+com.mycompany.stockflow.DashboardController --|> javafx.fxml.Initializable
+com.mycompany.stockflow.DialogoOlvidePasswordController ..> java.lang.Override
+com.mycompany.stockflow.DialogoOlvidePasswordController ..> javafx.fxml.FXML
+com.mycompany.stockflow.DialogoOlvidePasswordController ..> com.mycompany.stockflow.Logica.EmailNotificacionServicio
+com.mycompany.stockflow.DialogoOlvidePasswordController ..> com.mycompany.stockflow.Logica.UsuarioServicio
+com.mycompany.stockflow.DialogoOlvidePasswordController ..> com.mycompany.stockflow.Modelo.Usuario
+com.mycompany.stockflow.DialogoOlvidePasswordController ..> java.net.URL
+com.mycompany.stockflow.DialogoOlvidePasswordController ..> java.util.ResourceBundle
+com.mycompany.stockflow.DialogoOlvidePasswordController ..> javafx.scene.layout.VBox
+com.mycompany.stockflow.DialogoOlvidePasswordController ..> javafx.stage.Stage
+com.mycompany.stockflow.DialogoOlvidePasswordController --|> javafx.fxml.Initializable
+com.mycompany.stockflow.DialogoUsuarioController ..> java.lang.Override
+com.mycompany.stockflow.DialogoUsuarioController ..> javafx.fxml.FXML
+com.mycompany.stockflow.DialogoUsuarioController ..> com.mycompany.stockflow.Logica.UsuarioServicio
+com.mycompany.stockflow.DialogoUsuarioController ..> com.mycompany.stockflow.Modelo.Usuario
+com.mycompany.stockflow.DialogoUsuarioController ..> java.net.URL
+com.mycompany.stockflow.DialogoUsuarioController ..> java.util.ResourceBundle
+com.mycompany.stockflow.DialogoUsuarioController ..> javafx.collections.FXCollections
+com.mycompany.stockflow.DialogoUsuarioController ..> javafx.scene.layout.VBox
+com.mycompany.stockflow.DialogoUsuarioController ..> javafx.stage.Stage
+com.mycompany.stockflow.DialogoUsuarioController ..> com.mycompany.stockflow.Modelo.Rol
+com.mycompany.stockflow.DialogoUsuarioController --|> javafx.fxml.Initializable
+com.mycompany.stockflow.FacturacionController ..> java.lang.Override
+com.mycompany.stockflow.FacturacionController ..> javafx.fxml.FXML
+com.mycompany.stockflow.FacturacionController ..> com.mycompany.stockflow.Logica.FacturacionServicio
+com.mycompany.stockflow.FacturacionController ..> com.mycompany.stockflow.Modelo.DetalleVenta
+com.mycompany.stockflow.FacturacionController ..> com.mycompany.stockflow.Modelo.Factura
+com.mycompany.stockflow.FacturacionController ..> com.mycompany.stockflow.excepciones.EmailException
+com.mycompany.stockflow.FacturacionController ..> com.mycompany.stockflow.utils.EmailServicio
+com.mycompany.stockflow.FacturacionController ..> com.mycompany.stockflow.utils.GeneradorPDFComprobante
+com.mycompany.stockflow.FacturacionController ..> java.io.File
+com.mycompany.stockflow.FacturacionController ..> java.text.DecimalFormat
+com.mycompany.stockflow.FacturacionController ..> java.util.List
+com.mycompany.stockflow.FacturacionController ..> java.util.stream.Collectors
+com.mycompany.stockflow.FacturacionController ..> javafx.application.Platform
+com.mycompany.stockflow.FacturacionController ..> javafx.beans.property.SimpleDoubleProperty
+com.mycompany.stockflow.FacturacionController ..> javafx.beans.property.SimpleStringProperty
+com.mycompany.stockflow.FacturacionController ..> javafx.collections.FXCollections
+com.mycompany.stockflow.FacturacionController ..> javafx.collections.ObservableList
+com.mycompany.stockflow.FacturacionController ..> javafx.scene.control.cell.PropertyValueFactory
+com.mycompany.stockflow.FacturacionController ..> javafx.stage.FileChooser
+com.mycompany.stockflow.FacturacionController ..> javafx.stage.Stage
+com.mycompany.stockflow.InteligenciaNegocioController ..> java.lang.FunctionalInterface
+com.mycompany.stockflow.InteligenciaNegocioController ..> javafx.fxml.FXML
+com.mycompany.stockflow.InteligenciaNegocioController ..> com.mycompany.stockflow.Persistencia.AnalisisRepositorio
+com.mycompany.stockflow.InteligenciaNegocioController ..> java.time.LocalDateTime
+com.mycompany.stockflow.InteligenciaNegocioController ..> java.time.format.DateTimeFormatter
+com.mycompany.stockflow.InteligenciaNegocioController ..> java.util.stream.Collectors
+com.mycompany.stockflow.InteligenciaNegocioController ..> javafx.application.Platform
+com.mycompany.stockflow.InteligenciaNegocioController ..> javafx.beans.property.SimpleStringProperty
+com.mycompany.stockflow.InteligenciaNegocioController ..> javafx.collections.FXCollections
+com.mycompany.stockflow.InteligenciaNegocioController ..> javafx.collections.ObservableList
+com.mycompany.stockflow.InteligenciaNegocioController ..> javafx.geometry.Insets
+com.mycompany.stockflow.InteligenciaNegocioController ..> javafx.geometry.Pos
+com.mycompany.stockflow.Logica.AnalisisIAServicio ..> com.mycompany.stockflow.Persistencia.AnalisisRepositorio
+com.mycompany.stockflow.Logica.AnalisisIAServicio ..> com.mycompany.stockflow.utils.DeepSeekAPIClient
+com.mycompany.stockflow.Logica.AnalisisIAServicio ..> java.time.LocalDate
+com.mycompany.stockflow.Logica.AnalisisIAServicio ..> java.time.LocalDateTime
+com.mycompany.stockflow.Logica.AnalisisIAServicio ..> java.util.HashMap
+com.mycompany.stockflow.Logica.AnalisisIAServicio ..> java.util.Map
+com.mycompany.stockflow.Logica.AnalisisIAServicio ..> java.util.regex.Matcher
+com.mycompany.stockflow.Logica.AnalisisIAServicio ..> java.util.regex.Pattern
+com.mycompany.stockflow.Logica.AnaliticaAvanzadaServicio ..> java.util.stream.Collectors
+com.mycompany.stockflow.Logica.AutenticacionServicio ..> com.mycompany.stockflow.Modelo.Usuario
+com.mycompany.stockflow.Logica.AutenticacionServicio ..> com.mycompany.stockflow.Persistencia.UsuarioRepositorio
+com.mycompany.stockflow.Logica.AutenticacionServicio ..> com.mycompany.stockflow.utils.SesionUsuario
+com.mycompany.stockflow.Logica.ChatBotInvitadoServicio ..> com.mycompany.stockflow.Modelo.ChatMensaje
+com.mycompany.stockflow.Logica.ChatBotInvitadoServicio ..> com.mycompany.stockflow.Modelo.Producto
+com.mycompany.stockflow.Logica.ChatBotInvitadoServicio ..> com.mycompany.stockflow.utils.DeepSeekAPIClient
+com.mycompany.stockflow.Logica.ChatBotInvitadoServicio ..> java.util.stream.Collectors
+com.mycompany.stockflow.Logica.ChatBotServicio ..> com.mycompany.stockflow.utils.DeepSeekAPIClient
+com.mycompany.stockflow.Logica.ChatBotServicio ..> java.time.LocalDate
+com.mycompany.stockflow.Logica.ChatBotServicio ..> java.time.LocalDateTime
+com.mycompany.stockflow.Logica.ClienteServicio ..> com.mycompany.stockflow.Modelo.Cliente
+com.mycompany.stockflow.Logica.ClienteServicio ..> com.mycompany.stockflow.Persistencia.ClienteRepositorio
+com.mycompany.stockflow.Logica.ClienteServicio ..> com.mycompany.stockflow.excepciones.ClienteNoEncontradoExcepcion
+com.mycompany.stockflow.Logica.ClienteServicio ..> java.io.IOException
+com.mycompany.stockflow.Logica.ClienteServicio ..> java.util.List
+com.mycompany.stockflow.Logica.ConfiguracionAIServicio ..> com.mycompany.stockflow.Modelo.PromptConfiguracion
+com.mycompany.stockflow.Logica.ConfiguracionAIServicio ..> com.mycompany.stockflow.excepciones.ConfiguracionAIFaltanteException
+com.mycompany.stockflow.Logica.ConfiguracionAIServicio ..> com.mycompany.stockflow.utils.ConfiguracionAI
+com.mycompany.stockflow.Logica.ConfiguracionAIServicio ..> java.io.IOException
+com.mycompany.stockflow.Logica.DatosGraficaServicio ..> java.time.LocalDate
+com.mycompany.stockflow.Logica.DatosGraficaServicio ..> java.time.LocalDateTime
+com.mycompany.stockflow.Logica.DatosGraficaServicio ..> java.util.stream.Collectors
+com.mycompany.stockflow.Logica.EmailNotificacionServicio ..> java.lang.Override
+com.mycompany.stockflow.Logica.EmailNotificacionServicio ..> java.time.LocalDateTime
+com.mycompany.stockflow.Logica.EmailNotificacionServicio ..> java.time.format.DateTimeFormatter
+com.mycompany.stockflow.Logica.EmailNotificacionServicio ..> java.util.Properties
+com.mycompany.stockflow.Logica.EmailNotificacionServicio ..> javax.mail.internet.InternetAddress
+com.mycompany.stockflow.Logica.EmailNotificacionServicio ..> javax.mail.internet.MimeMessage
+com.mycompany.stockflow.Logica.EstadisticasServicio ..> com.mycompany.stockflow.Modelo.DetalleVenta
+com.mycompany.stockflow.Logica.EstadisticasServicio ..> com.mycompany.stockflow.Modelo.Producto
+com.mycompany.stockflow.Logica.EstadisticasServicio ..> com.mycompany.stockflow.Modelo.Venta
+com.mycompany.stockflow.Logica.EstadisticasServicio ..> java.time.LocalDateTime
+com.mycompany.stockflow.Logica.EstadisticasServicio ..> java.util.stream.Collectors
+com.mycompany.stockflow.Logica.FacturacionServicio ..> com.mycompany.stockflow.Modelo.Factura
+com.mycompany.stockflow.Logica.FacturacionServicio ..> com.mycompany.stockflow.Modelo.Venta
+com.mycompany.stockflow.Logica.FacturacionServicio ..> com.mycompany.stockflow.Persistencia.FacturacionRepositorio
+com.mycompany.stockflow.Logica.FacturacionServicio ..> java.io.IOException
+com.mycompany.stockflow.Logica.FacturacionServicio ..> java.util.List
+com.mycompany.stockflow.Logica.InventarioServicio ..> com.mycompany.stockflow.Modelo.MovimientoInventario
+com.mycompany.stockflow.Logica.InventarioServicio ..> com.mycompany.stockflow.Modelo.Producto
+com.mycompany.stockflow.Logica.InventarioServicio ..> com.mycompany.stockflow.Persistencia.InventarioRepositorio
+com.mycompany.stockflow.Logica.InventarioServicio ..> java.io.IOException
+com.mycompany.stockflow.Logica.InventarioServicio ..> java.util.List
+com.mycompany.stockflow.Logica.NotificacionIAServicio ..> java.time.LocalDateTime
+com.mycompany.stockflow.Logica.NotificacionIAServicio ..> java.util.stream.Collectors
+com.mycompany.stockflow.Logica.PrediccionServicio ..> java.time.LocalDate
+com.mycompany.stockflow.Logica.PrediccionServicio ..> java.time.LocalDateTime
+com.mycompany.stockflow.Logica.PrediccionServicio ..> java.util.stream.Collectors
+com.mycompany.stockflow.Logica.ProductoServicio ..> com.mycompany.stockflow.Modelo.Producto
+com.mycompany.stockflow.Logica.ProductoServicio ..> com.mycompany.stockflow.Persistencia.ProductoRepositorio
+com.mycompany.stockflow.Logica.ProductoServicio ..> com.mycompany.stockflow.excepciones.ProductoNoEncontradoExcepcion
+com.mycompany.stockflow.Logica.ProductoServicio ..> java.io.IOException
+com.mycompany.stockflow.Logica.ProductoServicio ..> java.util.List
+com.mycompany.stockflow.Logica.UsuarioServicio ..> com.mycompany.stockflow.Modelo.Usuario
+com.mycompany.stockflow.Logica.UsuarioServicio ..> com.mycompany.stockflow.Persistencia.UsuarioRepositorio
+com.mycompany.stockflow.Logica.UsuarioServicio ..> com.mycompany.stockflow.utils.EncriptadorPassword
+com.mycompany.stockflow.Logica.UsuarioServicio ..> com.mycompany.stockflow.utils.Validador
+com.mycompany.stockflow.Logica.UsuarioServicio ..> java.util.List
+com.mycompany.stockflow.Logica.UsuarioServicio ..> java.util.Optional
+com.mycompany.stockflow.Logica.UsuarioServicio ..> com.mycompany.stockflow.Modelo.Rol
+com.mycompany.stockflow.Logica.VentaServicio ..> com.mycompany.stockflow.Modelo.DetalleVenta
+com.mycompany.stockflow.Logica.VentaServicio ..> com.mycompany.stockflow.Modelo.Producto
+com.mycompany.stockflow.Logica.VentaServicio ..> com.mycompany.stockflow.Modelo.Venta
+com.mycompany.stockflow.Logica.VentaServicio ..> com.mycompany.stockflow.Persistencia.VentaRepositorio
+com.mycompany.stockflow.Logica.VentaServicio ..> java.io.IOException
+com.mycompany.stockflow.Logica.VentaServicio ..> java.util.List
+com.mycompany.stockflow.Logica.VisualizacionServicio ..> java.time.LocalDate
+com.mycompany.stockflow.Logica.VisualizacionServicio ..> java.time.LocalDateTime
+com.mycompany.stockflow.Logica.VisualizacionServicio ..> java.time.format.DateTimeFormatter
+com.mycompany.stockflow.Logica.VisualizacionServicio ..> java.util.stream.Collectors
+com.mycompany.stockflow.Logica.VisualizacionServicio ..> javafx.scene.chart.XYChart
+com.mycompany.stockflow.LoginController ..> java.lang.Override
+com.mycompany.stockflow.LoginController ..> javafx.fxml.FXML
+com.mycompany.stockflow.LoginController ..> com.mycompany.stockflow.Logica.AutenticacionServicio
+com.mycompany.stockflow.LoginController ..> com.mycompany.stockflow.Logica.UsuarioServicio
+com.mycompany.stockflow.LoginController ..> com.mycompany.stockflow.Modelo.Usuario
+com.mycompany.stockflow.LoginController ..> java.io.IOException
+com.mycompany.stockflow.LoginController ..> java.net.URL
+com.mycompany.stockflow.LoginController ..> java.util.ResourceBundle
+com.mycompany.stockflow.LoginController ..> javafx.event.ActionEvent
+com.mycompany.stockflow.LoginController ..> javafx.fxml.FXMLLoader
+com.mycompany.stockflow.LoginController ..> javafx.scene.Parent
+com.mycompany.stockflow.LoginController ..> javafx.scene.Scene
+com.mycompany.stockflow.LoginController ..> javafx.scene.input.KeyCode
+com.mycompany.stockflow.LoginController ..> javafx.scene.layout.StackPane
+com.mycompany.stockflow.LoginController ..> javafx.stage.Modality
+com.mycompany.stockflow.LoginController ..> javafx.stage.Stage
+com.mycompany.stockflow.LoginController ..> javafx.stage.StageStyle
+com.mycompany.stockflow.LoginController ..> javafx.util.Duration
+com.mycompany.stockflow.LoginController --|> javafx.fxml.Initializable
+com.mycompany.stockflow.Modelo.AnalisisEstadistico --|> com.mycompany.stockflow.Modelo.Entidad
+com.mycompany.stockflow.Modelo.AnalisisEstadistico ..> java.lang.Override
+com.mycompany.stockflow.Modelo.AnalisisEstadistico ..> java.time.LocalDateTime
+com.mycompany.stockflow.Modelo.AnalisisEstadistico ..> java.time.format.DateTimeFormatter
+com.mycompany.stockflow.Modelo.AnalisisEstadistico ..> java.util.HashMap
+com.mycompany.stockflow.Modelo.AnalisisEstadistico ..> java.util.Map
+com.mycompany.stockflow.Modelo.ChatMensaje --|> com.mycompany.stockflow.Modelo.Entidad
+com.mycompany.stockflow.Modelo.ChatMensaje ..> java.lang.Override
+com.mycompany.stockflow.Modelo.ChatMensaje ..> java.time.LocalDateTime
+com.mycompany.stockflow.Modelo.ChatMensaje ..> java.time.format.DateTimeFormatter
+com.mycompany.stockflow.Modelo.Cliente --|> com.mycompany.stockflow.Modelo.Entidad
+com.mycompany.stockflow.Modelo.Cliente ..> java.lang.Override
+com.mycompany.stockflow.Modelo.ContextoNegocio ..> java.lang.Override
+com.mycompany.stockflow.Modelo.ContextoNegocio ..> java.util.ArrayList
+com.mycompany.stockflow.Modelo.ContextoNegocio ..> java.util.List
+com.mycompany.stockflow.Modelo.DatosGrafica ..> java.util.ArrayList
+com.mycompany.stockflow.Modelo.DatosGrafica ..> java.util.HashMap
+com.mycompany.stockflow.Modelo.DatosGrafica ..> java.util.List
+com.mycompany.stockflow.Modelo.DatosGrafica ..> java.util.Map
+com.mycompany.stockflow.Modelo.DetalleVenta ..> java.lang.Deprecated
+com.mycompany.stockflow.Modelo.DetalleVenta ..> java.lang.Override
+com.mycompany.stockflow.Modelo.DetalleVenta --|> java.io.Serializable
+com.mycompany.stockflow.Modelo.Factura --|> com.mycompany.stockflow.Modelo.Entidad
+com.mycompany.stockflow.Modelo.Factura ..> java.lang.Override
+com.mycompany.stockflow.Modelo.Factura ..> java.time.LocalDateTime
+com.mycompany.stockflow.Modelo.Factura ..> java.time.format.DateTimeFormatter
+com.mycompany.stockflow.Modelo.InsightIA --|> com.mycompany.stockflow.Modelo.Entidad
+com.mycompany.stockflow.Modelo.InsightIA ..> java.lang.Override
+com.mycompany.stockflow.Modelo.InsightIA ..> java.time.LocalDateTime
+com.mycompany.stockflow.Modelo.InsightIA ..> java.time.format.DateTimeFormatter
+com.mycompany.stockflow.Modelo.InsightIA ..> java.util.HashMap
+com.mycompany.stockflow.Modelo.InsightIA ..> java.util.Map
+com.mycompany.stockflow.Modelo.MovimientoInventario --|> com.mycompany.stockflow.Modelo.Entidad
+com.mycompany.stockflow.Modelo.MovimientoInventario ..> java.lang.Override
+com.mycompany.stockflow.Modelo.MovimientoInventario ..> java.time.LocalDateTime
+com.mycompany.stockflow.Modelo.MovimientoInventario ..> java.time.format.DateTimeFormatter
+com.mycompany.stockflow.Modelo.PrediccionDemanda ..> java.lang.Override
+com.mycompany.stockflow.Modelo.PrediccionDemanda ..> java.time.LocalDate
+com.mycompany.stockflow.Modelo.Producto --|> com.mycompany.stockflow.Modelo.Entidad
+com.mycompany.stockflow.Modelo.Producto ..> java.lang.Deprecated
+com.mycompany.stockflow.Modelo.Producto ..> java.lang.Override
+com.mycompany.stockflow.Modelo.PromptConfiguracion --|> com.mycompany.stockflow.Modelo.Entidad
+com.mycompany.stockflow.Modelo.PromptConfiguracion ..> java.lang.Override
+com.mycompany.stockflow.Modelo.PuntoGrafica ..> java.time.LocalDateTime
+com.mycompany.stockflow.Modelo.Recomendacion --|> com.mycompany.stockflow.Modelo.Entidad
+com.mycompany.stockflow.Modelo.Recomendacion ..> java.lang.Override
+com.mycompany.stockflow.Modelo.Recomendacion ..> java.time.LocalDateTime
+com.mycompany.stockflow.Modelo.Recomendacion ..> java.time.format.DateTimeFormatter
+com.mycompany.stockflow.Modelo.ResultadoAnalisisIA ..> java.lang.Override
+com.mycompany.stockflow.Modelo.ResultadoAnalisisIA ..> java.time.LocalDateTime
+com.mycompany.stockflow.Modelo.ResultadoAnalisisIA ..> java.util.HashMap
+com.mycompany.stockflow.Modelo.ResultadoAnalisisIA ..> java.util.Map
+com.mycompany.stockflow.Modelo.ResultadoAnalisisIA ..> java.util.UUID
+com.mycompany.stockflow.Modelo.SerieGrafica ..> java.util.ArrayList
+com.mycompany.stockflow.Modelo.SerieGrafica ..> java.util.List
+com.mycompany.stockflow.Modelo.Usuario --|> com.mycompany.stockflow.Modelo.Entidad
+com.mycompany.stockflow.Modelo.Usuario ..> java.lang.Override
+com.mycompany.stockflow.Modelo.Usuario ..> java.time.LocalDateTime
+com.mycompany.stockflow.Modelo.Usuario ..> java.time.format.DateTimeFormatter
+com.mycompany.stockflow.Modelo.Usuario ..> javafx.beans.property.SimpleStringProperty
+com.mycompany.stockflow.Modelo.Usuario ..> javafx.beans.property.StringProperty
+com.mycompany.stockflow.Modelo.Usuario --|> java.io.Serializable
+com.mycompany.stockflow.Modelo.Venta --|> com.mycompany.stockflow.Modelo.Entidad
+com.mycompany.stockflow.Modelo.Venta ..> java.lang.Override
+com.mycompany.stockflow.Modelo.Venta ..> java.time.LocalDateTime
+com.mycompany.stockflow.Modelo.Venta ..> java.util.ArrayList
+com.mycompany.stockflow.Modelo.Venta ..> java.util.List
+com.mycompany.stockflow.Modelo.Venta --|> java.io.Serializable
+com.mycompany.stockflow.Persistencia.AnalisisRepositorio ..> java.lang.Override
+com.mycompany.stockflow.Persistencia.AnalisisRepositorio ..> com.mycompany.stockflow.Modelo.ResultadoAnalisisIA
+com.mycompany.stockflow.Persistencia.AnalisisRepositorio ..> java.time.LocalDateTime
+com.mycompany.stockflow.Persistencia.AnalisisRepositorio ..> java.util.stream.Collectors
+com.mycompany.stockflow.Persistencia.AnalisisRepositorio ..> javafx.collections.FXCollections
+com.mycompany.stockflow.Persistencia.AnalisisRepositorio ..> javafx.collections.ObservableList
+com.mycompany.stockflow.Persistencia.ClienteRepositorio ..> java.lang.SuppressWarnings
+com.mycompany.stockflow.Persistencia.ClienteRepositorio ..> com.mycompany.stockflow.Modelo.Cliente
+com.mycompany.stockflow.Persistencia.ClienteRepositorio ..> com.mycompany.stockflow.excepciones.ClienteNoEncontradoExcepcion
+com.mycompany.stockflow.Persistencia.ClienteRepositorio ..> java.util.ArrayList
+com.mycompany.stockflow.Persistencia.ClienteRepositorio ..> java.util.List
+com.mycompany.stockflow.Persistencia.FacturacionRepositorio ..> java.lang.SuppressWarnings
+com.mycompany.stockflow.Persistencia.FacturacionRepositorio ..> com.mycompany.stockflow.Modelo.Factura
+com.mycompany.stockflow.Persistencia.FacturacionRepositorio ..> java.util.ArrayList
+com.mycompany.stockflow.Persistencia.FacturacionRepositorio ..> java.util.List
+com.mycompany.stockflow.Persistencia.FacturacionRepositorio ..> java.util.stream.Collectors
+com.mycompany.stockflow.Persistencia.InventarioRepositorio ..> java.lang.SuppressWarnings
+com.mycompany.stockflow.Persistencia.InventarioRepositorio ..> com.mycompany.stockflow.Modelo.MovimientoInventario
+com.mycompany.stockflow.Persistencia.InventarioRepositorio ..> java.util.ArrayList
+com.mycompany.stockflow.Persistencia.InventarioRepositorio ..> java.util.List
+com.mycompany.stockflow.Persistencia.InventarioRepositorio ..> java.util.stream.Collectors
+com.mycompany.stockflow.Persistencia.ProductoRepositorio ..> java.lang.SuppressWarnings
+com.mycompany.stockflow.Persistencia.ProductoRepositorio ..> com.mycompany.stockflow.Modelo.Producto
+com.mycompany.stockflow.Persistencia.ProductoRepositorio ..> com.mycompany.stockflow.excepciones.ProductoNoEncontradoExcepcion
+com.mycompany.stockflow.Persistencia.ProductoRepositorio ..> java.util.ArrayList
+com.mycompany.stockflow.Persistencia.ProductoRepositorio ..> java.util.List
+com.mycompany.stockflow.Persistencia.UsuarioRepositorio ..> java.lang.SuppressWarnings
+com.mycompany.stockflow.Persistencia.UsuarioRepositorio ..> com.mycompany.stockflow.Modelo.Usuario
+com.mycompany.stockflow.Persistencia.UsuarioRepositorio ..> com.mycompany.stockflow.utils.EncriptadorPassword
+com.mycompany.stockflow.Persistencia.UsuarioRepositorio ..> java.util.ArrayList
+com.mycompany.stockflow.Persistencia.UsuarioRepositorio ..> java.util.List
+com.mycompany.stockflow.Persistencia.UsuarioRepositorio ..> java.util.Optional
+com.mycompany.stockflow.Persistencia.UsuarioRepositorio ..> com.mycompany.stockflow.Modelo.Rol
+com.mycompany.stockflow.Persistencia.VentaRepositorio ..> java.lang.SuppressWarnings
+com.mycompany.stockflow.Persistencia.VentaRepositorio ..> com.mycompany.stockflow.Modelo.Venta
+com.mycompany.stockflow.Persistencia.VentaRepositorio ..> java.util.ArrayList
+com.mycompany.stockflow.Persistencia.VentaRepositorio ..> java.util.List
+com.mycompany.stockflow.ProductosController ..> java.lang.Override
+com.mycompany.stockflow.ProductosController ..> javafx.fxml.FXML
+com.mycompany.stockflow.ProductosController ..> com.mycompany.stockflow.Logica.ProductoServicio
+com.mycompany.stockflow.ProductosController ..> com.mycompany.stockflow.Modelo.Producto
+com.mycompany.stockflow.ProductosController ..> com.mycompany.stockflow.utils.CamaraServicio
+com.mycompany.stockflow.ProductosController ..> com.mycompany.stockflow.utils.ImagenProductoUtil
+com.mycompany.stockflow.ProductosController ..> java.io.File
+com.mycompany.stockflow.ProductosController ..> java.net.URL
+com.mycompany.stockflow.ProductosController ..> java.util.ArrayList
+com.mycompany.stockflow.ProductosController ..> java.util.List
+com.mycompany.stockflow.ProductosController ..> java.util.Optional
+com.mycompany.stockflow.ProductosController ..> java.util.ResourceBundle
+com.mycompany.stockflow.ProductosController ..> javafx.beans.property.SimpleDoubleProperty
+com.mycompany.stockflow.ProductosController ..> javafx.beans.property.SimpleIntegerProperty
+com.mycompany.stockflow.ProductosController ..> javafx.beans.property.SimpleStringProperty
+com.mycompany.stockflow.ProductosController ..> javafx.collections.FXCollections
+com.mycompany.stockflow.ProductosController ..> javafx.collections.ObservableList
+com.mycompany.stockflow.ProductosController ..> javafx.geometry.Pos
+com.mycompany.stockflow.ProductosController ..> javafx.scene.image.Image
+com.mycompany.stockflow.ProductosController ..> javafx.scene.image.ImageView
+com.mycompany.stockflow.ProductosController ..> javafx.scene.layout.HBox
+com.mycompany.stockflow.ProductosController ..> javafx.scene.layout.VBox
+com.mycompany.stockflow.ProductosController ..> javafx.stage.FileChooser
+com.mycompany.stockflow.ProductosController ..> javafx.stage.Stage
+com.mycompany.stockflow.ProductosController --|> javafx.fxml.Initializable
+com.mycompany.stockflow.Productos_invitadoController ..> java.lang.Override
+com.mycompany.stockflow.Productos_invitadoController ..> javafx.fxml.FXML
+com.mycompany.stockflow.Productos_invitadoController ..> com.mycompany.stockflow.Logica.ProductoServicio
+com.mycompany.stockflow.Productos_invitadoController ..> com.mycompany.stockflow.Modelo.Producto
+com.mycompany.stockflow.Productos_invitadoController ..> com.mycompany.stockflow.utils.ImagenProductoUtil
+com.mycompany.stockflow.Productos_invitadoController ..> java.io.IOException
+com.mycompany.stockflow.Productos_invitadoController ..> java.net.URL
+com.mycompany.stockflow.Productos_invitadoController ..> java.util.stream.Collectors
+com.mycompany.stockflow.Productos_invitadoController ..> javafx.collections.FXCollections
+com.mycompany.stockflow.Productos_invitadoController ..> javafx.collections.ObservableList
+com.mycompany.stockflow.Productos_invitadoController ..> javafx.collections.transformation.FilteredList
+com.mycompany.stockflow.Productos_invitadoController ..> javafx.event.ActionEvent
+com.mycompany.stockflow.Productos_invitadoController ..> javafx.fxml.FXMLLoader
+com.mycompany.stockflow.Productos_invitadoController ..> javafx.geometry.Insets
+com.mycompany.stockflow.Productos_invitadoController ..> javafx.geometry.Pos
+com.mycompany.stockflow.Productos_invitadoController ..> javafx.scene.Parent
+com.mycompany.stockflow.Productos_invitadoController ..> javafx.scene.Scene
+com.mycompany.stockflow.Productos_invitadoController ..> javafx.scene.image.Image
+com.mycompany.stockflow.Productos_invitadoController ..> javafx.scene.image.ImageView
+com.mycompany.stockflow.Productos_invitadoController ..> javafx.scene.input.KeyCode
+com.mycompany.stockflow.Productos_invitadoController ..> javafx.scene.layout.FlowPane
+com.mycompany.stockflow.Productos_invitadoController ..> javafx.scene.layout.HBox
+com.mycompany.stockflow.Productos_invitadoController ..> javafx.scene.layout.VBox
+com.mycompany.stockflow.Productos_invitadoController ..> javafx.stage.Stage
+com.mycompany.stockflow.Productos_invitadoController ..> javafx.util.Duration
+com.mycompany.stockflow.Productos_invitadoController --|> javafx.fxml.Initializable
+com.mycompany.stockflow.SecondaryController ..> javafx.fxml.FXML
+com.mycompany.stockflow.SecondaryController ..> java.io.IOException
+com.mycompany.stockflow.SecondaryController ..> javafx.event.ActionEvent
+com.mycompany.stockflow.SecondaryController ..> javafx.scene.control.Button
+com.mycompany.stockflow.SetupWizardController ..> java.lang.Override
+com.mycompany.stockflow.SetupWizardController ..> javafx.fxml.FXML
+com.mycompany.stockflow.SetupWizardController ..> com.mycompany.stockflow.Logica.UsuarioServicio
+com.mycompany.stockflow.SetupWizardController ..> com.mycompany.stockflow.Modelo.Usuario
+com.mycompany.stockflow.SetupWizardController ..> java.net.URL
+com.mycompany.stockflow.SetupWizardController ..> java.util.ResourceBundle
+com.mycompany.stockflow.SetupWizardController ..> javafx.stage.Stage
+com.mycompany.stockflow.SetupWizardController --|> javafx.fxml.Initializable
+com.mycompany.stockflow.UsuariosController ..> java.lang.Override
+com.mycompany.stockflow.UsuariosController ..> javafx.fxml.FXML
+com.mycompany.stockflow.UsuariosController ..> com.mycompany.stockflow.Logica.UsuarioServicio
+com.mycompany.stockflow.UsuariosController ..> com.mycompany.stockflow.Modelo.Usuario
+com.mycompany.stockflow.UsuariosController ..> com.mycompany.stockflow.utils.SesionUsuario
+com.mycompany.stockflow.UsuariosController ..> java.io.IOException
+com.mycompany.stockflow.UsuariosController ..> java.net.URL
+com.mycompany.stockflow.UsuariosController ..> java.util.List
+com.mycompany.stockflow.UsuariosController ..> java.util.Optional
+com.mycompany.stockflow.UsuariosController ..> java.util.ResourceBundle
+com.mycompany.stockflow.UsuariosController ..> javafx.beans.property.SimpleStringProperty
+com.mycompany.stockflow.UsuariosController ..> javafx.collections.FXCollections
+com.mycompany.stockflow.UsuariosController ..> javafx.collections.ObservableList
+com.mycompany.stockflow.UsuariosController ..> javafx.collections.transformation.FilteredList
+com.mycompany.stockflow.UsuariosController ..> javafx.fxml.FXMLLoader
+com.mycompany.stockflow.UsuariosController ..> javafx.geometry.Pos
+com.mycompany.stockflow.UsuariosController ..> javafx.scene.Parent
+com.mycompany.stockflow.UsuariosController ..> javafx.scene.Scene
+com.mycompany.stockflow.UsuariosController ..> javafx.scene.image.Image
+com.mycompany.stockflow.UsuariosController ..> javafx.scene.image.ImageView
+com.mycompany.stockflow.UsuariosController ..> javafx.scene.layout.HBox
+com.mycompany.stockflow.UsuariosController ..> javafx.stage.Modality
+com.mycompany.stockflow.UsuariosController ..> javafx.stage.Stage
+com.mycompany.stockflow.UsuariosController ..> com.mycompany.stockflow.Modelo.Rol
+com.mycompany.stockflow.UsuariosController --|> javafx.fxml.Initializable
+com.mycompany.stockflow.VentaController ..> java.lang.Override
+com.mycompany.stockflow.VentaController ..> javafx.fxml.FXML
+com.mycompany.stockflow.VentaController ..> com.mycompany.stockflow.Logica.ClienteServicio
+com.mycompany.stockflow.VentaController ..> com.mycompany.stockflow.Logica.FacturacionServicio
+com.mycompany.stockflow.VentaController ..> com.mycompany.stockflow.Logica.ProductoServicio
+com.mycompany.stockflow.VentaController ..> com.mycompany.stockflow.Logica.VentaServicio
+com.mycompany.stockflow.VentaController ..> com.mycompany.stockflow.Modelo.Cliente
+com.mycompany.stockflow.VentaController ..> com.mycompany.stockflow.Modelo.DetalleVenta
+com.mycompany.stockflow.VentaController ..> com.mycompany.stockflow.Modelo.Factura
+com.mycompany.stockflow.VentaController ..> com.mycompany.stockflow.Modelo.Producto
+com.mycompany.stockflow.VentaController ..> com.mycompany.stockflow.Modelo.Venta
+com.mycompany.stockflow.VentaController ..> com.mycompany.stockflow.excepciones.EmailException
+com.mycompany.stockflow.VentaController ..> com.mycompany.stockflow.utils.EmailServicio
+com.mycompany.stockflow.VentaController ..> com.mycompany.stockflow.utils.GeneradorPDFComprobante
+com.mycompany.stockflow.VentaController ..> java.io.IOException
+com.mycompany.stockflow.VentaController ..> java.text.DecimalFormat
+com.mycompany.stockflow.VentaController ..> java.time.LocalDateTime
+com.mycompany.stockflow.VentaController ..> java.time.format.DateTimeFormatter
+com.mycompany.stockflow.VentaController ..> java.util.ArrayList
+com.mycompany.stockflow.VentaController ..> java.util.List
+com.mycompany.stockflow.VentaController ..> javafx.application.Platform
+com.mycompany.stockflow.VentaController ..> javafx.beans.property.SimpleDoubleProperty
+com.mycompany.stockflow.VentaController ..> javafx.beans.property.SimpleIntegerProperty
+com.mycompany.stockflow.VentaController ..> javafx.beans.property.SimpleStringProperty
+com.mycompany.stockflow.VentaController ..> javafx.collections.FXCollections
+com.mycompany.stockflow.VentaController ..> javafx.collections.ObservableList
+com.mycompany.stockflow.VentaController ..> javafx.collections.transformation.FilteredList
+com.mycompany.stockflow.VentaController ..> javafx.fxml.FXMLLoader
+com.mycompany.stockflow.VentaController ..> javafx.scene.Parent
+com.mycompany.stockflow.VentaController ..> javafx.scene.Scene
+com.mycompany.stockflow.VentaController ..> javafx.stage.Modality
+com.mycompany.stockflow.VentaController ..> javafx.stage.Stage
+com.mycompany.stockflow.excepciones.AIAPIException ..> java.lang.Override
+com.mycompany.stockflow.excepciones.AIAPIException --|> java.lang.Exception
+com.mycompany.stockflow.excepciones.AccesoDenegadoExcepcion --|> com.mycompany.stockflow.excepciones.StockFlowExcepcion
+com.mycompany.stockflow.excepciones.AnalisisFallidoException ..> java.lang.Override
+com.mycompany.stockflow.excepciones.AnalisisFallidoException --|> java.lang.Exception
+com.mycompany.stockflow.excepciones.ClienteNoEncontradoExcepcion --|> com.mycompany.stockflow.excepciones.StockFlowExcepcion
+com.mycompany.stockflow.excepciones.ConfiguracionAIFaltanteException ..> java.lang.Override
+com.mycompany.stockflow.excepciones.ConfiguracionAIFaltanteException --|> java.lang.Exception
+com.mycompany.stockflow.excepciones.CredencialesInvalidasExcepcion --|> com.mycompany.stockflow.excepciones.StockFlowExcepcion
+com.mycompany.stockflow.excepciones.EmailException --|> com.mycompany.stockflow.excepciones.StockFlowExcepcion
+com.mycompany.stockflow.excepciones.InventarioInsuficienteExcepcion --|> com.mycompany.stockflow.excepciones.StockFlowExcepcion
+com.mycompany.stockflow.excepciones.ProductoNoEncontradoExcepcion --|> com.mycompany.stockflow.excepciones.StockFlowExcepcion
+com.mycompany.stockflow.excepciones.StockFlowExcepcion --|> java.lang.Exception
+com.mycompany.stockflow.excepciones.VentaInvalidaExcepcion --|> com.mycompany.stockflow.excepciones.StockFlowExcepcion
+com.mycompany.stockflow.utils.Alertas ..> java.util.Optional
+com.mycompany.stockflow.utils.Alertas ..> javafx.scene.control.Alert
+com.mycompany.stockflow.utils.Alertas ..> javafx.scene.control.ButtonType
+com.mycompany.stockflow.utils.AnalizadorContexto ..> java.util.stream.Collectors
+com.mycompany.stockflow.utils.CamaraServicio ..> com.github.sarxos.webcam.Webcam
+com.mycompany.stockflow.utils.CamaraServicio ..> com.github.sarxos.webcam.WebcamResolution
+com.mycompany.stockflow.utils.CamaraServicio ..> java.awt.image.BufferedImage
+com.mycompany.stockflow.utils.CamaraServicio ..> java.util.concurrent.ExecutorService
+com.mycompany.stockflow.utils.CamaraServicio ..> java.util.concurrent.Executors
+com.mycompany.stockflow.utils.CamaraServicio ..> java.util.concurrent.atomic.AtomicBoolean
+com.mycompany.stockflow.utils.CamaraServicio ..> java.util.concurrent.atomic.AtomicReference
+com.mycompany.stockflow.utils.CamaraServicio ..> javafx.embed.swing.SwingFXUtils
+com.mycompany.stockflow.utils.CamaraServicio ..> javafx.geometry.Insets
+com.mycompany.stockflow.utils.CamaraServicio ..> javafx.geometry.Pos
+com.mycompany.stockflow.utils.CamaraServicio ..> javafx.scene.Scene
+com.mycompany.stockflow.utils.CamaraServicio ..> javafx.scene.control.Button
+com.mycompany.stockflow.utils.CamaraServicio ..> javafx.scene.image.Image
+com.mycompany.stockflow.utils.CamaraServicio ..> javafx.scene.image.ImageView
+com.mycompany.stockflow.utils.CamaraServicio ..> javafx.scene.image.PixelWriter
+com.mycompany.stockflow.utils.CamaraServicio ..> javafx.scene.image.WritableImage
+com.mycompany.stockflow.utils.CamaraServicio ..> javafx.scene.layout.VBox
+com.mycompany.stockflow.utils.CamaraServicio ..> javafx.scene.paint.Color
+com.mycompany.stockflow.utils.CamaraServicio ..> javafx.stage.Modality
+com.mycompany.stockflow.utils.CamaraServicio ..> javafx.stage.Stage
+com.mycompany.stockflow.utils.ConfiguracionAI ..> com.mycompany.stockflow.excepciones.ConfiguracionAIFaltanteException
+com.mycompany.stockflow.utils.ConfiguracionAI ..> java.io.FileInputStream
+com.mycompany.stockflow.utils.ConfiguracionAI ..> java.io.FileOutputStream
+com.mycompany.stockflow.utils.ConfiguracionAI ..> java.io.IOException
+com.mycompany.stockflow.utils.ConfiguracionAI ..> java.io.InputStream
+com.mycompany.stockflow.utils.ConfiguracionAI ..> java.util.Properties
+com.mycompany.stockflow.utils.ConfiguracionEmail ..> java.io.IOException
+com.mycompany.stockflow.utils.ConfiguracionEmail ..> java.io.InputStream
+com.mycompany.stockflow.utils.ConfiguracionEmail ..> java.util.Properties
+com.mycompany.stockflow.utils.DeepSeekAPIClient ..> com.mycompany.stockflow.excepciones.AIAPIException
+com.mycompany.stockflow.utils.DeepSeekAPIClient ..> com.mycompany.stockflow.excepciones.ConfiguracionAIFaltanteException
+com.mycompany.stockflow.utils.DeepSeekAPIClient ..> java.io.BufferedReader
+com.mycompany.stockflow.utils.DeepSeekAPIClient ..> java.io.InputStreamReader
+com.mycompany.stockflow.utils.DeepSeekAPIClient ..> java.io.OutputStream
+com.mycompany.stockflow.utils.DeepSeekAPIClient ..> java.net.HttpURLConnection
+com.mycompany.stockflow.utils.DeepSeekAPIClient ..> java.net.URL
+com.mycompany.stockflow.utils.DeepSeekAPIClient ..> java.nio.charset.StandardCharsets
+com.mycompany.stockflow.utils.DeepSeekAPIClient ..> org.json.JSONArray
+com.mycompany.stockflow.utils.DeepSeekAPIClient ..> org.json.JSONObject
+com.mycompany.stockflow.utils.EmailServicio ..> java.lang.Override
+com.mycompany.stockflow.utils.EmailServicio ..> com.mycompany.stockflow.excepciones.EmailException
+com.mycompany.stockflow.utils.EmailServicio ..> java.io.InputStream
+com.mycompany.stockflow.utils.EmailServicio ..> java.io.OutputStream
+com.mycompany.stockflow.utils.EmailServicio ..> java.util.Properties
+com.mycompany.stockflow.utils.EncriptadorPassword ..> java.security.MessageDigest
+com.mycompany.stockflow.utils.EncriptadorPassword ..> java.security.NoSuchAlgorithmException
+com.mycompany.stockflow.utils.EncriptadorPassword ..> java.security.SecureRandom
+com.mycompany.stockflow.utils.EncriptadorPassword ..> java.util.Base64
+com.mycompany.stockflow.utils.GeneradorPDF ..> com.itextpdf.io.font.constants.StandardFonts
+com.mycompany.stockflow.utils.GeneradorPDF ..> com.itextpdf.io.image.ImageData
+com.mycompany.stockflow.utils.GeneradorPDF ..> com.itextpdf.io.image.ImageDataFactory
+com.mycompany.stockflow.utils.GeneradorPDF ..> com.itextpdf.kernel.colors.ColorConstants
+com.mycompany.stockflow.utils.GeneradorPDF ..> com.itextpdf.kernel.colors.DeviceRgb
+com.mycompany.stockflow.utils.GeneradorPDF ..> com.itextpdf.kernel.font.PdfFont
+com.mycompany.stockflow.utils.GeneradorPDF ..> com.itextpdf.kernel.font.PdfFontFactory
+com.mycompany.stockflow.utils.GeneradorPDF ..> com.itextpdf.kernel.geom.PageSize
+com.mycompany.stockflow.utils.GeneradorPDF ..> com.itextpdf.kernel.pdf.PdfDocument
+com.mycompany.stockflow.utils.GeneradorPDF ..> com.itextpdf.kernel.pdf.PdfWriter
+com.mycompany.stockflow.utils.GeneradorPDF ..> com.itextpdf.kernel.pdf.canvas.draw.SolidLine
+com.mycompany.stockflow.utils.GeneradorPDF ..> com.itextpdf.layout.Document
+com.mycompany.stockflow.utils.GeneradorPDF ..> com.itextpdf.layout.borders.SolidBorder
+com.mycompany.stockflow.utils.GeneradorPDF ..> com.itextpdf.layout.properties.TextAlignment
+com.mycompany.stockflow.utils.GeneradorPDF ..> com.itextpdf.layout.properties.UnitValue
+com.mycompany.stockflow.utils.GeneradorPDF ..> com.itextpdf.layout.properties.VerticalAlignment
+com.mycompany.stockflow.utils.GeneradorPDF ..> java.awt.image.BufferedImage
+com.mycompany.stockflow.utils.GeneradorPDF ..> java.io.ByteArrayOutputStream
+com.mycompany.stockflow.utils.GeneradorPDF ..> java.time.LocalDateTime
+com.mycompany.stockflow.utils.GeneradorPDF ..> java.time.format.DateTimeFormatter
+com.mycompany.stockflow.utils.GeneradorPDF ..> java.util.List
+com.mycompany.stockflow.utils.GeneradorPDF ..> javafx.embed.swing.SwingFXUtils
+com.mycompany.stockflow.utils.GeneradorPDF ..> javafx.scene.SnapshotParameters
+com.mycompany.stockflow.utils.GeneradorPDF ..> javafx.scene.chart.Chart
+com.mycompany.stockflow.utils.GeneradorPDF ..> javafx.scene.image.WritableImage
+com.mycompany.stockflow.utils.GeneradorPDF ..> javax.imageio.ImageIO
+com.mycompany.stockflow.utils.GeneradorPDFComprobante ..> com.itextpdf.io.image.ImageData
+com.mycompany.stockflow.utils.GeneradorPDFComprobante ..> com.itextpdf.io.image.ImageDataFactory
+com.mycompany.stockflow.utils.GeneradorPDFComprobante ..> com.itextpdf.kernel.colors.ColorConstants
+com.mycompany.stockflow.utils.GeneradorPDFComprobante ..> com.itextpdf.kernel.colors.DeviceRgb
+com.mycompany.stockflow.utils.GeneradorPDFComprobante ..> com.itextpdf.kernel.geom.PageSize
+com.mycompany.stockflow.utils.GeneradorPDFComprobante ..> com.itextpdf.kernel.pdf.PdfDocument
+com.mycompany.stockflow.utils.GeneradorPDFComprobante ..> com.itextpdf.kernel.pdf.PdfWriter
+com.mycompany.stockflow.utils.GeneradorPDFComprobante ..> com.itextpdf.kernel.pdf.canvas.draw.SolidLine
+com.mycompany.stockflow.utils.GeneradorPDFComprobante ..> com.itextpdf.layout.Document
+com.mycompany.stockflow.utils.GeneradorPDFComprobante ..> com.itextpdf.layout.borders.SolidBorder
+com.mycompany.stockflow.utils.GeneradorPDFComprobante ..> com.itextpdf.layout.properties.TextAlignment
+com.mycompany.stockflow.utils.GeneradorPDFComprobante ..> com.itextpdf.layout.properties.UnitValue
+com.mycompany.stockflow.utils.GeneradorPDFComprobante ..> com.mycompany.stockflow.Modelo.DetalleVenta
+com.mycompany.stockflow.utils.GeneradorPDFComprobante ..> com.mycompany.stockflow.Modelo.Factura
+com.mycompany.stockflow.utils.GeneradorPDFComprobante ..> java.io.ByteArrayOutputStream
+com.mycompany.stockflow.utils.GeneradorPDFComprobante ..> java.io.File
+com.mycompany.stockflow.utils.GeneradorPDFComprobante ..> java.io.FileNotFoundException
+com.mycompany.stockflow.utils.GeneradorPDFComprobante ..> java.net.URL
+com.mycompany.stockflow.utils.GeneradorPDFComprobante ..> java.text.DecimalFormat
+com.mycompany.stockflow.utils.GeneradorPDFComprobante ..> java.time.format.DateTimeFormatter
+com.mycompany.stockflow.utils.GeneradorReporteInventario ..> com.itextpdf.io.font.constants.StandardFonts
+com.mycompany.stockflow.utils.GeneradorReporteInventario ..> com.itextpdf.kernel.colors.ColorConstants
+com.mycompany.stockflow.utils.GeneradorReporteInventario ..> com.itextpdf.kernel.colors.DeviceRgb
+com.mycompany.stockflow.utils.GeneradorReporteInventario ..> com.itextpdf.kernel.font.PdfFont
+com.mycompany.stockflow.utils.GeneradorReporteInventario ..> com.itextpdf.kernel.font.PdfFontFactory
+com.mycompany.stockflow.utils.GeneradorReporteInventario ..> com.itextpdf.kernel.geom.PageSize
+com.mycompany.stockflow.utils.GeneradorReporteInventario ..> com.itextpdf.kernel.pdf.PdfDocument
+com.mycompany.stockflow.utils.GeneradorReporteInventario ..> com.itextpdf.kernel.pdf.PdfWriter
+com.mycompany.stockflow.utils.GeneradorReporteInventario ..> com.itextpdf.kernel.pdf.canvas.draw.SolidLine
+com.mycompany.stockflow.utils.GeneradorReporteInventario ..> com.itextpdf.layout.Document
+com.mycompany.stockflow.utils.GeneradorReporteInventario ..> com.itextpdf.layout.borders.SolidBorder
+com.mycompany.stockflow.utils.GeneradorReporteInventario ..> com.itextpdf.layout.properties.TextAlignment
+com.mycompany.stockflow.utils.GeneradorReporteInventario ..> com.itextpdf.layout.properties.UnitValue
+com.mycompany.stockflow.utils.GeneradorReporteInventario ..> com.itextpdf.layout.properties.VerticalAlignment
+com.mycompany.stockflow.utils.GeneradorReporteInventario ..> com.mycompany.stockflow.Modelo.MovimientoInventario
+com.mycompany.stockflow.utils.GeneradorReporteInventario ..> com.mycompany.stockflow.Modelo.Producto
+com.mycompany.stockflow.utils.GeneradorReporteInventario ..> java.time.LocalDateTime
+com.mycompany.stockflow.utils.GeneradorReporteInventario ..> java.time.format.DateTimeFormatter
+com.mycompany.stockflow.utils.GeneradorReporteInventario ..> java.util.List
+com.mycompany.stockflow.utils.GeneradorReporteInventario ..> java.util.Map
+com.mycompany.stockflow.utils.GeneradorReporteInventario ..> java.util.stream.Collectors
+com.mycompany.stockflow.utils.ImagenProductoUtil ..> java.awt.image.BufferedImage
+com.mycompany.stockflow.utils.ImagenProductoUtil ..> java.io.File
+com.mycompany.stockflow.utils.ImagenProductoUtil ..> java.io.IOException
+com.mycompany.stockflow.utils.ImagenProductoUtil ..> java.io.InputStream
+com.mycompany.stockflow.utils.ImagenProductoUtil ..> java.nio.file.Files
+com.mycompany.stockflow.utils.ImagenProductoUtil ..> java.nio.file.Path
+com.mycompany.stockflow.utils.ImagenProductoUtil ..> java.nio.file.Paths
+com.mycompany.stockflow.utils.ImagenProductoUtil ..> java.nio.file.StandardCopyOption
+com.mycompany.stockflow.utils.ImagenProductoUtil ..> java.time.LocalDateTime
+com.mycompany.stockflow.utils.ImagenProductoUtil ..> java.time.format.DateTimeFormatter
+com.mycompany.stockflow.utils.ImagenProductoUtil ..> javafx.embed.swing.SwingFXUtils
+com.mycompany.stockflow.utils.ImagenProductoUtil ..> javafx.scene.image.Image
+com.mycompany.stockflow.utils.ImagenProductoUtil ..> javafx.scene.image.PixelWriter
+com.mycompany.stockflow.utils.ImagenProductoUtil ..> javafx.scene.image.WritableImage
+com.mycompany.stockflow.utils.ImagenProductoUtil ..> javafx.scene.paint.Color
+com.mycompany.stockflow.utils.ImagenProductoUtil ..> javax.imageio.ImageIO
+com.mycompany.stockflow.utils.PromptTemplates ..> java.util.List
+com.mycompany.stockflow.utils.SesionUsuario ..> com.mycompany.stockflow.Modelo.Usuario
+com.mycompany.stockflow.utils.SesionUsuario ..> com.mycompany.stockflow.excepciones.AccesoDenegadoExcepcion
+com.mycompany.stockflow.utils.SesionUsuario ..> java.time.Duration
+com.mycompany.stockflow.utils.SesionUsuario ..> java.time.LocalDateTime
+com.mycompany.stockflow.utils.SesionUsuario ..> com.mycompany.stockflow.Modelo.Rol
+com.mycompany.stockflow.Modelo.Rol ..> java.lang.Override
+@enduml
