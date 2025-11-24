@@ -544,13 +544,13 @@ public class Productos_invitadoController implements Initializable {
             Parent root = loader.load();
             
             Stage stage = (Stage) btnVolver.getScene().getWindow();
-            Scene scene = new Scene(root, 1000, 600);
+            Scene scene = new Scene(root, 1100, 750);
             
             stage.setScene(scene);
-            stage.setTitle("StockFlow - Bienvenida");
+            stage.setTitle("StockFlow - Sistema de Gestión de Inventario");
             stage.setResizable(true);
-            stage.setMaximized(true);
-            
+                        stage.setMinWidth(1100);
+                        stage.setMinHeight(750);
             scene.setOnKeyPressed(keyEvent -> {
                 if (keyEvent.getCode() == KeyCode.F11) {
                     stage.setFullScreen(!stage.isFullScreen());

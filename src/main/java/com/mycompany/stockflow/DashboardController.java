@@ -446,13 +446,13 @@
                         Parent root = loader.load();
 
                         Stage stage = (Stage) btnCerrarSesion.getScene().getWindow();
-                        Scene scene = new Scene(root, 1000, 720);
+                        Scene scene = new Scene(root, 1100, 750);
 
                         stage.setScene(scene);
                         stage.setTitle("StockFlow - Sistema de Gestión de Inventario");
                         stage.setResizable(true);
-                        stage.setMinWidth(1000);
-                        stage.setMinHeight(720);
+                        stage.setMinWidth(1100);
+                        stage.setMinHeight(750);
 
                         if (stage.isMaximized()) {
                             stage.setMaximized(false);
@@ -882,78 +882,78 @@
          * independiente que no afecta el funcionamiento del dashboard.
          * </p>
          */
-       // Agrega esta variable de instancia en tu clase
-private Stage chatBotStage = null;
+      
+        private Stage chatBotStage = null;
 
-@FXML
-private void abrirChatBot() {
-    try {
-        // Verificar si la ventana ya está abierta
-        if (chatBotStage != null && chatBotStage.isShowing()) {
-            System.out.println("ChatBot ya está abierto");
-            // Traer la ventana al frente si ya existe
-            chatBotStage.toFront();
-            chatBotStage.requestFocus();
-            return;
+        @FXML
+        private void abrirChatBot() {
+            try {
+                // Verificar si la ventana ya está abierta
+                if (chatBotStage != null && chatBotStage.isShowing()) {
+                    System.out.println("ChatBot ya está abierto");
+                    // Traer la ventana al frente si ya existe
+                    chatBotStage.toFront();
+                    chatBotStage.requestFocus();
+                    return;
+                }
+
+                System.out.println("Abriendo ChatBot...");
+                // Cargar el FXML del ChatBot
+                FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("ChatBot.fxml")
+                );
+                Parent root = loader.load();
+
+                // Crear nueva ventana (Stage)
+                chatBotStage = new Stage();
+                chatBotStage.setTitle("Asistente IA - StockFlow");
+                chatBotStage.initOwner(btnChatBotFlotante.getScene().getWindow());
+
+                // Configurar la escena
+                Scene scene = new Scene(root, 1180, 820);
+                chatBotStage.setScene(scene);
+
+                // Configurar dimensiones mínimas
+                chatBotStage.setMinWidth(900);
+                chatBotStage.setMinHeight(600);
+
+                // Centrar la ventana
+                chatBotStage.centerOnScreen();
+
+                // Manejar el cierre de la ventana
+                chatBotStage.setOnCloseRequest(event -> {
+                    chatBotStage = null;
+                });
+
+                // Animación de entrada de la ventana
+                root.setOpacity(0);
+                chatBotStage.show();
+                FadeTransition fadeIn = new FadeTransition(Duration.millis(300), root);
+                fadeIn.setFromValue(0);
+                fadeIn.setToValue(1);
+                fadeIn.play();
+
+                // Efecto de rebote al botón flotante como confirmación
+                ScaleTransition rebote = new ScaleTransition(Duration.millis(150), btnChatBotFlotante);
+                rebote.setFromX(1.0);
+                rebote.setFromY(1.0);
+                rebote.setToX(1.2);
+                rebote.setToY(1.2);
+                rebote.setAutoReverse(true);
+                rebote.setCycleCount(2);
+                rebote.play();
+
+                System.out.println("ChatBot abierto correctamente");
+            } catch (IOException e) {
+                System.err.println("Error al abrir el ChatBot: " + e.getMessage());
+                e.printStackTrace();
+                mostrarError(
+                    "Error al abrir ChatBot", 
+                    "No se pudo cargar la interfaz del ChatBot.\n\n" +
+                    "Verifique que el archivo ChatBot.fxml existe en:\n" +
+                    "src/main/resources/com/mycompany/stockflow/ChatBot.fxml\n\n" +
+                    "Error: " + e.getMessage()
+                );
+            }
         }
-        
-        System.out.println("Abriendo ChatBot...");
-        // Cargar el FXML del ChatBot
-        FXMLLoader loader = new FXMLLoader(
-            getClass().getResource("ChatBot.fxml")
-        );
-        Parent root = loader.load();
-        
-        // Crear nueva ventana (Stage)
-        chatBotStage = new Stage();
-        chatBotStage.setTitle("Asistente IA - StockFlow");
-        chatBotStage.initOwner(btnChatBotFlotante.getScene().getWindow());
-        
-        // Configurar la escena
-        Scene scene = new Scene(root, 1180, 820);
-        chatBotStage.setScene(scene);
-        
-        // Configurar dimensiones mínimas
-        chatBotStage.setMinWidth(900);
-        chatBotStage.setMinHeight(600);
-        
-        // Centrar la ventana
-        chatBotStage.centerOnScreen();
-        
-        // Manejar el cierre de la ventana
-        chatBotStage.setOnCloseRequest(event -> {
-            chatBotStage = null;
-        });
-        
-        // Animación de entrada de la ventana
-        root.setOpacity(0);
-        chatBotStage.show();
-        FadeTransition fadeIn = new FadeTransition(Duration.millis(300), root);
-        fadeIn.setFromValue(0);
-        fadeIn.setToValue(1);
-        fadeIn.play();
-        
-        // Efecto de rebote al botón flotante como confirmación
-        ScaleTransition rebote = new ScaleTransition(Duration.millis(150), btnChatBotFlotante);
-        rebote.setFromX(1.0);
-        rebote.setFromY(1.0);
-        rebote.setToX(1.2);
-        rebote.setToY(1.2);
-        rebote.setAutoReverse(true);
-        rebote.setCycleCount(2);
-        rebote.play();
-        
-        System.out.println("ChatBot abierto correctamente");
-    } catch (IOException e) {
-        System.err.println("Error al abrir el ChatBot: " + e.getMessage());
-        e.printStackTrace();
-        mostrarError(
-            "Error al abrir ChatBot", 
-            "No se pudo cargar la interfaz del ChatBot.\n\n" +
-            "Verifique que el archivo ChatBot.fxml existe en:\n" +
-            "src/main/resources/com/mycompany/stockflow/ChatBot.fxml\n\n" +
-            "Error: " + e.getMessage()
-        );
-    }
-}
-    }
+            }
