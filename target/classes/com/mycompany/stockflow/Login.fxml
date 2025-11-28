@@ -12,39 +12,34 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
-<StackPane fx:id="rootPane" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" 
-           fx:controller="com.mycompany.stockflow.LoginController"
-           style="-fx-background-color: #f0f0f0;">
+<StackPane fx:id="rootPane" style="-fx-background-color: #f0f0f0;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.stockflow.LoginController">
     <ImageView fitHeight="1080.0" fitWidth="1920.0" pickOnBounds="true" preserveRatio="false">
         <image>
-            <Image url="@IMG/25101.jpg" />
+            <Image url="@IMG/FONDO%20LOG.jpg" />
         </image>
     </ImageView>
     <HBox alignment="TOP_LEFT" pickOnBounds="false">
         <padding>
-            <Insets top="30.0" left="30.0" />
+            <Insets left="30.0" top="30.0" />
         </padding>
-        <Button fx:id="btnVolver" mnemonicParsing="false" onAction="#volverABienvenida"
-                style="-fx-background-color: rgba(255, 255, 255, 0.9); -fx-background-radius: 25; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0.3, 0, 2);"
-                prefHeight="50.0" prefWidth="140.0">
+        <Button fx:id="btnVolver" mnemonicParsing="false" onAction="#volverABienvenida" prefHeight="50.0" prefWidth="140.0" style="-fx-background-color: #FCF8F5; -fx-background-radius: 25; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0.3, 0, 2);">
             <graphic>
                 <HBox alignment="CENTER" spacing="8">
-                    <Label text="←" style="-fx-font-size: 20; -fx-text-fill: #2196F3; -fx-font-weight: bold;" />
-                    <Label text="Volver" style="-fx-font-size: 14; -fx-text-fill: #2196F3; -fx-font-weight: bold;" />
+                    <Label style="-fx-font-size: 20; -fx-text-fill: #2196F3; -fx-font-weight: bold;" text="←" />
+                    <Label style="-fx-font-size: 14; -fx-text-fill: #2196F3; -fx-font-weight: bold;" text="Volver" />
                 </HBox>
             </graphic>
         </Button>
     </HBox>
-    <Pane prefHeight="480.0" prefWidth="350.0" maxHeight="480.0" maxWidth="350.0"
-          style="-fx-background-color: rgba(255, 255, 255, 0.95); -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 20, 0, 0, 5);">
+    <Pane maxHeight="480.0" maxWidth="350.0" prefHeight="480.0" prefWidth="350.0" style="-fx-background-color: #FCF8F5; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 20, 0, 0, 5);">
         
         <children>
-            <Label layoutX="100.0" layoutY="40.0" text="Iniciar Sesión" textFill="#2196f3">
+            <Label layoutX="100.0" layoutY="40.0" text="Iniciar Sesión" textFill="#135c94">
                 <font>
                     <Font name="System Bold" size="24.0" />
                 </font>
             </Label>
-            <Label layoutX="102.0" layoutY="75.0" text="Bienvenido a StockFlow" textFill="#666666">
+            <Label layoutX="102.0" layoutY="75.0" text="Bienvenido a StockFlow" textFill="#f7f4f4">
                 <font>
                     <Font size="14.0" />
                 </font>
@@ -54,9 +49,7 @@
                     <Font name="System Bold" size="14.0" />
                 </font>
             </Label>
-            <TextField fx:id="txtUsuario" layoutX="30.0" layoutY="155.0" prefHeight="40.0" prefWidth="290.0" 
-                       promptText="Ingrese su usuario" 
-                       style="-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 8;">
+            <TextField fx:id="txtUsuario" layoutX="30.0" layoutY="155.0" prefHeight="40.0" prefWidth="290.0" promptText="Ingrese su usuario" style="-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 8;">
                 <font>
                     <Font size="14.0" />
                 </font>
@@ -67,16 +60,12 @@
                 </font>
             </Label>
             <StackPane layoutX="30.0" layoutY="240.0" prefHeight="40.0" prefWidth="290.0">
-                <PasswordField fx:id="txtPassword" prefHeight="40.0" prefWidth="290.0"
-                              promptText="Ingrese su contraseña" 
-                              style="-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 8 40 8 8;">
+                <PasswordField fx:id="txtPassword" prefHeight="40.0" prefWidth="290.0" promptText="Ingrese su contraseña" style="-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 8 40 8 8;">
                     <font>
                         <Font size="14.0" />
                     </font>
                 </PasswordField>
-                <TextField fx:id="txtPasswordVisible" prefHeight="40.0" prefWidth="290.0" visible="false"
-                          promptText="Ingrese su contraseña" 
-                          style="-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 8 40 8 8;">
+                <TextField fx:id="txtPasswordVisible" prefHeight="40.0" prefWidth="290.0" promptText="Ingrese su contraseña" style="-fx-background-radius: 5; -fx-border-color: #cccccc; -fx-border-radius: 5; -fx-padding: 8 40 8 8;" visible="false">
                     <font>
                         <Font size="14.0" />
                     </font>
@@ -85,39 +74,30 @@
                     <padding>
                         <Insets right="8" />
                     </padding>
-                    <Button fx:id="btnTogglePassword" mnemonicParsing="false" onAction="#togglePasswordVisibility"
-                            style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 5;"
-                            prefWidth="30.0" prefHeight="30.0">
+                    <Button fx:id="btnTogglePassword" mnemonicParsing="false" onAction="#togglePasswordVisibility" prefHeight="30.0" prefWidth="30.0" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 5;">
                         <graphic>
-                            <Label fx:id="lblEyeIcon" text="👁" style="-fx-font-size: 18; -fx-text-fill: #666666;" />
+                            <Label fx:id="lblEyeIcon" style="-fx-font-size: 18; -fx-text-fill: #666666;" text="👁" />
                         </graphic>
                     </Button>
                 </HBox>
             </StackPane>
-            <Label fx:id="lblError" layoutX="30.0" layoutY="290.0" prefWidth="290.0" 
-                   textAlignment="CENTER" textFill="RED" visible="false"
-                   wrapText="true">
+            <Label fx:id="lblError" layoutX="30.0" layoutY="290.0" prefWidth="290.0" textAlignment="CENTER" textFill="RED" visible="false" wrapText="true">
                 <font>
                     <Font size="12.0" />
                 </font>
             </Label>
-            <Button fx:id="btnLogin" layoutX="30.0" layoutY="330.0" mnemonicParsing="false" 
-                    onAction="#ini_sesion" prefHeight="45.0" prefWidth="290.0" 
-                    style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 14; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;" 
-                    text="INICIAR SESIÓN" textFill="#f7f3f3">
+            <Button fx:id="btnLogin" layoutX="30.0" layoutY="330.0" mnemonicParsing="false" onAction="#ini_sesion" prefHeight="45.0" prefWidth="290.0" style="-fx-background-color: #1254A6; -fx-text-fill: white; -fx-font-size: 14; -fx-font-weight: bold; -fx-background-radius: 5; -fx-cursor: hand;" text="INICIAR SESIÓN" textFill="#f7f3f3">
                 <font>
                     <Font name="System Bold" size="14.0" />
                 </font>
             </Button>
-            <Label fx:id="lblOlvidePassword" layoutX="95.0" layoutY="395.0" 
-                   style="-fx-cursor: hand; -fx-underline: true;" 
-                   text="¿Olvidaste tu contraseña?" textFill="#2196f3">
+            <Label fx:id="lblOlvidePassword" layoutX="95.0" layoutY="395.0" style="-fx-cursor: hand; -fx-underline: true;" text="¿Olvidaste tu contraseña?" textFill="#21689e">
                 <font>
                     <Font size="12.0" />
                 </font>
             </Label>
             <HBox alignment="CENTER" layoutX="0.0" layoutY="440.0" prefWidth="350.0" spacing="5">
-                <Label text="🔒" style="-fx-font-size: 12;" />
+                <Label style="-fx-font-size: 12;" text="🔒" textFill="#213f9e" />
                 <Label text="Conexión segura" textFill="#999999">
                     <font>
                         <Font size="11.0" />

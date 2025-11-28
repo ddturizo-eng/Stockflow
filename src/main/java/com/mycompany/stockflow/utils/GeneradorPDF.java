@@ -132,51 +132,73 @@ public class GeneradorPDF {
      * Este método es thread-safe y evita problemas con JavaFX threading
      */
     public void generarReporteCompletoConBytes(
-            String rutaArchivo,
-            String tipoAnalisis,
-            String analisisTexto,
-            String metricas,
-            List<byte[]> graficasBytes,
-            List<String> nombresGraficas) throws Exception {
-        
-        PdfWriter writer = new PdfWriter(rutaArchivo);
-        PdfDocument pdf = new PdfDocument(writer);
-        Document document = new Document(pdf, PageSize.A4);
-        document.setMargins(50, 50, 50, 50);
-        document.setFont(fuenteNormal);
-        
-        // PÁGINA DE PORTADA
-        agregarPortada(document, tipoAnalisis);
-        document.add(new AreaBreak());
-        
-        // CONTENIDO PRINCIPAL
-        agregarEncabezadoSeccion(document);
-        agregarInfoReporte(document, tipoAnalisis);
-        agregarLineaDivisoria(document);
-        
-        // Análisis de IA
-        if (analisisTexto != null && !analisisTexto.isEmpty()) {
-            agregarSeccionAnalisis(document, analisisTexto);
-        }
-        
-        // Métricas
-        if (metricas != null && !metricas.isEmpty()) {
-            agregarSeccionMetricas(document, metricas);
-        }
-        
-        // Gráficas en nueva página (usando bytes)
-        if (graficasBytes != null && !graficasBytes.isEmpty()) {
-            document.add(new AreaBreak());
-            agregarSeccionGraficasDesdeBytes(document, graficasBytes, nombresGraficas);
-        }
-        
-        // CRÍTICO: Agregar números de página ANTES de cerrar el documento
-        int totalPaginas = pdf.getNumberOfPages();
-        agregarNumerosPagina(pdf, totalPaginas);
-        
-        // Cerrar documento
-        document.close();
-    }
+         String rutaArchivo,
+         String tipoAnalisis,
+         String analisisTexto,
+         String metricas,
+         List<byte[]> graficasBytes,
+         List<String> nombresGraficas) throws Exception {
+
+     PdfWriter writer = null;
+     PdfDocument pdf = null;
+     Document document = null;
+
+     try {
+         writer = new PdfWriter(rutaArchivo);
+         pdf = new PdfDocument(writer);
+         document = new Document(pdf, PageSize.A4);
+         document.setMargins(50, 50, 50, 50);
+         document.setFont(fuenteNormal);
+
+         // PÁGINA DE PORTADA
+         agregarPortada(document, tipoAnalisis);
+         document.add(new AreaBreak());
+
+         // CONTENIDO PRINCIPAL
+         agregarEncabezadoSeccion(document);
+         agregarInfoReporte(document, tipoAnalisis);
+         agregarLineaDivisoria(document);
+
+         // Análisis de IA
+         if (analisisTexto != null && !analisisTexto.isEmpty()) {
+             agregarSeccionAnalisis(document, analisisTexto);
+         }
+
+         // Métricas
+         if (metricas != null && !metricas.isEmpty()) {
+             agregarSeccionMetricas(document, metricas);
+         }
+
+         // Gráficas en nueva página
+         if (graficasBytes != null && !graficasBytes.isEmpty()) {
+             document.add(new AreaBreak());
+             agregarSeccionGraficasDesdeBytes(document, graficasBytes, nombresGraficas);
+         }
+
+         // Agregar números de página
+         int totalPaginas = pdf.getNumberOfPages();
+         agregarNumerosPagina(pdf, totalPaginas);
+
+         // Cerrar documento
+         document.close();
+
+     } catch (Exception e) {
+         // Cerrar recursos en caso de error
+         if (document != null) {
+             try { document.close(); } catch (Exception ex) { ex.printStackTrace(); }
+         }
+         if (pdf != null) {
+             try { pdf.close(); } catch (Exception ex) { ex.printStackTrace(); }
+         }
+         if (writer != null) {
+             try { writer.close(); } catch (Exception ex) { ex.printStackTrace(); }
+         }
+         throw e;
+     } finally {
+         // Limpiar referencias
+         limpiarRecursos();
+     }
+ }
     
     /**
      * Crea una portada profesional para el reporte
@@ -705,5 +727,20 @@ public class GeneradorPDF {
             // Si no hay sesión activa
         }
         return "Administrador del Sistema";
+    }
+    
+        /**
+     * Limpia y libera todos los recursos del generador.
+     * Debe llamarse después de completar la generación del PDF.
+     */
+    public void limpiarRecursos() {
+        try {
+            fuenteTitulo = null;
+            fuenteNormal = null;
+            fuenteNegrita = null;
+            System.gc(); // Sugerencia al garbage collector
+        } catch (Exception e) {
+            System.err.println("Error limpiando recursos: " + e.getMessage());
+        }
     }
 }

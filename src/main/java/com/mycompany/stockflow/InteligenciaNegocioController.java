@@ -82,7 +82,7 @@ public class InteligenciaNegocioController {
     private VentaServicio ventaServicio;
     private ClienteServicio clienteServicio;
     private DatosGraficaServicio graficaServicio;
-    private com.mycompany.stockflow.utils.GeneradorPDF generadorPDF;
+    //private com.mycompany.stockflow.utils.GeneradorPDF generadorPDF;
     private AnalisisRepositorio analisisRepositorio;
     
     private ObservableList<Recomendacion> recomendaciones;
@@ -137,7 +137,7 @@ public class InteligenciaNegocioController {
         graficaServicio = new DatosGraficaServicio();
         recomendaciones = FXCollections.observableArrayList();
         analisisRepositorio = AnalisisRepositorio.getInstance();
-        generadorPDF = new com.mycompany.stockflow.utils.GeneradorPDF();
+        //generadorPDF = new com.mycompany.stockflow.utils.GeneradorPDF();
     }
     
     /**
@@ -1109,7 +1109,7 @@ public class InteligenciaNegocioController {
             mostrarAdvertencia("Sin Datos", "Debes generar un análisis primero");
             return;
         }
-        
+
         try {
             javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
             fileChooser.setTitle("Guardar Reporte PDF");
@@ -1170,10 +1170,25 @@ public class InteligenciaNegocioController {
             e.printStackTrace();
         }
     }
+        /**
+     * Crea una nueva instancia local de GeneradorPDF.
+     * Este método garantiza que cada PDF tenga su propia instancia del generador.
+     * 
+     * @return una nueva instancia de GeneradorPDF lista para usar
+     */
+    private com.mycompany.stockflow.utils.GeneradorPDF crearGeneradorPDFLocal() {
+        try {
+            return new com.mycompany.stockflow.utils.GeneradorPDF();
+        } catch (Exception e) {
+            System.err.println("Error creando instancia local de GeneradorPDF: " + e.getMessage());
+            return new com.mycompany.stockflow.utils.GeneradorPDF();
+        }
+    }
 
-    /**
+        /**
      * Exporta el análisis completo a formato PDF de forma asíncrona.
      * Captura snapshots de las gráficas en el hilo de JavaFX antes de generar el PDF.
+     * Crea una nueva instancia de GeneradorPDF para cada PDF generado.
      * 
      * @param rutaArchivo la ruta donde se guardará el archivo PDF
      */
@@ -1193,45 +1208,58 @@ public class InteligenciaNegocioController {
             final List<byte[]> graficasBytes = new ArrayList<>();
             final List<String> nombresGraficas = new ArrayList<>();
 
+            // Capturar gráfica 1: Tendencia de Ventas
             if (chartTendenciaVentas1 != null && chartTendenciaVentas1.isVisible()) {
                 try {
                     graficasBytes.add(convertirChartABytes(chartTendenciaVentas1));
-                    nombresGraficas.add(chartTendenciaVentas1.getTitle());
+                    nombresGraficas.add(chartTendenciaVentas1.getTitle() != null ? 
+                        chartTendenciaVentas1.getTitle() : "Tendencia de Ventas");
                 } catch (Exception e) {
-                    System.err.println("Error capturando gráfica 1: " + e.getMessage());
+                    System.err.println("Error capturando gráfica tendencia de ventas: " + e.getMessage());
                 }
             }
 
+            // Capturar gráfica 2: Top 5 Productos
             if (chartTop5Productos1 != null && chartTop5Productos1.isVisible()) {
                 try {
                     graficasBytes.add(convertirChartABytes(chartTop5Productos1));
-                    nombresGraficas.add(chartTop5Productos1.getTitle());
+                    nombresGraficas.add(chartTop5Productos1.getTitle() != null ? 
+                        chartTop5Productos1.getTitle() : "Productos Más Vendidos");
                 } catch (Exception e) {
-                    System.err.println("Error capturando gráfica 2: " + e.getMessage());
+                    System.err.println("Error capturando gráfica top productos: " + e.getMessage());
                 }
             }
 
+            // Capturar gráfica 3: Margen de Ganancia
             if (chartMargenGanancia != null && chartMargenGanancia.isVisible()) {
                 try {
                     graficasBytes.add(convertirChartABytes(chartMargenGanancia));
-                    nombresGraficas.add(chartMargenGanancia.getTitle());
+                    nombresGraficas.add(chartMargenGanancia.getTitle() != null ? 
+                        chartMargenGanancia.getTitle() : "Margen de Ganancia");
                 } catch (Exception e) {
-                    System.err.println("Error capturando gráfica 3: " + e.getMessage());
+                    System.err.println("Error capturando gráfica margen de ganancia: " + e.getMessage());
                 }
             }
 
+            // Capturar gráfica 4: Inventario Crítico
             if (chartTop5Productos2 != null && chartTop5Productos2.isVisible()) {
                 try {
                     graficasBytes.add(convertirChartABytes(chartTop5Productos2));
-                    nombresGraficas.add(chartTop5Productos2.getTitle());
+                    nombresGraficas.add(chartTop5Productos2.getTitle() != null ? 
+                        chartTop5Productos2.getTitle() : "Inventario Crítico");
                 } catch (Exception e) {
-                    System.err.println("Error capturando gráfica 4: " + e.getMessage());
+                    System.err.println("Error capturando gráfica inventario crítico: " + e.getMessage());
                 }
             }
 
+            // Generar PDF en un hilo separado
             new Thread(() -> {
                 try {
-                    generadorPDF.generarReporteCompletoConBytes(
+                    // CLAVE: Crear nueva instancia aquí, dentro del hilo
+                    com.mycompany.stockflow.utils.GeneradorPDF generadorLocal = 
+                        crearGeneradorPDFLocal();
+
+                    generadorLocal.generarReporteCompletoConBytes(
                         rutaArchivo,
                         tipoAnalisis,
                         analisisTexto,
@@ -1240,6 +1268,11 @@ public class InteligenciaNegocioController {
                         nombresGraficas
                     );
 
+                    // Limpiar recursos después de generar
+                    if (generadorLocal != null) {
+                        generadorLocal.limpiarRecursos();
+                    }
+                    abrirPDF(rutaArchivo);
                     Platform.runLater(() -> {
                         mostrarOverlayProgreso(false);
                         mostrarInfo("PDF Generado", 
@@ -1250,6 +1283,7 @@ public class InteligenciaNegocioController {
                     Platform.runLater(() -> {
                         mostrarOverlayProgreso(false);
                         mostrarError("Error al generar PDF", e.getMessage());
+                        e.printStackTrace();
                     });
                     e.printStackTrace();
                 }
@@ -1261,7 +1295,46 @@ public class InteligenciaNegocioController {
             e.printStackTrace();
         }
     }
+        /**
+     * Abre el PDF generado en el visor PDF del sistema (navegador o lector PDF).
+     * Este es el método más simple y confiable.
+     * 
+     * @param rutaArchivo la ruta completa del archivo PDF a abrir
+     */
+    private void abrirPDF(String rutaArchivo) {
+        try {
+            java.io.File archivo = new java.io.File(rutaArchivo);
 
+            if (!archivo.exists()) {
+                mostrarError("Archivo no encontrado", "El archivo PDF no existe en: " + rutaArchivo);
+                return;
+            }
+
+            // Usar Desktop para abrir el archivo con la aplicación predeterminada
+            if (java.awt.Desktop.isDesktopSupported()) {
+                java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
+
+                if (desktop.isSupported(java.awt.Desktop.Action.OPEN)) {
+                    desktop.open(archivo);
+                    System.out.println("PDF abierto: " + rutaArchivo);
+                } else {
+                    mostrarAdvertencia("No disponible", 
+                        "Tu sistema no puede abrir archivos PDF directamente.");
+                }
+            } else {
+                mostrarError("Error", 
+                    "Desktop no está soportado en tu sistema.");
+            }
+
+        } catch (java.io.IOException e) {
+            mostrarError("Error al abrir PDF", 
+                "No se pudo abrir el archivo: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            mostrarError("Error", "Error inesperado: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
     /**
      * Convierte una gráfica de JavaFX a bytes de imagen PNG.
      * Este método debe ejecutarse en el hilo de JavaFX.

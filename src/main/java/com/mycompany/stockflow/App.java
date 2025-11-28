@@ -12,6 +12,7 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import java.io.IOException;
+import javafx.scene.image.Image;
 
 /**
  * Clase principal de la aplicación StockFlow.
@@ -84,27 +85,34 @@ public class App extends Application {
      */
     @Override
     public void start(Stage stage) throws IOException {
-        primaryStage = stage;
-        
-        // Cargar pantalla de bienvenida como vista inicial
-        scene = new Scene(loadFXML("bienvenida"), 1100, 750);
-        
-        // Configuración de la ventana principal
-        primaryStage.setTitle("StockFlow - Sistema de Gestión de Inventario");
-        primaryStage.setResizable(true);
-        primaryStage.setMinWidth(800);
-        primaryStage.setMinHeight(600);
-        primaryStage.setScene(scene);
-        
-        // Configurar atajos de teclado (F11 para pantalla completa)
-        configurarAtajosTeclado();
-        
-        // Centrar ventana en la pantalla
-        primaryStage.centerOnScreen();
-        
-        // Mostrar ventana
-        primaryStage.show();
+    primaryStage = stage;
+    
+    // Cargar pantalla de bienvenida como vista inicial
+    scene = new Scene(loadFXML("bienvenida"), 1100, 750);
+   
+    try {
+        Image icon = new Image(getClass().getResourceAsStream("/com/mycompany/stockflow/IMG/app-icon.png"));
+        primaryStage.getIcons().add(icon);
+    } catch (Exception e) {
+        System.err.println("️ No se pudo cargar el ícono de la aplicación: " + e.getMessage());
     }
+    
+    // Configuración de la ventana principal
+    primaryStage.setTitle("StockFlow - Sistema de Gestión de Inventario");
+    primaryStage.setResizable(true);
+    primaryStage.setMinWidth(800);
+    primaryStage.setMinHeight(600);
+    primaryStage.setScene(scene);
+    
+    // Configurar atajos de teclado (F11 para pantalla completa)
+    configurarAtajosTeclado();
+    
+    // Centrar ventana en la pantalla
+    primaryStage.centerOnScreen();
+    
+    // Mostrar ventana
+    primaryStage.show();
+}
     
     /**
      * Configura los atajos de teclado globales de la aplicación.
@@ -146,7 +154,7 @@ public class App extends Application {
     @Deprecated
     public static void setRoot(String fxml) throws IOException {
         System.out.println(
-            "⚠️ Advertencia: setRoot() está deprecado. " +
+            " Advertencia: setRoot() está deprecado. " +
             "Use la navegación directa del controlador."
         );
         scene.setRoot(loadFXML(fxml));
